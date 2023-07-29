@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.ddit.mapper.EmpBbsMapper">
+
+<resultMap type="empBbsVO" id="empBbsMap">
+		<result property="pstId" column="PST_ID" />
+		<result property="frstWrterId" column="FRST_WRTER_ID" />
+		<result property="fsrtWritingTm" column="FSRT_WRITING_TM" />
+		<result property="pstSj" column="PST_SJ" />
+		<result property="pstCn" column="PST_CN" jdbcType="CLOB" javaType="java.lang.String" />
+		<result property="rdcnt" column="RDCNT" />
+		<result property="delYn" column="DEL_YN" />
+		<result property="atchmnflId" column="ATCHMNFL_ID" />
+		<result property="lastUpdusrId" column="LAST_UPDUSR_ID" />
+		<result property="lastUpdtTm" column="LAST_UPDT_TM" />
+	</resultMap>
+<!-- 	직원 게시판의 전체 게시물 -->
+	<select id="selectAll" resultMap="empBbsMap">
+		SELECT
+		PST_ID
+		, FRST_WRTER_ID
+		, FSRT_WRITING_TM
+		, PST_SJ
+		, PST_CN
+		, RDCNT
+		, DEL_YN
+		, ATCHMNFL_ID
+		, LAST_UPDUSR_ID
+		, LAST_UPDT_TM
+		FROM
+		EMP_BBS
+	</select>
+</mapper>

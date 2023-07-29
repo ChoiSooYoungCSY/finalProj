@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.ddit.mapper.HshldCmnuseMapper">
+
+
+<!--
+
+	수정일		수정자				수정내용
+  2023.07.09    임경빈				최초생성
+  2023.07.11    최수영				입주민 관리비 쿼리문 추가
+
+	author 최수영
+	since 2023.07.11
+
+ -->
+
+
+   <!-- 입주민 공용 관리비  -->
+	<select id="selectAll" resultType="hshldCmnuseVO" parameterType="memberVO">
+
+	SELECT
+	     A.MANAGECT_NO,
+	     A.HSHLD_INFO_NO,
+	     A.FRST_WRTER_ID,
+	     A.FSRT_WRITING_TM,
+	     A.RLVT_YM,
+	     A.MANAGECT_TOT,
+	     A.MANAGECT_WTR,
+	     A.MANAGECT_ELCTY,
+	     A.MANAGECT_HEAT,
+	     A.MANAGECT_CLN,
+	     A.MANAGECT_ELVTR,
+	     A.MANAGECT_SCRTY,
+	     A.MANAGE_OFFICE_ORPNS,
+	     A.MANAGECT_WRRTN,
+	     A.MANAGECT_REPAIR,
+	     A.MANAGECT_DSNF,
+	     A.MANAGECT_PRKPLCE,
+	     A.MANAGECT_PBLFCLT,
+	     A.MANAGECT_CALC_YMD,
+	     A.LAST_UPDUSR_ID,
+	     A.LAST_UPDT_TM
+	FROM
+	    HSHLD_CMNUSE A, MEMBER B
+	WHERE
+		A.HSHLD_INFO_NO = B.HSHLD_INFO_NO
+	AND
+	    DEL_YN = 'N' AND B.MEM_ID = #{memId}
+	ORDER BY
+		MANAGECT_NO DESC
+	</select>
+
+
+	<!-- 총 세대관리비를 연월로 검색한다. -->
+	<select id="selectOne" resultType="hshldCmnuseVO" parameterType="hshldCmnuseVO">
+	SELECT
+		 MANAGECT_NO,
+	     HSHLD_INFO_NO,
+	     FRST_WRTER_ID,
+	     FSRT_WRITING_TM,
+	     RLVT_YM,
+	     MANAGECT_TOT,
+	     MANAGECT_WTR,
+	     MANAGECT_ELCTY,
+	     MANAGECT_HEAT,
+	     MANAGECT_CLN,
+	     MANAGECT_ELVTR,
+	     MANAGECT_SCRTY,
+	     MANAGE_OFFICE_ORPNS,
+	     MANAGECT_WRRTN,
+	     MANAGECT_REPAIR,
+	     MANAGECT_DSNF,
+	     MANAGECT_PRKPLCE,
+	     MANAGECT_PBLFCLT,
+	     MANAGECT_CALC_YMD,
+	     LAST_UPDUSR_ID,
+	     LAST_UPDT_TM
+	FROM
+	    HSHLD_CMNUSE
+	WHERE
+	    DEL_YN = 'N'
+	AND
+	    RLVT_YM = #{rlvtYm}
+	AND
+		HSHLD_INFO_NO = #{hshldInfoNo}
+	</select>
+
+
+	<!-- 세대 공용관리비를 전체 조회한다. -->
+	<select id="selectAllHshldCmnuse" resultType="hshldCmnuseVO">
+		SELECT MANAGECT_NO, HSHLD_INFO_NO, FRST_WRTER_ID, FSRT_WRITING_TM, RLVT_YM
+		     , MANAGECT_TOT, MANAGECT_WTR, MANAGECT_ELCTY, MANAGECT_HEAT, MANAGECT_CLN
+		     , MANAGECT_ELVTR, MANAGECT_SCRTY, MANAGE_OFFICE_ORPNS, MANAGECT_WRRTN, MANAGECT_REPAIR
+		     , MANAGECT_DSNF, MANAGECT_PRKPLCE, MANAGECT_PBLFCLT, MANAGECT_CALC_YMD, LAST_UPDUSR_ID, LAST_UPDT_TM
+		  FROM HSHLD_CMNUSE
+		 WHERE DEL_YN = 'N'
+		 ORDER BY MANAGECT_NO DESC
+	</select>
+
+	<!-- 세대 공용관리비를 연월, 동호수로 검색한다. -->
+	<select id="selectOneHshldCmnuse" parameterType="hshldCmnuseVO" resultType="hshldCmnuseVO">
+		SELECT MANAGECT_NO, HSHLD_INFO_NO, FRST_WRTER_ID, FSRT_WRITING_TM, RLVT_YM
+		     , MANAGECT_TOT, MANAGECT_WTR, MANAGECT_ELCTY, MANAGECT_HEAT, MANAGECT_CLN
+		     , MANAGECT_ELVTR, MANAGECT_SCRTY, MANAGE_OFFICE_ORPNS, MANAGECT_WRRTN, MANAGECT_REPAIR
+		     , MANAGECT_DSNF, MANAGECT_PRKPLCE, MANAGECT_PBLFCLT, MANAGECT_CALC_YMD, LAST_UPDUSR_ID, LAST_UPDT_TM
+		  FROM HSHLD_CMNUSE
+		 WHERE DEL_YN = 'N'
+		   AND RLVT_YM = #{rlvtYm}
+		   AND HSHLD_INFO_NO = #{hshldInfoNo}
+		 ORDER BY MANAGECT_NO DESC
+	</select>
+
+	<!-- 세대 공용관리비를 등록 및 업데이트한다. -->
+	<insert id="saveHshldCmnuse" parameterType="hshldCmnuseVO">
+
+		<selectKey resultType="int" order="BEFORE" keyProperty="managectNo">
+			SELECT NVL(MAX(MANAGECT_NO), 0) + 1 FROM HSHLD_CMNUSE
+		</selectKey>
+
+		MERGE INTO HSHLD_CMNUSE A
+		USING DUAL ON(A.RLVT_YM = #{rlvtYm} AND A.HSHLD_INFO_NO = #{hshldInfoNo})
+		WHEN MATCHED THEN
+		    UPDATE SET MANAGECT_TOT = #{managectTot}
+		         , MANAGECT_WTR = #{managectWtr}
+		         , MANAGECT_ELCTY = #{managectElcty}
+		         , MANAGECT_HEAT = #{managectHeat}
+		         , MANAGECT_CLN = #{managectCln}
+		         , MANAGECT_ELVTR = #{managectElvtr}
+		         , MANAGECT_SCRTY = #{managectScrty}
+		         , MANAGE_OFFICE_ORPNS = #{manageOfficeOrpns}
+		         , MANAGECT_WRRTN = #{managectWrrtn}
+		         , MANAGECT_REPAIR = #{managectRepair}
+		         , MANAGECT_DSNF = #{managectDsnf}
+		         , MANAGECT_PRKPLCE = #{managectPrkplce}
+		         , MANAGECT_PBLFCLT = #{managectPblfclt}
+		         , MANAGECT_CALC_YMD = (TO_CHAR(TRUNC(SYSDATE, 'MONTH'), 'YYYYMMDD') || '-' || TO_CHAR(LAST_DAY(SYSDATE), 'YYYYMMDD'))
+		         , LAST_UPDUSR_ID = 'AL001'
+		         , LAST_UPDT_TM = TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24:MI:SS')
+		WHEN NOT MATCHED THEN
+		    INSERT (MANAGECT_NO, HSHLD_INFO_NO, FRST_WRTER_ID, FSRT_WRITING_TM, RLVT_YM
+		    	 , MANAGECT_TOT, MANAGECT_WTR, MANAGECT_ELCTY, MANAGECT_HEAT, MANAGECT_CLN
+		    	 , MANAGECT_ELVTR, MANAGECT_SCRTY, MANAGE_OFFICE_ORPNS, MANAGECT_WRRTN, MANAGECT_REPAIR
+		    	 , MANAGECT_DSNF, MANAGECT_PRKPLCE, MANAGECT_PBLFCLT, MANAGECT_CALC_YMD, LAST_UPDUSR_ID
+		    	 , LAST_UPDT_TM, DEL_YN)
+		    VALUES ((SELECT NVL(MAX(MANAGECT_NO), 0) + 1 FROM HSHLD_CMNUSE)
+		         , #{hshldInfoNo}
+		         , 'AL001'
+		         , TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24:MI:SS')
+		         , #{rlvtYm}
+		         , #{managectTot}
+		         , #{managectWtr}
+		         , #{managectElcty}
+		         , #{managectHeat}
+		         , #{managectCln}
+		         , #{managectElvtr}
+		         , #{managectScrty}
+		         , #{manageOfficeOrpns}
+		         , #{managectWrrtn}
+		         , #{managectRepair}
+		         , #{managectDsnf}
+		         , #{managectPrkplce}
+		         , #{managectPblfclt}
+		         , (TO_CHAR(TRUNC(SYSDATE, 'MONTH'), 'YYYYMMDD') || '-' || TO_CHAR(LAST_DAY(SYSDATE), 'YYYYMMDD'))
+		         , 'AL001'
+		         , TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24:MI:SS')
+		         , 'N')
+	</insert>
+
+</mapper>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

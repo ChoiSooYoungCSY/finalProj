@@ -1,0 +1,229 @@
+package kr.or.ddit.emp.pa.mngaccnt;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+
+import org.json.simple.JSONArray;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import freemarker.core.ParseException;
+import kr.or.ddit.mem.cmnt.club.ClubService;
+import kr.or.ddit.util.ArticlePage;
+import kr.or.ddit.vo.BankVO;
+import kr.or.ddit.vo.ClubVO;
+import kr.or.ddit.vo.DeptVO;
+import kr.or.ddit.vo.EmpVO;
+import kr.or.ddit.vo.JobGradeVO;
+import kr.or.ddit.vo.MemberVO;
+import kr.or.ddit.vo.ScndhdBbsVO;
+import lombok.extern.slf4j.Slf4j;
+
+/**
+ * @Class Name : MngAccountController.java.java
+ * @Description : MngAccountController.java Class
+ * @Modification Information
+ * @
+ * @   수정일        수정자                  수정내용
+ * @ ---------   ---------   -------------------------------
+ * @ 2023.07.12         				  최초생성
+ *
+ * @author 김도희
+ * @since 2023.07.12
+ * @version 1.0
+ * @see
+ */
+
+@Slf4j
+@RequestMapping("/emp/pa/mngaccnts")
+@Controller
+public class MngAccountController {
+
+	@Autowired
+	MngAccountService mngAccountService;
+
+	/** 인사행정 - 계정 관리 - 직원계정 관리 */
+	@GetMapping("")
+	public String mngEmpAccount() {
+		log.info("mngEmpAccount");
+
+		return "emp/pa_mng_emp_account";
+	}
+
+	/** 인사행정 - 계정 관리 - 직원계정 불러오기 */
+	@ResponseBody
+	@GetMapping("/empAccount")
+	@CrossOrigin(origins = "*", allowedHeaders = "*", methods = { RequestMethod.GET, RequestMethod.POST,
+			RequestMethod.PUT, RequestMethod.DELETE })
+	public JSONArray empAccount() {
+		log.info("empAccount");
+
+		return (JSONArray) this.mngAccountService.selectAllEmp();
+	}
+
+	/** 인사행정 - 계정 관리 - 특정 직원계정 불러오기 */
+	@GetMapping("/detail")
+	public String mngEmpAccountDetail(Model model, @RequestParam("empId") String empId) {
+	    log.info("mngEmpAccountDetail");
+
+	    EmpVO empVO = this.mngAccountService.selectEmp(empId);
+	    log.info("empVO", empVO);
+
+	    model.addAttribute("detailEmp", empVO);
+
+	    return "emp/pa_mng_emp_account_detail";
+	}
+
+	/** 인사행정 - 계정 관리 - 특정 직원계정 수정하기 */
+	@ResponseBody
+	@PostMapping(value = "/detailPost", produces = "text/html; charset=UTF-8")
+	public String mngEmpAccountDetailPost(EmpVO empVO) {
+	    log.info("mngEmpAccountDetailPost");
+
+	    int cnt = this.mngAccountService.editEmpInfo(empVO);
+		if(cnt >= 3) {
+			return "<script>alert('직원정보 수정 성공!'); location.href='/emp/pa/mngaccnts/detail?empId=" + empVO.getEmpId() +"';</script>";
+		} else {
+			return "<script>alert('직원정보 수정 실패'); location.href='/emp/pa/mngaccnts/detail?empId=" + empVO.getEmpId() +"';</script>";
+		}
+	}
+
+	/** 인사행정 - 계정 관리 - 직원 추가 */
+	@GetMapping("/register")
+	public String register() {
+	    log.info("mngEmpAccountDetail");
+
+	    return "emp/pa_mng_emp_account_register";
+	}
+
+	/** 인사행정 - 계정 관리 - 직원 추가 - 아이디 중복확인*/
+	@ResponseBody
+	@GetMapping("/empCheckId")
+	public int empCheckId(@RequestParam String empId) {
+		log.info("empCheckId : 직원추가 아이디 중복체크");
+
+		int cnt = this.mngAccountService.checkEmpId(empId);
+		log.info("cnt : " + cnt);
+
+		return cnt;
+	}
+
+	/** 인사행정 - 계정 관리 - 직원 추가 - 부서코드 가져오기 */
+	@ResponseBody
+	@GetMapping("/dept")
+	public List<DeptVO> dept() {
+		log.info("dept");
+
+		return this.mngAccountService.selectDept();
+	}
+
+	/** 인사행정 - 계정 관리 - 직원 추가 - 직급코드 가져오기 */
+	@ResponseBody
+	@GetMapping("/jbgd")
+	public List<JobGradeVO> jbgd() {
+		log.info("jbgd");
+
+		return this.mngAccountService.selectJbgd();
+	}
+
+	/** 인사행정 - 계정 관리 - 직원 추가 - 은행코드 가져오기 */
+	@ResponseBody
+	@GetMapping("/bank")
+	public List<BankVO> bank() {
+		log.info("mngEmpAccountDetail");
+
+		return this.mngAccountService.selectBank();
+	}
+
+	/** 인사행정 - 계정 관리 - 직원 추가 Post */
+	@ResponseBody
+	@PostMapping(value = "/registerPost", produces = "text/html; charset=UTF-8")
+	public String registerPost(@ModelAttribute EmpVO empVO) {
+	    log.info("registerPost");
+	    log.debug("empVO : {}", empVO);
+
+	    int cnt = this.mngAccountService.registerEmp(empVO);
+
+	    if(cnt >= 1) {
+			return "1";
+		} else {
+			return "0";
+		}
+	}
+
+	/** 인사행정 - 계정 관리 - 직원 추가 문자 보내기 */
+	@ResponseBody
+	@PostMapping("/registerEmp")
+	public String registerEmp(@RequestBody EmpVO empVO) { // 휴대폰 문자보내기
+		log.info("registerEmp : 핸드폰 인증 체크 " + empVO);
+
+		mngAccountService.sendPassword(empVO.getEmpPhoneNo(), empVO.getEmpNm(), empVO.getEmpId() ,empVO.getPassword());
+
+		return "1";
+	}
+
+	/** 인사행정 - 계정 관리 - 특정 직원계정 삭제하기(비활성화) */
+	@ResponseBody
+	@PostMapping("/delete")
+	public String mngEmpAccountDelete(@RequestBody EmpVO empVO) {
+	    log.info("mngEmpAccountDelete");
+
+	    int cnt = this.mngAccountService.deleteEmp(empVO);
+	    log.info("empVO", empVO);
+
+	    if(cnt >= 1) {
+			return "1";
+		} else {
+			return "0";
+		}
+	}
+
+
+
+
+
+
+//	/** 인사행정 - 계정 관리 - 직원계정 관리 - 직원계정 등록 */
+//	@ResponseBody
+//	@GetMapping("/confirm")
+//	public String confirm(String clbId) {
+//		log.info("clbId : " + clbId);
+//
+//		int result = this.mngAccountService.confirm(clbId);
+//		log.info("result : " + result);
+//
+//		return String.valueOf(result);
+//	}
+
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

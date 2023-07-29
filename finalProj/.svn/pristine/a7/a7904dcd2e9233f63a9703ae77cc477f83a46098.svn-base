@@ -1,0 +1,21 @@
+package kr.or.ddit.mapper;
+
+import java.util.List;
+import java.util.Map;
+
+import kr.or.ddit.vo.FreeBbsCmntVO;
+
+public interface FreeBbsCmntMapper {
+
+	// 자유게시판에 글 등록하기
+	public int registerPost(FreeBbsCmntVO freeBbsCmntVO);
+
+	//전체 글 수 구하기
+	public int getTotal(Map<String, String> map);
+
+	//페이징처리 시 Map에 currentPage와 size(한페이지에 보여줄 개수)를 추가한 후 목록불러오기
+	public List<FreeBbsCmntVO> list(Map<String, String> map);
+
+
+
+}

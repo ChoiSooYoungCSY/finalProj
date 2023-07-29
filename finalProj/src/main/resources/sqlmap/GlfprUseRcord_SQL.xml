@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.ddit.mapper.GlfprUseRcordMapper">
+	<select id="selectByIdGlfpr" parameterType="memberVO" resultType="glfprUseRcordVO">
+		SELECT
+			RCORD_NO
+			, ROOM_NO
+			, MEM_ID
+			, USE_YMD
+			, START_TM
+			, END_TM
+		FROM
+			GLFPR_USE_RCORD WHERE MEM_ID = #{memId}
+	</select>
+
+
+		<!-- 사용자가 골프장 예약 -->
+	<insert id="resVationGolfRoom" parameterType="glfprUseRcordVO">
+		INSERT INTO GLFPR_USE_RCORD
+					(
+					RCORD_NO,
+					ROOM_NO,
+					MEM_ID,
+					USE_YMD,
+					START_TM,
+					END_TM
+					)
+				VALUES
+				(
+				(SELECT NVL(MAX(RCORD_NO), 0) + 1 FROM GLFPR_USE_RCORD),
+				#{roomNo},
+				#{memId},
+				#{useYmd},
+				#{startTm},
+				#{endTm}
+				)
+	</insert>
+
+
+	<!-- 골프장 사용자가 예약 취소했을때 -->
+	<delete id="deleteRoom" parameterType="glfprUseRcordVO">
+	DELETE FROM
+		GLFPR_USE_RCORD
+	WHERE
+		RCORD_NO = #{rcordNo}
+	</delete>
+
+
+	<!-- 테이블에 뿌려줄 예약상태인 정보 -->
+	<select id="puttingRoomY" resultType="glfprUseRcordVO">
+		SELECT
+		    A.RCORD_NO,
+		    A.ROOM_NO,
+		    A.MEM_ID,
+		    A.USE_YMD,
+		    A.START_TM,
+		    A.END_TM,
+		    B.USE_YN
+		FROM
+			GLFPR_USE_RCORD A
+		INNER JOIN
+			PUTTING_ROOM_INFO B ON A.ROOM_NO = B.ROOM_N
+			O
+		WHERE
+			USE_YN = 'Y'
+		AND
+			A.ROOM_NO = #{roomNo}
+	</select>
+
+</mapper>

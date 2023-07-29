@@ -1,0 +1,20 @@
+package kr.or.ddit.mapper;
+
+import java.util.List;
+
+import kr.or.ddit.vo.EmailVO;
+
+public interface EmailMapper {
+
+	public List<EmailVO> selectEmailSendList(String frstWrterId);
+	public List<EmailVO> selectEmailReceiveList(String email);
+	public List<EmailVO> selectEmailSelfList(EmailVO emailVO);
+
+	public int sendEmail(EmailVO emailVO);
+	public int readUpdateEmail(String check);
+	public int delUpdateEmail(String check);
+	public int favoriteUpdateEmail(EmailVO emailVO);
+	public int favoritesClear(EmailVO emailVO);
+	public EmailVO emailDetail(EmailVO emailVO);
+
+}

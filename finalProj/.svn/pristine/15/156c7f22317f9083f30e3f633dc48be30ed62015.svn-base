@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.ddit.mapper.VoteBbsMapper">
+
+	<resultMap type="voteBbsVO" id="voteBbsMap">
+		<result property="voteNo" column="VOTE_NO" />
+		<result property="frstWrterId" column="FRST_WRTER_ID" />
+		<result property="frstWritingTm" column="FSRT_WRITING_TM" />
+		<result property="voteSj" column="VOTE_SJ" />
+		<result property="voteCn" column="VOTE_CN" jdbcType="CLOB" javaType="java.lang.String" />
+		<result property="beginTm" column="BEGIN_TM" />
+		<result property="endTm" column="END_TM" />
+		<result property="voteResult" column="VOTE_RESULT" />
+		<result property="delYn" column="DEL_YN" />
+		<result property="lastUpdusrId" column="LAST_UPDUSR_ID" />
+		<result property="lastUpdtTm" column="LAST_UPDT_TM" />
+		<result property="voteNtsl" column="VOTE_NTSL" />
+	</resultMap>
+
+	<!-- 투표 목록 -->
+	<select id="selectAllList" resultMap="voteBbsMap">
+	SELECT
+	    VOTE_NO,
+	    FRST_WRTER_ID,
+	    FRST_WRITING_TM,
+	    VOTE_SJ,
+	    VOTE_CN,
+	    BEGIN_TM,
+	    END_TM,
+	    VOTE_RESULT,
+	    LAST_UPDUSR_ID,
+	    LAST_UPDT_TM,
+	    VOTE_NTSL
+	FROM
+	    VOTE_BBS
+	WHERE DEL_YN = 'N'
+	</select>
+
+	<!-- 진행중 투표 목록 -->
+	<select id="voteIng" parameterType="voteBbsVO" resultMap="voteBbsMap">
+	SELECT
+	    VOTE_NO,
+	    FRST_WRTER_ID,
+	    FRST_WRITING_TM,
+	    VOTE_SJ,
+	    VOTE_CN,
+	    BEGIN_TM,
+	    END_TM,
+	    VOTE_RESULT,
+	    LAST_UPDUSR_ID,
+	    LAST_UPDT_TM,
+	    VOTE_NTSL
+	FROM
+	    VOTE_BBS
+	WHERE
+        DEL_YN = 'N'
+    AND
+        VOTE_NTSL = '투표중'
+	</select>
+
+
+
+
+
+</mapper>

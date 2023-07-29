@@ -1,0 +1,15 @@
+package kr.or.ddit.vo;
+
+import lombok.Data;
+
+@Data
+public class BookVO {
+	private int rnum;
+	private int bookNo;
+	private String bookSeCd;
+	private String bookSj;
+	private String authr;
+	private int invntry;
+	private String bookImg;
+	private int loanflag;
+}

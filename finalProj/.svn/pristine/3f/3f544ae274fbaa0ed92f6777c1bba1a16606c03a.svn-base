@@ -1,0 +1,14 @@
+package kr.or.ddit.emp.email.trash;
+
+import java.util.List;
+
+import kr.or.ddit.vo.EmailVO;
+
+public interface TrashMailService {
+
+
+	public List<EmailVO> selectEmailSendList(String email);
+	public int delUpdateEmail(List<String> checkEmailList);
+	public int favoriteUpdateEmail(EmailVO emailVO);
+	public int favoritesClear(EmailVO emailVO);
+}

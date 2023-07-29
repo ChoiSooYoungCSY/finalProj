@@ -1,0 +1,29 @@
+package kr.or.ddit.mapper;
+
+import java.util.List;
+
+import kr.or.ddit.vo.MemberVO;
+import kr.or.ddit.vo.ReviewVO;
+import kr.or.ddit.vo.RstrntVO;
+
+public interface AIMapper {
+
+	//식당 추천
+
+	//전체 등록된 주변 식당의 수
+	public RstrntVO rstrntCount();
+	//식당 분류별 식당의 수
+	public List<RstrntVO> rstrntCntBySe();
+	//등록된 전체 식당 리뷰 수
+	public RstrntVO rstrntReviewCnt();
+	//등록된 식당 중 리뷰 수가 가장 많은 탑 10 식당 정보
+	public List<RstrntVO> bestReviewCntRstrnt();
+
+	public List<ReviewVO> selectReviewCountByGender(String rstrntId);
+
+	//가입한 입주민의 남자, 여자 수
+	public MemberVO selectAllGenderCnt();
+
+	//가입한 입주민의 연령통계
+	public MemberVO selectAllMemberAgeCnt();
+}

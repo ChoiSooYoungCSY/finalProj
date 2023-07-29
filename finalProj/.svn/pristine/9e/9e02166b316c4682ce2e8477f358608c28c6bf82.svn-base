@@ -1,0 +1,22 @@
+package kr.or.ddit.vo;
+
+import lombok.Data;
+
+@Data
+public class HshldManagectVO {
+	private int managectNo;
+	private int hshldInfoNo;
+	private String frstWrterId;
+	private String fsrtWritingTm;
+	private String rlvtYm;
+	private int managectElcty;
+	private int managectGas;
+	private int managectWtr;
+	private int managectHeat;
+	private int managectHotWater;
+	private int managectEnergy;
+	private int managectAccrue;
+	private String lastUpdusrId;
+	private String lastUpdtTm;
+	private String delYn;
+}

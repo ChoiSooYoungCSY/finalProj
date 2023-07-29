@@ -1,0 +1,455 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.ddit.mapper.EmailMapper">
+
+	<resultMap type="emailVO" id="emailMap">
+		<result property="emlId" column="EML_ID" />
+		<result property="frstWrterId" column="FRST_WRTER_ID" />
+		<result property="fsrtWritingTm" column="FSRT_WRITING_TM" />
+		<result property="dsptchEml" column="DSPTCH_EML" />
+		<result property="rcptnEml" column="RCPTN_EML" />
+		<result property="emlCn" column="EML_CN" jdbcType="CLOB"
+			javaType="java.lang.String" />
+		<result property="sndptySttsCd" column="SNDPTY_STTS_CD" />
+		<result property="rcvrSttsCd" column="RCVR_STTS_CD" />
+		<result property="atchmnflId" column="ATCHMNFL_ID" />
+		<result property="lastUpdusrId" column="LAST_UPDUSR_ID" />
+		<result property="lastUpdtTm" column="LAST_UPDT_TM" />
+		<result property="emlTitle" column="EML_TITLE" />
+	</resultMap>
+
+
+	<!-- 보낸 이메일 총개수 (내게 보낸 메일, 삭제 메일, 임시저장 메일 제외) -->
+	<select id="sendTotal" parameterType="string" resultType="int">
+		SELECT
+		count(*)
+		FROM
+		EMAIL A, EMP B
+		WHERE
+		A.FRST_WRTER_ID
+		= B.EMP_ID AND
+		NOT
+		A.RCPTN_EML = #{value} AND
+		A.DSPTCH_EML = #{value} AND
+		NOT A.RCVR_STTS_CD = 'ESMS03' AND
+		NOT A.SNDPTY_STTS_CD = 'ESMS05'
+	</select>
+	<!-- 보낸 메일 목록 (내게쓴 메일, 삭제 메일, 임시저장 메일 제외) -->
+	<select id="selectEmailSendList" resultMap="emailMap"
+		parameterType="hashMap">
+		WITH T AS (
+		SELECT ROW_NUMBER() OVER(ORDER BY
+		A.LAST_UPDT_TM DESC) AS RNUM
+		, A.EML_ID
+		, A.FRST_WRTER_ID
+		, B.EMP_NM
+		, A.FSRT_WRITING_TM
+		, A.DSPTCH_EML
+		, A.RCPTN_EML
+		, A.EML_CN
+		, A.SNDPTY_STTS_CD
+		, A.RCVR_STTS_CD
+		, A.ATCHMNFL_ID
+		, A.LAST_UPDUSR_ID
+		, A.LAST_UPDT_TM
+		, A.EML_TITLE
+		FROM
+		EMAIL A, EMP B
+		WHERE
+		A.FRST_WRTER_ID = B.EMP_ID AND
+		NOT A.RCPTN_EML = #{email} AND A.DSPTCH_EML = #{email} AND
+		NOT A.SNDPTY_STTS_CD = 'ESMS03' AND
+		NOT A.SNDPTY_STTS_CD = 'ESMS05'
+		)
+		SELECT T.*
+		FROM T
+		WHERE T.RNUM BETWEEN
+		(#{currentPage} * #{size}) -
+		(#{size} - 1)
+		AND (#{currentPage} *
+		#{size})
+	</select>
+
+
+
+
+
+	<!-- 받은 이메일 총개수 (내게 보낸 메일, 삭제 메일, 임시저장 메일 제외) -->
+	<select id="receiveTotal" parameterType="string"
+		resultType="int">
+		SELECT
+		count(*)
+		FROM
+		EMAIL A, EMP B
+		WHERE
+		A.FRST_WRTER_ID
+		=
+		B.EMP_ID AND
+		A.RCPTN_EML = #{value} AND NOT
+		A.DSPTCH_EML = #{value} AND
+		NOT A.RCVR_STTS_CD = 'ESMS03' AND
+		NOT A.SNDPTY_STTS_CD = 'ESMS05'
+	</select>
+	<!-- 받은 이메일 목록 (내게 보낸 메일, 삭제 메일, 임시저장 메일 제외) -->
+	<select id="selectEmailReceiveList" resultMap="emailMap"
+		parameterType="hashMap">
+		WITH T AS (
+		SELECT ROW_NUMBER() OVER(ORDER BY
+		A.LAST_UPDT_TM DESC) AS RNUM
+		, A.EML_ID
+		, A.FRST_WRTER_ID
+		, B.EMP_NM
+		,
+		A.FSRT_WRITING_TM
+		, A.DSPTCH_EML
+		, A.RCPTN_EML
+		, A.EML_CN
+		,
+		A.SNDPTY_STTS_CD
+		, A.RCVR_STTS_CD
+		, A.ATCHMNFL_ID
+		, A.LAST_UPDUSR_ID
+		,
+		A.LAST_UPDT_TM
+		, A.EML_TITLE
+		FROM
+		EMAIL A, EMP B
+		WHERE
+		A.FRST_WRTER_ID =
+		B.EMP_ID AND
+		A.RCPTN_EML = #{email} AND
+		NOT A.DSPTCH_EML = #{email} AND
+		NOT A.RCVR_STTS_CD = 'ESMS03' AND
+		NOT A.SNDPTY_STTS_CD = 'ESMS05'
+		)
+		SELECT T.*
+		FROM T
+		WHERE T.RNUM BETWEEN
+		(#{currentPage} * #{size}) -
+		(#{size} - 1)
+		AND (#{currentPage} *
+		#{size})
+	</select>
+
+
+
+
+	<!-- 내게 쓴 이메일 총개수 (삭제 메일, 임시저장 메일 제외) -->
+	<select id="selfTotal" parameterType="string" resultType="int">
+		SELECT
+		count(*)
+		FROM
+		EMAIL A, EMP B
+		WHERE
+		A.FRST_WRTER_ID
+		= B.EMP_ID AND
+		A.RCPTN_EML = #{value} AND
+		A.DSPTCH_EML = #{value} AND
+		NOT A.RCVR_STTS_CD = 'ESMS03' AND
+		NOT A.SNDPTY_STTS_CD = 'ESMS05'
+	</select>
+	<!-- 내게 쓴 이메일 목록 (삭제 메일, 임시저장 메일 제외) -->
+	<select id="selectEmailSelfList" resultMap="emailMap"
+		parameterType="hashMap">
+		WITH T AS (
+		SELECT ROW_NUMBER() OVER(ORDER BY
+		A.LAST_UPDT_TM DESC) AS RNUM
+		, A.EML_ID
+		, A.FRST_WRTER_ID
+		, B.EMP_NM
+		, A.FSRT_WRITING_TM
+		, A.DSPTCH_EML
+		, A.RCPTN_EML
+		, A.EML_CN
+		, A.SNDPTY_STTS_CD
+		, A.RCVR_STTS_CD
+		, A.ATCHMNFL_ID
+		, A.LAST_UPDUSR_ID
+		, A.LAST_UPDT_TM
+		, A.EML_TITLE
+		FROM
+		EMAIL A, EMP B
+		WHERE
+		A.FRST_WRTER_ID = B.EMP_ID AND
+		A.FRST_WRTER_ID = #{frstWrterId} AND
+		A.RCPTN_EML = #{rcptnEml}  AND
+		NOT A.RCVR_STTS_CD = 'ESMS03' AND
+		NOT A.SNDPTY_STTS_CD = 'ESMS05'
+		)
+		SELECT T.*
+		FROM T
+		WHERE T.RNUM BETWEEN
+		(#{currentPage} *
+		#{size}) -
+		(#{size} - 1)
+		AND (#{currentPage} * #{size})
+	</select>
+
+
+	<!-- 삭제한 메일 -->
+	<select id="trashTotal" parameterType="string" resultType="int">
+		SELECT COUNT(*)
+		FROM EMAIL A
+		INNER JOIN EMP B ON A.FRST_WRTER_ID = B.EMP_ID
+		WHERE (A.DSPTCH_EML = #{value} AND A.SNDPTY_STTS_CD = 'ESMS03')
+   		OR (A.RCPTN_EML = #{value} AND A.RCVR_STTS_CD = 'ESMS03')
+	</select>
+	<!-- 삭제한 이메일 목록 (삭제 메일, 임시저장 메일 제외) -->
+	<select id="selectEmailTrashList" resultMap="emailMap"
+		parameterType="hashMap">
+		WITH T AS (
+		SELECT ROW_NUMBER() OVER(ORDER BY
+		A.LAST_UPDT_TM DESC) AS RNUM
+		, A.EML_ID
+		, A.FRST_WRTER_ID
+		, B.EMP_NM
+		, A.FSRT_WRITING_TM
+		, A.DSPTCH_EML
+		, A.RCPTN_EML
+		, A.EML_CN
+		, A.SNDPTY_STTS_CD
+		, A.RCVR_STTS_CD
+		, A.ATCHMNFL_ID
+		, A.LAST_UPDUSR_ID
+		, A.LAST_UPDT_TM
+		, A.EML_TITLE
+		FROM EMAIL A
+		INNER JOIN EMP B ON A.FRST_WRTER_ID = B.EMP_ID
+		WHERE (A.DSPTCH_EML = #{email} AND A.SNDPTY_STTS_CD = 'ESMS03')
+   		OR (A.RCPTN_EML = #{email} AND A.RCVR_STTS_CD = 'ESMS03')
+		)
+		SELECT T.*
+		FROM T
+		WHERE T.RNUM BETWEEN
+		(#{currentPage} *
+		#{size}) -
+		(#{size} - 1)
+		AND (#{currentPage} * #{size})
+	</select>
+
+	<!-- 임시저장 메일 -->
+	<select id="imsiTotal" parameterType="string" resultType="int">
+		SELECT
+		count(*)
+		FROM
+		EMAIL A, EMP B
+		WHERE
+		A.FRST_WRTER_ID = B.EMP_ID AND
+		A.DSPTCH_EML = #{value} AND
+		A.SNDPTY_STTS_CD = 'ESMS05'
+	</select>
+
+	<!-- 임시 저장 이메일 목록 (삭제 메일 제외) -->
+	<select id="selectEmailImsiList" resultMap="emailMap"
+		parameterType="hashMap">
+		WITH T AS (
+		SELECT ROW_NUMBER() OVER(ORDER BY
+		A.LAST_UPDT_TM DESC) AS RNUM
+		, A.EML_ID
+		, A.FRST_WRTER_ID
+		, B.EMP_NM
+		, A.FSRT_WRITING_TM
+		, A.DSPTCH_EML
+		, A.RCPTN_EML
+		, A.EML_CN
+		, A.SNDPTY_STTS_CD
+		, A.RCVR_STTS_CD
+		, A.ATCHMNFL_ID
+		, A.LAST_UPDUSR_ID
+		, A.LAST_UPDT_TM
+		, A.EML_TITLE
+		FROM
+		EMAIL A, EMP B
+		WHERE
+		A.FRST_WRTER_ID = B.EMP_ID AND
+		A.DSPTCH_EML = #{dsptchEml} AND
+		A.SNDPTY_STTS_CD = 'ESMS05'
+		)
+		SELECT T.*
+		FROM T
+		WHERE T.RNUM BETWEEN
+		(#{currentPage} *
+		#{size}) -
+		(#{size} - 1)
+		AND (#{currentPage} * #{size})
+	</select>
+
+	<!-- 즐겨찾기 메일 -->
+	<select id="favoriteTotal" parameterType="string" resultType="int">
+		SELECT COUNT(*)
+		FROM EMAIL A
+		INNER JOIN EMP B ON A.FRST_WRTER_ID = B.EMP_ID
+		WHERE (A.DSPTCH_EML = #{value} AND A.SNDPTY_STTS_CD = 'ESMS04')
+   		OR (A.RCPTN_EML = #{value} AND A.RCVR_STTS_CD = 'ESMS04')
+	</select>
+
+	<!-- 즐겨찾기 이메일 목록 (삭제 메일 제외) -->
+	<select id="selectEmailFavoriteList" resultMap="emailMap"
+		parameterType="hashMap">
+		WITH T AS (
+		SELECT ROW_NUMBER() OVER(ORDER BY
+		A.LAST_UPDT_TM DESC) AS RNUM
+		, A.EML_ID
+		, A.FRST_WRTER_ID
+		, B.EMP_NM
+		, A.FSRT_WRITING_TM
+		, A.DSPTCH_EML
+		, A.RCPTN_EML
+		, A.EML_CN
+		, A.SNDPTY_STTS_CD
+		, A.RCVR_STTS_CD
+		, A.ATCHMNFL_ID
+		, A.LAST_UPDUSR_ID
+		, A.LAST_UPDT_TM
+		, A.EML_TITLE
+		FROM EMAIL A
+		INNER JOIN EMP B ON A.FRST_WRTER_ID = B.EMP_ID
+		WHERE (A.DSPTCH_EML = #{email} AND A.SNDPTY_STTS_CD = 'ESMS04')
+   		OR (A.RCPTN_EML = #{email} AND A.RCVR_STTS_CD = 'ESMS04')
+		)
+		SELECT T.*
+		FROM T
+		WHERE T.RNUM BETWEEN
+		(#{currentPage} *
+		#{size}) -
+		(#{size} - 1)
+		AND (#{currentPage} * #{size})
+	</select>
+
+	<select id="emailDetail" parameterType="emailVO"
+		resultMap="emailMap">
+		SELECT
+		EML_ID
+		, FRST_WRTER_ID
+		, FSRT_WRITING_TM
+		, DSPTCH_EML
+		, RCPTN_EML
+		, EML_CN
+		, SNDPTY_STTS_CD
+		, RCVR_STTS_CD
+		, ATCHMNFL_ID
+		, LAST_UPDUSR_ID
+		, LAST_UPDT_TM
+		, EML_TITLE
+		FROM
+		EMAIL WHERE EML_ID = #{emlId}
+	</select>
+
+
+	<insert id="sendEmail" parameterType="emailVO">
+		INSERT INTO EMAIL (
+		EML_ID
+		, FRST_WRTER_ID
+		, FSRT_WRITING_TM
+		, DSPTCH_EML
+		, RCPTN_EML
+		, EML_CN
+		, SNDPTY_STTS_CD
+		, RCVR_STTS_CD
+		, ATCHMNFL_ID
+		, LAST_UPDUSR_ID
+		, LAST_UPDT_TM
+		, EML_TITLE
+		) VALUES (
+		(SELECT 'EML' ||
+		LPAD(MAX(SUBSTR(EML_ID, 4)) + 1, 6, '0') FROM EMAIL)
+		,#{frstWrterId}
+		,TO_CHAR(SYSDATE,'yyyymmddhh24miss')
+		,#{dsptchEml}
+		,#{rcptnEml}
+		,#{emlCn}
+		,#{sndptySttsCd}
+		,#{rcvrSttsCd}
+		,#{atchmnflId}
+		,#{lastUpdusrId}
+		,TO_CHAR(SYSDATE,'yyyymmddhh24miss')
+		,#{emlTitle}
+		)
+	</insert>
+
+
+	<update id="updateImsi" parameterType="emailVO" >
+		UPDATE EMAIL
+		SET
+			  FRST_WRTER_ID = #{frstWrterId}
+			, FSRT_WRITING_TM = TO_CHAR(SYSDATE,'yyyymmddhh24miss')
+			, DSPTCH_EML =#{dsptchEml}
+			, RCPTN_EML =#{rcptnEml}
+			, EML_CN =#{emlCn}
+			, SNDPTY_STTS_CD =#{sndptySttsCd}
+			, RCVR_STTS_CD =#{rcvrSttsCd}
+			, ATCHMNFL_ID =#{atchmnflId}
+			, LAST_UPDUSR_ID =#{lastUpdusrId}
+			, LAST_UPDT_TM = TO_CHAR(SYSDATE,'yyyymmddhh24miss')
+			, EML_TITLE =#{emlTitle}
+		WHERE
+			EML_ID =#{emlId}
+	</update>
+
+
+
+	<update id="readUpdateEmail" parameterType="String">
+		UPDATE EMAIL
+		SET
+		RCVR_STTS_CD = 'ESMS01'
+		WHERE
+		EML_ID = #{value}
+	</update>
+
+	<update id="delUpdateReveiveEmail" parameterType="String">
+		UPDATE EMAIL
+		SET
+		RCVR_STTS_CD = 'ESMS03'
+		WHERE
+		EML_ID = #{value}
+	</update>
+	<update id="delUpdateSendEmail" parameterType="String">
+		UPDATE EMAIL
+		SET
+		SNDPTY_STTS_CD = 'ESMS03'
+		WHERE
+		EML_ID = #{value}
+	</update>
+	<update id="clearSendEmail" parameterType="String">
+		UPDATE EMAIL
+		SET
+		SNDPTY_STTS_CD = 'ESMS06'
+		WHERE
+		EML_ID = #{value}
+	</update>
+	<update id="clearReceiveEmail" parameterType="String">
+		UPDATE EMAIL
+		SET
+		RCVR_STTS_CD = 'ESMS06'
+		WHERE
+		EML_ID = #{value}
+	</update>
+	<update id="restoreSendEmail" parameterType="String">
+		UPDATE EMAIL
+		SET
+		SNDPTY_STTS_CD = 'ESMS01'
+		WHERE
+		EML_ID = #{value}
+	</update>
+	<update id="restoreReceiveEmail" parameterType="String">
+		UPDATE EMAIL
+		SET
+		RCVR_STTS_CD = 'ESMS01'
+		WHERE
+		EML_ID = #{value}
+	</update>
+	<update id="favoriteUpdateEmail" parameterType="emailVO">
+		UPDATE EMAIL
+		SET
+		RCVR_STTS_CD = 'ESMS04'
+		WHERE
+		EML_ID = #{emlId}
+	</update>
+	<update id="favoritesClear" parameterType="emailVO">
+		UPDATE EMAIL
+		SET
+		RCVR_STTS_CD = 'ESMS01'
+		WHERE
+		EML_ID = #{emlId}
+	</update>
+</mapper>

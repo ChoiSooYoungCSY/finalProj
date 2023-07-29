@@ -1,0 +1,40 @@
+package kr.or.ddit.mem.life.library;
+
+import java.util.List;
+import java.util.Map;
+
+import javax.inject.Inject;
+
+import org.springframework.stereotype.Service;
+
+import kr.or.ddit.mapper.BookMapper;
+import kr.or.ddit.mem.life.library.BookService;
+import kr.or.ddit.vo.BookVO;
+
+@Service
+public class BookServiceImpl implements BookService {
+
+	@Inject
+	BookMapper bookMapper;
+
+	//책 목록불러오기
+	@Override
+	public List<BookVO> list(BookVO bookVO){
+		return this.bookMapper.list();
+	}
+
+	//	전체 글 수 구하기
+	@Override
+	public int getTotal(Map<String, String> map) {
+		return this.bookMapper.getTotal(map);
+	}
+
+	@Override
+	public List<BookVO> list(Map<String, String> map) {
+		return this.bookMapper.list(map);
+	}
+
+
+
+
+}

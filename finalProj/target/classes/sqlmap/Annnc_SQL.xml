@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.ddit.mapper.AnnncMapper">
+
+
+	<!-- 자주 사용되는 구문을 따로 관리 -->
+	<sql id="where">
+		<!-- 전체 검색 -->
+		<if test="keyword!=null and cond==''">
+			AND (
+	            FRST_WRTER_ID  LIKE '%' || #{keyword} || '%' OR
+				ANNNC_CN LIKE '%' || #{keyword} || '%'
+			)
+		</if>
+		<!-- 조건 검색 -->
+		<if test="cond!=null and !cond.equals('')">
+			<choose>
+				<when test="cond=='frstWrterId'">
+					AND FRST_WRTER_ID LIKE '%' || #{keyword} || '%'
+				</when>
+				<when test="cond=='annncCn'">
+					AND ANNNC_CN LIKE '%' || #{keyword} || '%'
+				</when>
+			</choose>
+		</if>
+	</sql>
+
+	<!-- 등록된 방송 리스트 불러오기 -->
+	<select id="list" parameterType="map" resultType="annncVO">
+		WITH T AS (
+		SELECT
+			ROW_NUMBER() OVER(ORDER BY ANNNC_NO ASC) RNUM
+			, ANNNC_NO
+		    , FRST_WRTER_ID
+		    , FSRT_WRITING_TM
+		    , ANNNC_CN
+		    , ANNNC_RESVE_TM
+		    , LAST_UPDUSR_ID
+		    , LAST_UPDT_TM
+		    , DEL_YN
+		FROM ANNNC
+		WHERE 1 = 1
+		AND DEL_YN = 'N'
+		<include refid="where"></include>
+		)
+		SELECT
+			T.ANNNC_NO
+			, T.FRST_WRTER_ID
+			, T.FSRT_WRITING_TM
+			, T.ANNNC_CN
+			, T.ANNNC_RESVE_TM
+		FROM T
+		WHERE T.RNUM BETWEEN (#{currentPage} * #{size}) - (#{size} - 1)
+		AND (#{currentPage} * #{size})
+		<!-- 시작행 : (현재페이지 * 한 화면 행수)-(한화면행수-1) -->
+		<!-- 종료행 : (현재페이지 * 한화면행수) -->
+	</select>
+
+
+	<!-- 전체 글 수 구하기 -->
+	<select id="getTotal" parameterType="hashmap" resultType="int">
+		SELECT COUNT(*) FROM ANNNC
+		WHERE 1 = 1
+		<include refid="where"></include>
+	</select>
+
+	<!-- 즉시방송 등록하기 -->
+	<insert id="registerPost" parameterType="annncVO">
+		INSERT INTO ANNNC (
+		    ANNNC_NO
+		   , FRST_WRTER_ID
+		   , FSRT_WRITING_TM
+		   , ANNNC_CN
+		   , ANNNC_RESVE_TM
+		   , LAST_UPDUSR_ID
+		   , LAST_UPDT_TM
+		   , DEL_YN
+		) VALUES (
+		    (SELECT NVL((MAX(ANNNC_NO)+1),1) FROM ANNNC)
+		   , #{frstWrterId}
+		   , TO_CHAR(SYSDATE, 'yyyymmddhh24miss')
+		   , #{annncCn}
+		   , TO_CHAR(SYSDATE+0.00070, 'yyyymmddhh24miss')
+		   , #{lastUpdusrId}
+		   , TO_CHAR(SYSDATE, 'yyyymmddhh24miss')
+		   , 'N'
+		)
+	</insert>
+
+	<!-- 등록된 안내방송 삭제하기 -->
+	<update id="deletePost" parameterType="annncVO">
+		UPDATE ANNNC
+		    SET
+		        DEL_YN = 'Y'
+		WHERE
+		    ANNNC_NO = #{annncNo}
+		    AND   del_yn ='N'
+	</update>
+
+
+	<!-- ///////////////////////////예약방송////////////////////////////// -->
+	<!-- 예약방송 등록하기 -->
+	<insert id="resvRegister" parameterType="annncVO">
+		INSERT INTO ANNNC (
+		    ANNNC_NO
+		   , FRST_WRTER_ID
+		   , FSRT_WRITING_TM
+		   , ANNNC_CN
+		   , ANNNC_RESVE_TM
+		   , LAST_UPDUSR_ID
+		   , LAST_UPDT_TM
+		   , DEL_YN
+		) VALUES (
+		    (SELECT NVL((MAX(ANNNC_NO)+1),1) FROM ANNNC)
+		   , #{frstWrterId}
+		   , TO_CHAR(SYSDATE, 'yyyymmddhh24miss')
+		   , #{annncCn}
+		   , #{annncResveTm}
+		   , #{lastUpdusrId}
+		   , TO_CHAR(SYSDATE, 'yyyymmddhh24miss')
+		   , 'N'
+		)
+	</insert>
+
+	<!-- 등록된 예약안내방송 삭제하기 -->
+	<update id="deleteResvPost" parameterType="annncVO">
+		UPDATE ANNNC
+		    SET
+		        DEL_YN = 'Y'
+		WHERE
+		    ANNNC_NO = #{annncNo}
+		    AND   del_yn ='N'
+	</update>
+
+
+</mapper>

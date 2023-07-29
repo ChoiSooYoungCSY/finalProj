@@ -1,0 +1,19 @@
+package kr.or.ddit.mem.cmnt.neighborbbs;
+
+import java.util.List;
+
+import kr.or.ddit.vo.ReviewVO;
+import kr.or.ddit.vo.RstrntRecomVO;
+import kr.or.ddit.vo.RstrntVO;
+
+public interface NeighborbbsService {
+
+
+	public List<ReviewVO> selectReviewsByRstrntId(RstrntVO rstrntVO);
+	public int insertReview(ReviewVO reviewVO);
+
+	public RstrntRecomVO selectRecomBymemID(RstrntRecomVO rstrntRecomVO);
+
+	public List<RstrntVO> selectAllRstrnt();
+
+}

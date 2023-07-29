@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.ddit.mapper.AtrzLineMapper">
+
+	<!-- 결재선 조직도를 위한 사원 목록 검색 -->
+	<select id="selectAllEmp" resultType="empVO">
+		(
+		    SELECT A.EMP_ID
+		         , A.EMP_MAIL
+		         , A.DEPT_CD
+		         , A.JBGD_CD
+		         , A.EMP_BRTHDY
+		         , A.EMP_IMG
+		         , A.BANK_CD
+		         , A.ACTNO
+		         , A.JNCMP_YMD
+		         , A.RSGNTN_YMD
+		         , A.SUPERIOR_ID
+		         , A.EMP_NM
+		         , A.ADDR
+		         , A.EMP_PHONE
+		         , B.DEPT_NM
+		         , C.JBGD_NM
+		      FROM EMP A
+		     INNER JOIN DEPT B ON(A.DEPT_CD = B.DEPT_CD)
+		     INNER JOIN JOB_GRADE C ON(A.JBGD_CD = C.JBGD_CD)
+		)
+		UNION
+		(
+		    SELECT A.EMP_ID
+		         , A.EMP_MAIL
+		         , A.DEPT_CD
+		         , A.JBGD_CD
+		         , A.EMP_BRTHDY
+		         , A.EMP_IMG
+		         , A.BANK_CD
+		         , A.ACTNO
+		         , A.JNCMP_YMD
+		         , A.RSGNTN_YMD
+		         , A.SUPERIOR_ID
+		         , A.EMP_NM
+		         , A.ADDR
+		         , A.EMP_PHONE
+		         , B.JBGD_NM
+		         , B.JBGD_NM
+		      FROM EMP A
+		     INNER JOIN JOB_GRADE B ON(A.JBGD_CD = B.JBGD_CD)
+		     WHERE A.JBGD_CD = 'JBGD01'
+		)
+	</select>
+
+
+
+
+
+
+</mapper>
+

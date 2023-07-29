@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.ddit.mapper.SttemntPstMapper">
+
+<resultMap type="sttemntPstVO" id="sttemntPstVO">
+		<result property="rnum" column="RNUM" />
+		<result property="sttemntPstNo" column="STTEMNT_PST_NO" />
+		<result property="sttemntPstId" column="STTEMNT_PST_ID" />
+		<result property="aplcntId" column="APLCNT_ID" />
+		<result property="sttemntRsn" column="STTEMNT_RSN" />
+		<result property="delYn" column="DEL_YN" />
+		<result property="pstId" column="PST_ID" />
+		<result property="frstWrterId" column="FRST_WRTER_ID" />
+		<result property="fsrtWritingTm" column="FSRT_WRITING_TM" />
+		<result property="pstSj" column="PST_SJ" />
+		<result property="pstCn" column="PST_CN" jdbcType="CLOB" javaType="java.lang.String" />
+		<result property="rdcnt" column="RDCNT" />
+		<result property="scndhandPc" column="SCNDHAND_PC" />
+		<result property="atchmnflId" column="ATCHMNFL_ID" />
+		<result property="flpth" column="FLPTH" />
+		<result property="streFlNm" column="STRE_FL_NM" />
+		<collection property="atchmnflDetailList" resultMap="atchmnflDetailMap" ></collection>
+	</resultMap>
+
+	<resultMap type="atchmnflDetailVO" id="atchmnflDetailMap">
+		<result property="atchmnflId" column="ATCHMNFL_ID" />
+		<result property="flpth" column="FLPTH" />
+		<result property="atchmnflNo" column="ATCHMNFL_NO" />
+		<result property="streFlNm" column="STRE_FL_NM" />
+	</resultMap>
+
+	<select id="reportPost" parameterType="sttemntPstVO"  resultMap="sttemntPstVO">
+	SELECT DENSE_RANK() OVER (ORDER BY A.LAST_UPDT_TM DESC) AS RNUM,
+		A.PST_ID,
+		A.FRST_WRTER_ID,
+		A.FSRT_WRITING_TM,
+		A.PST_SJ,
+		A.PST_CN,
+		A.RDCNT,
+		A.DEL_YN,
+		A.SCNDHAND_PC,
+		A.SCHAND_SE_CD,
+		A.ATCHMNFL_ID,
+		A.LAST_UPDUSR_ID,
+		A.LAST_UPDT_TM,
+		A.NTSL_STTS,
+		B.SCHAND_SE_NM,
+		D.STRE_FL_NM,
+		D.FLPTH
+	FROM
+		SCNDHD_BBS A
+	INNER JOIN
+		SCNDHD_SE B ON A.SCHAND_SE_CD = B.SCHAND_SE_CD
+	INNER JOIN
+		ATCHMNFL C ON A.ATCHMNFL_ID = C.ATCHMNFL_ID
+	INNER JOIN (
+	    SELECT
+			ATCHMNFL_ID,
+			MAX(STRE_FL_NM) AS STRE_FL_NM,
+			MAX(FLPTH) AS FLPTH
+		FROM
+			ATCHMNFL_DETAIL
+	    GROUP BY
+	    	ATCHMNFL_ID
+	) D ON C.ATCHMNFL_ID = D.ATCHMNFL_ID
+	WHERE
+		A.DEL_YN = 'N'
+	AND A.PST_ID IN (SELECT STTEMNT_PST_ID FROM STTEMNT_PST WHERE DEL_YN = 'N')
+	</select>
+
+
+
+
+	<!-- 게시글 신고 당한 횟수 -->
+	<select id="reportCnt" parameterType="SttemntPstVO" resultType="SttemntPstVO">
+   	SELECT
+	    COUNT(STTEMNT_PST_ID) as cnt
+	FROM
+	    STTEMNT_PST
+    WHERE
+    	DEL_YN = 'N'
+    AND
+        STTEMNT_PST_ID = #{pstId}
+	GROUP BY
+		STTEMNT_PST_ID
+	</select>
+
+
+	<!-- 관리자 상세페이지 게시글 삭제 -->
+	<update id="deletePostOne" parameterType="sttemntPstVO">
+		UPDATE STTEMNT_PST
+			SET DEL_YN = 'Y'
+		WHERE STTEMNT_PST_ID = #{pstId}
+	</update>
+
+</mapper>

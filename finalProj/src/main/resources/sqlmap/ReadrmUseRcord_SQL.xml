@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.ddit.mapper.ReadrmUseRcordMapper">
+	<select id="selectByIdReadrm" parameterType="memberVO" resultType="readrmUseRcordVO">
+		SELECT
+		USE_RCORD_NO
+		, MEM_ID
+		, USE_YMD
+		, BEGIN_TM
+		, END_TM
+		, SEAT_NO
+		FROM
+		READRM_USE_RCORD WHERE MEM_ID = #{memId}
+	</select>
+
+	<!-- 입주민 사용자가 독서실 예약 했을때 -->
+	<insert id="resVationReadingRoom" parameterType="readrmUseRcordVO">
+    INSERT INTO
+    	READRM_USE_RCORD
+			(
+			USE_RCORD_NO,
+			MEM_ID,
+			USE_YMD,
+			BEGIN_TM,
+			END_TM,
+			SEAT_NO
+			)
+        VALUES
+			(
+			#{useRcordNo},
+			#{memId},
+			#{useYmd},
+			#{beginTm},
+			#{endTm},
+			#{seatNo}
+			)
+	</insert>
+
+	<!-- 독서실 사용자가 예약 취소했을때 -->
+	<delete id="deleteSeat" parameterType="readrmUseRcordVO">
+	DELETE FROM
+		READRM_USE_RCORD
+	WHERE
+		USE_RCORD_NO = #{useRcordNo}
+	</delete>
+
+</mapper>

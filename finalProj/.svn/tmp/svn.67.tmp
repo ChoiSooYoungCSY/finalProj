@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans
+	xmlns="http://www.springframework.org/schema/mvc"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:security="http://www.springframework.org/schema/security"
+	xmlns:beans="http://www.springframework.org/schema/beans"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:websocket="http://www.springframework.org/schema/websocket"
+	xsi:schemaLocation="http://www.springframework.org/schema/mvc https://www.springframework.org/schema/mvc/spring-mvc.xsd
+		http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd
+		http://www.springframework.org/schema/security
+        http://www.springframework.org/schema/security/spring-security.xsd
+        http://www.springframework.org/schema/websocket http://www.springframework.org/schema/websocket/spring-websocket-4.3.xsd">
+
+	<!-- DispatcherServlet Context: defines this servlet's request-processing
+		infrastructure -->
+
+	<!-- Enables the Spring MVC @Controller programming model -->
+	<annotation-driven />
+
+	<!-- Handles HTTP GET requests for /resources/** by efficiently serving
+		up static resources in the ${webappRoot}/resources directory -->
+	<!-- static folder 설정 ->css, images, upload, js등 http://localhost/resources/ -->
+	<resources mapping="/resources/**" location="/resources/" />
+
+	<!-- Resolves views selected for rendering by @Controllers to .jsp resources
+		in the /WEB-INF/views directory -->
+	<beans:bean
+		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<beans:property name="prefix" value="/WEB-INF/views/" />
+		<beans:property name="suffix" value=".jsp" />
+		<beans:property name="order" value="2" />
+	</beans:bean>
+	<!-- Tiles 설정 시작 -->
+	<!-- titlesConfigurer : 타일즈 생성자 -->
+
+	<beans:bean id="tilesConfigurer"
+		class="org.springframework.web.servlet.view.tiles3.TilesConfigurer">
+		<beans:property name="definitions">
+			<beans:list>
+				<beans:value>/WEB-INF/spring/tiles-config.xml</beans:value>
+			</beans:list>
+		</beans:property>
+	</beans:bean>
+	<beans:bean id="tilesViewResolver"
+		class="org.springframework.web.servlet.view.UrlBasedViewResolver">
+		<beans:property name="viewClass"
+			value="org.springframework.web.servlet.view.tiles3.TilesView" />
+		<beans:property name="order" value="1" />
+	</beans:bean>
+	<!-- Tiles 설정 끝 -->
+	<context:component-scan
+		base-package="kr.or.ddit" />
+
+	<!-- 스프링 시큐리티 어노테이션 활성화 -->
+	<!-- pre-post-annotations -->
+	<!-- 골뱅이PreAuthorize : 특정 메소드를 실행하기 전에 role(권한) 체킹 -->
+	<!-- 골뱅이PostAuthorize : 특정 메소드를 실행한 후에 role(권한) 체킹 -->
+
+	<!-- secured-annotations -->
+	<!-- 골뱅이Secured : 스프링 시큐리티 모듈을 지원하기 위한 어노테이션 -->
+	<!-- -->
+<!-- 	<security:global-method-security -->
+<!-- 		pre-post-annotations="enabled" secured-annotations="enabled" /> -->
+
+	<!-- 서블릿 표준용 MultipartResolver를 스프링 빈으로 정의 -->
+	<beans:bean id="multipartResolver"
+		class="org.springframework.web.multipart.support.StandardServletMultipartResolver">
+	</beans:bean>
+
+
+	<!-- 웹 소켓핸들러 -->
+	<!-- WebSocket -->
+	<beans:bean id="smsHandler" class="kr.or.ddit.socket.SmsHandler" />
+	<websocket:handlers>
+		<websocket:mapping handler="smsHandler" path="/sms"/>
+
+	<!--websocket:handlers 태그안에서 아래처럼 websocket:handshake-interceptors에 HttpSessionHandshakeInterceptor를
+			추가해주면 WebSocketHandler에 접근하기 전에 먼저 HttpSession에 접근하여 HttpSession에 저장된 값을
+ 			읽어 들여 WebSocketHandler에서 사용할 수 있도록 처리해줌. -->
+		<websocket:handshake-interceptors>
+			<beans:bean
+				class="org.springframework.web.socket.server.support.HttpSessionHandshakeInterceptor" />
+		</websocket:handshake-interceptors>
+	</websocket:handlers>
+</beans:beans>

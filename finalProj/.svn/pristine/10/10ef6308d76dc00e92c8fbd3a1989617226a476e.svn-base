@@ -1,0 +1,326 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"	pageEncoding="UTF-8"%>
+<%@ page import="java.util.*" %>
+<%@ page import="com.google.gson.Gson"%>
+<%@ page import="com.google.gson.JsonObject"%>
+<script src="https://canvasjs.com/assets/script/jquery-1.11.1.min.js"></script>
+<script src="https://cdn.canvasjs.com/canvasjs.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js"></script>
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+
+<!-- BEGIN: Menu -->
+<div class="col-span-12 lg:col-span-3 2xl:col-span-2">
+	<div class="intro-y box bg-primary p-5 mt-0 text-lg" style="height: 850px;">
+		<nav class="side-nav">
+		    <ul>
+		        <li>
+		            <a href="/mem/mypg/myhome" class="side-menu">
+		                <div class="side-menu__icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" icon-name="home" data-lucide="home" class="lucide lucide-home"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"></path></svg></div>
+		                <div class="side-menu__title"> 마이홈 </div>
+		            </a>
+		        </li>
+		        <li>
+		            <a href="/mem/mypg/personalInfo" class="side-menu">
+		                <div class="side-menu__icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" icon-name="box" data-lucide="box" class="lucide lucide-box"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg></div>
+		                <div class="side-menu__title"> 개인정보 수정 </div>
+		            </a>
+		        </li>
+		        <li>
+		            <a href="javascript:;" class="side-menu">
+		                <div class="side-menu__icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" icon-name="home" data-lucide="home" class="lucide lucide-home"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"></path></svg></div>
+		                <div class="side-menu__title"> 관리비 조회
+		                    <div class="side-menu__sub-icon"> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" icon-name="chevron-down" data-lucide="chevron-down" class="lucide lucide-chevron-down"></svg> </div>
+		                </div>
+		            </a>
+		            <ul class="side-menu-ul" style="display: none;">
+		                <li>
+		                    <a href="/mem/mypg/managectbbs" class="side-menu">
+		                        <div class="side-menu__icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" icon-name="activity" data-lucide="activity" class="lucide lucide-activity"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg></div>
+		                        <div class="side-menu__title"> 나의 관리비</div>
+		                    </a>
+		                </li>
+		                <li>
+		                    <a href="/mem/mypg/managectbbs/comp" class="side-menu">
+		                        <div class="side-menu__icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" icon-name="activity" data-lucide="activity" class="lucide lucide-activity"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg></div>
+		                        <div class="side-menu__title"> 관리비 비교 </div>
+		                    </a>
+		                </li>
+		                <li>
+		                    <a href="/emp/aa/mngcmnusemanagect" class="side-menu">
+		                        <div class="side-menu__icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" icon-name="activity" data-lucide="activity" class="lucide lucide-activity"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg></div>
+		                        <div class="side-menu__title"> 우리단지 관리비 </div>
+		                    </a>
+		                </li>
+		            </ul>
+		        </li>
+		        <li>
+		            <a href="/mem/cmnt/freebbs" class="side-menu">
+		                <div class="side-menu__icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" icon-name="box" data-lucide="box" class="lucide lucide-box"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg></div>
+		                <div class="side-menu__title"> 나의 쪽지함 </div>
+		            </a>
+		        </li>
+		        <li>
+		            <a href="/mem/cmnt/cvplbbs" class="side-menu">
+		                <div class="side-menu__icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" icon-name="box" data-lucide="box" class="lucide lucide-box"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg></div>
+		                <div class="side-menu__title"> 나의 소모임 </div>
+		            </a>
+		        </li>
+		        <li>
+		            <a href="/mem/cmnt/cvplbbs" class="side-menu">
+		                <div class="side-menu__icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" icon-name="box" data-lucide="box" class="lucide lucide-box"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg></div>
+		                <div class="side-menu__title"> 공용시설 이용내역 </div>
+		            </a>
+		        </li>
+		        <li>
+		            <a href="/mem/cmnt/cvplbbs" class="side-menu">
+		                <div class="side-menu__icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" icon-name="box" data-lucide="box" class="lucide lucide-box"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg></div>
+		                <div class="side-menu__title"> 공용시설 예약내역 </div>
+		            </a>
+		        </li>
+		        <li>
+		            <a href="/mem/cmnt/cvplbbs" class="side-menu">
+		                <div class="side-menu__icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" icon-name="box" data-lucide="box" class="lucide lucide-box"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg></div>
+		                <div class="side-menu__title"> 방문차량 예약내역 </div>
+		            </a>
+		        </li>
+		        <li>
+		            <a href="/mem/cmnt/cvplbbs" class="side-menu">
+		                <div class="side-menu__icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" icon-name="box" data-lucide="box" class="lucide lucide-box"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg></div>
+		                <div class="side-menu__title"> 게시글 관리 </div>
+		            </a>
+		        </li>
+		        <li>
+		            <a href="/mem/cmnt/cvplbbs" class="side-menu">
+		                <div class="side-menu__icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" icon-name="box" data-lucide="box" class="lucide lucide-box"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg></div>
+		                <div class="side-menu__title"> 관심글 관리 </div>
+		            </a>
+		        </li>
+		    </ul>
+		</nav>
+	</div>
+</div>
+<!-- END: Menu -->
+<!-- BEGIN: Body -->
+<div class="bdy col-span-12 lg:col-span-9 2xl:col-span-10">
+	<div class="col-span-12 xl:col-span-9">
+		<div class="report-box-2 intro-y mt-0">
+			<div class="box grid grid-cols-12">
+				<!-- 지난달 관리비 시작-->
+				<div class="col-span-12 lg:col-span-6 p-6 border-t lg:border-t-0 lg:border-l border-slate-200 border-dashed">
+					<ul class="nav nav-pills w-60 border border-slate-300 border-dashed rounded-md mx-auto p-1 mb-8 font-semibold" role="tablist" style="font-size: 15px;">
+						<li id="latest-report-tab" class="nav-item flex-1" role="presentation">
+							<button class="nav-link w-full py-2 px-2 font-semibold active" data-tw-toggle="pill" data-tw-target="#latest-report"
+								aria-controls="latest-report-tab" aria-selected="true"
+								type="button" role="tab">지난달 관리비
+							</button>
+						</li>
+					</ul>
+					<!-- 지난달 관리비 chart 시작-->
+					<div class="tab-content px-5 pb-5">
+						<canvas id="myChart1" width="300" height="186"></canvas>
+					</div>
+					<!-- 지난달 관리비 chart 끝-->
+					<div class="flex mt-3">
+						<a href="/mem/mypg/managectbbs/detail?rlvtYm=202307" class="btn btn-outline-secondary w-25 h-10 ml-auto font-bold" style="font-size: 15px;">자세히보기</a>
+					</div>
+				</div>
+				<!-- 지난달 관리비 끝 -->
+				<!-- 이번달 관리비 시작 -->
+				<div class="col-span-12 lg:col-span-6 p-6 border-t lg:border-t-0 lg:border-l border-slate-200 border-dashed">
+					<ul class="nav nav-pills w-60 border border-slate-300 border-dashed rounded-md mx-auto p-1 mb-8 font-semibold" role="tablist" style="font-size: 15px;">
+						<li id="latest-report-tab" class="nav-item flex-1" role="presentation">
+							<button class="nav-link w-full py-2 px-2 font-semibold active" data-tw-toggle="pill" data-tw-target="#latest-report"
+								aria-controls="latest-report-tab" aria-selected="true"
+								type="button" role="tab">이번달 관리비
+							</button>
+						</li>
+					</ul>
+					<!-- 이번달 관리비 chart 시작-->
+					<div class="tab-content px-5 pb-5">
+						 <canvas id="myChart2" width="300" height="186"></canvas>
+					</div>
+					<!-- 이번달 관리비 chart 끝-->
+					<div class="flex mt-3">
+						<a href="/mem/mypg/managectbbs/detail?rlvtYm=202307" class="btn btn-outline-secondary w-25 h-10 ml-auto font-bold" style="font-size: 15px;">자세히보기</a>
+					</div>
+				</div>
+				<!-- 이번달 관리비 끝 -->
+			</div>
+		</div>
+		<!-- 비교 chart 시작 -->
+		<div class="chart-wrap" style="margin-bottom: 100px; margin-top: 17px;  height: 400px;">
+			<canvas id="test-chart"></canvas>
+			<div class="flex mt-0">
+				<a href="/mem/mypg/managectbbs/comp/detail" class="btn btn-outline-secondary w-25 h-10 ml-auto font-bold" style="font-size: 15px;">비교하기</a>
+			</div>
+		</div>
+		<!-- 비교 chart 끝 -->
+	</div>
+</div>
+<!-- 차트 들어갈부분 -->
+<!-- BEGIN: Body -->
+
+
+<!-- END: Body -->
+<style type="text/css">
+.mngctTitle {
+	font-size: 17px;
+}
+
+.mngctList {
+	width: 315px;
+}
+
+.text-base {
+	font-size: 16px;
+}
+
+.text-success, .text-danger {
+	font-size: 13px;
+	font-weight: bold;
+}
+
+
+</style>
+<script type="text/javascript" src="/resources/js/jquery-3.6.4.min.js"></script>
+<script type="text/javascript">
+	$(function() {
+		// 메뉴 경로 표시 (상단 메뉴)
+		$("#main_menu").html("경리/회계");
+		$("#sub_menu").html("관리비 관리");
+
+		// 좌측 메뉴 경로 표시, 선택 효과 적용
+		$(".side-nav > ul > li > .side-menu").on("click", function() {
+			// 좌측 메뉴 선택 시 효과 적용
+			$(".side-menu").removeClass("side-menu--active");
+			$(this).addClass("side-menu--active");
+
+			// 메뉴 경로 표시 (좌측 메뉴)
+			var sub = $(this).find(".side-menu__title").text();
+			console.log(sub.trim());
+			$("#sub_menu").html(sub.trim());
+		});
+
+
+		//========================== 파일 다운로드 ===========================
+		$("#btnDownload").on("click", function() {
+
+			jQuery.ajax({
+				url : "/emp/aa/mngcmnusemanagect/download",
+				type : "get",
+				xhrFields : {
+					responseType : "blob"
+				},
+				success : function(data) {
+					let a = document.createElement("a");
+					let url = window.URL.createObjectURL(data);
+					let filename = "Dongil_202305.xls";
+
+					a.href = url;
+					a.download = filename;
+					a.click();
+					window.URL.revokeObjectURL(url);
+				},
+				error : function(xhr, status, error) {
+					console.log('Error:', error);
+				}
+			});
+		});
+		//=================================================================
+	});
+
+
+	let ctx1 = document.getElementById('myChart1'); // 저번달 관리비
+	let ctx2 = document.getElementById('myChart2'); // 이번달 관리비
+	let ctx3 = document.getElementById('test-chart'); // 비교 관리비
+
+	// 저번달 관리비
+	let data1 = {
+	  labels: ['관리 운영비', '수선유지비', '공용시설 유지비', '전기료', '수도료', '건물보험료', '청소비', '경비비', '승강기 유지비'],
+	  datasets: [{
+	    label: 'Chart 1',
+	    data: [10, 20, 30, 40, 50, 60, 70, 80, 90],
+	    backgroundColor: ['#C8E6C9', '#4CAF50', '#C8E6C9', '#4CAF50', '#C8E6C9', '#4CAF50', '#C8E6C9', '#4CAF50', '#C8E6C9'],
+	    borderColor: ['#C8E6C9', '#4CAF50', '#C8E6C9', '#4CAF50', '#C8E6C9', '#4CAF50', '#C8E6C9', '#4CAF50', '#C8E6C9'],
+	    borderWidth: 1
+	  }]
+	};
+
+	// 이번달 관리비
+	let data2 = {
+	  labels: ['관리 운영비', '수선유지비', '공용시설 유지비', '전기료', '수도료', '건물보험료', '청소비', '경비비', '승강기 유지비'],
+	  datasets: [{
+	    label: 'Chart 2',
+	    data: [10, 20, 30, 40, 50, 60, 70, 80, 90],
+	    backgroundColor: ['#C8E6C9', '#4CAF50', '#C8E6C9', '#4CAF50', '#C8E6C9', '#4CAF50', '#C8E6C9', '#4CAF50', '#C8E6C9'],
+	    borderColor: ['#C8E6C9', '#4CAF50', '#C8E6C9', '#4CAF50', '#C8E6C9', '#4CAF50', '#C8E6C9', '#4CAF50', '#C8E6C9'],
+	    borderWidth: 1
+	  }]
+	};
+
+	// 저번달 관리비
+	new Chart(ctx1, {
+	  type: 'doughnut',
+	  data: data1,
+	  options: {
+	    scales: {
+	      y: {
+	        beginAtZero: true
+	      }
+	    }
+	  }
+	});
+
+	// 이번달 관리비
+	new Chart(ctx2, {
+	  type: 'doughnut',
+	  data: data2,
+	  options: {
+	    scales: {
+	      y: {
+	        beginAtZero: true
+	      }
+	    }
+	  }
+	});
+
+
+	// 비교 관리비
+	let myChart = new Chart(ctx3, {
+	    type: 'bar',
+	    data: {
+	        labels: ['관리 운영비', '수선유지비', '공용시설 유지비', '전기료', '수도료', '건물보험료', '청소비', '경비비', '승강기 유지비'],
+	        datasets: [
+	            {
+	                label: '저번달 관리비',
+	                data: [10, 8, 6, 5, 12, 7, 7, 8, 9],
+	                backgroundColor: '##1C1C1C',
+	                borderColor: '##1C1C1C',
+	                borderWidth: 1
+	            },
+	            {
+	                label: '이번달 관리비',
+	                data: [5, 10, 5, 3, 4, 2, 5, 4 ,3],
+	                backgroundColor: '#828282',
+	                borderColor: '#828282',
+	                borderWidth: 1
+	            }
+	        ]
+	    },
+	    options: {
+	        maintainAspectRatio: false, // 그래프의 비율 유지
+	        scales: {
+	            x: { // x축값 누적
+	                stacked: true
+	            },
+	            y: { // y축값 누적
+	                stacked: true
+	            }
+	        }
+	    }
+	});
+</script>
+

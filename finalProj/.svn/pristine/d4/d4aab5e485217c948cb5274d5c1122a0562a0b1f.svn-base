@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.or.ddit.mapper.MemberMapper">
+
+	<resultMap type="memberVO" id="memberMap">
+		<result property="memIntrst" column="MEM_INTRST" />
+		<result property="memId" column="MEM_ID" />
+		<result property="password" column="PASSWORD" />
+		<result property="memNm" column="MEM_NM" />
+		<result property="sexDstn" column="SEX_DSTN" />
+		<result property="email" column="EMAIL" />
+		<result property="faceH5" column="FACE_H5" />
+		<result property="memImg" column="MEM_IMG" />
+		<result property="phoneNo" column="PHONE_NO" />
+		<result property="telNo" column="TEL_NO" />
+		<result property="hshldInfoNo" column="HSHLD_INFO_NO" />
+		<result property="memBrthdy" column="MEM_BRTHDY" />
+		<result property="memVisit" column="MEM_VISIT" />
+		<result property="acntSttsCd" column="ACNT_STTS_CD" />
+		<collection property="memberAuthVOList" resultMap="authoritiesMap"></collection>
+		<collection property="familyVOList" resultMap="familyMap"></collection>
+	</resultMap>
+
+	<resultMap type="authoritiesVO" id="authoritiesMap">
+		<result property="authrtCd" column="AUTHRT_CD" />
+		<result property="userId" column="USER_ID" />
+	</resultMap>
+
+	<resultMap type="familyVO" id="familyMap">
+		<result property="familyNo" column="FAMILY_NO" />
+		<result property="memId" column="MEM_ID" />
+		<result property="familyAge" column="FAMILY_AGE" />
+		<result property="familyNm" column="FAMILY_NM" />
+	</resultMap>
+
+	<!-- 회원/직원 로그인 -->
+	<select id="detailMember" parameterType="memberVO" resultMap="memberMap">
+		SELECT A.MEM_ID, A.MEM_NM, A.PASSWORD, A.ACNT_STTS_CD, A.HSHLD_INFO_NO, MEM_IMG
+		     , B.AUTHRT_CD
+		FROM   (SELECT T.*
+				FROM   (SELECT MEM_ID,MEM_NM, PASSWORD, ACNT_STTS_CD, HSHLD_INFO_NO, MEM_IMG
+						FROM MEMBER
+						WHERE ACNT_STTS_CD NOT IN('ACCT01','ACCT03')
+						UNION ALL
+						SELECT EMP_ID, EMP_NM, PASSWORD, JBGD_CD, DEPT_CD, EMP_IMG
+						FROM EMP
+						WHERE JNCMP_YMD = RSGNTN_YMD) T
+        		WHERE T.MEM_ID = #{memId}) A, AUTHORITIES B
+		WHERE  A.MEM_ID = B.USER_ID(+)
+	</select>
+
+	<!-- 회원 개인정보 수정 확인 -->
+	<select id="passwordConfirm" parameterType="memberVO" resultMap="memberMap">
+		SELECT *
+		FROM   MEMBER
+		WHERE  MEM_ID = #{memId}
+		AND    PASSWORD = #{password}
+	</select>
+
+	<!-- 회원 아이디 중복체크 -->
+	<select id="checkMemId" parameterType="memberVO" resultType="int">
+		SELECT COUNT(*) FROM MEMBER WHERE MEM_ID = #{memId}
+	</select>
+
+	<!-- 회원 가입신청 -->
+	<insert id="signUpMember" parameterType="memberVO">
+		INSERT INTO MEMBER(MEM_ID, PASSWORD, MEM_NM)
+		VALUES (#{memId}, #{password}, #{memNm})
+	</insert>
+
+</mapper>

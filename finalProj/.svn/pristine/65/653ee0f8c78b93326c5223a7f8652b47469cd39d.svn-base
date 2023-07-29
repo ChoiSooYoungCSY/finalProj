@@ -1,0 +1,14 @@
+package kr.or.ddit.mapper;
+
+import java.util.List;
+
+import kr.or.ddit.vo.FamilyVO;
+import kr.or.ddit.vo.UserVO;
+
+public interface UserMapper {
+	//<select id="detailUser" parameterType="String" resultType="userMap">
+	//회원/직원 로그인
+	public UserVO detailUser(String userId);
+
+}
+

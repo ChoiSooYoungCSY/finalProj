@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.ddit.mapper.EmailMapper">
+
+	<resultMap type="emailVO" id="emailMap">
+		<result property="emlId" column="EML_ID" />
+		<result property="frstWrterId" column="FRST_WRTER_ID" />
+		<result property="fsrtWritingTm" column="FSRT_WRITING_TM" />
+		<result property="dsptchEml" column="DSPTCH_EML" />
+		<result property="rcptnEml" column="RCPTN_EML" />
+		<result property="emlCn" column="EML_CN" jdbcType="CLOB"
+			javaType="java.lang.String" />
+		<result property="sndptySttsCd" column="SNDPTY_STTS_CD" />
+		<result property="rcvrSttsCd" column="RCVR_STTS_CD" />
+		<result property="atchmnflId" column="ATCHMNFL_ID" />
+		<result property="lastUpdusrId" column="LAST_UPDUSR_ID" />
+		<result property="lastUpdtTm" column="LAST_UPDT_TM" />
+		<result property="emlTitle" column="EML_TITLE" />
+	</resultMap>
+
+
+
+
+	<select id="selectEmailSendList" resultMap="emailMap"
+		parameterType="String">
+		SELECT
+		A.EML_ID
+		, A.FRST_WRTER_ID
+		, B.EMP_NM
+		, A.FSRT_WRITING_TM
+		, A.DSPTCH_EML
+		, A.RCPTN_EML
+		, A.EML_CN
+		, A.SNDPTY_STTS_CD
+		, A.RCVR_STTS_CD
+		, A.ATCHMNFL_ID
+		, A.LAST_UPDUSR_ID
+		, A.LAST_UPDT_TM
+		, A.EML_TITLE
+		FROM
+		EMAIL A, EMP B
+		WHERE
+		A.FRST_WRTER_ID  = B.EMP_ID AND
+		NOT A.RCPTN_EML = #{value} AND  A.DSPTCH_EML = #{value}
+	</select>
+
+
+	<select id="selectEmailReceiveList" resultMap="emailMap"
+		parameterType="String">
+		SELECT
+		A.EML_ID
+		, A.FRST_WRTER_ID
+		, B.EMP_NM
+		, A.FSRT_WRITING_TM
+		, A.DSPTCH_EML
+		, A.RCPTN_EML
+		, A.EML_CN
+		, A.SNDPTY_STTS_CD
+		, A.RCVR_STTS_CD
+		, A.ATCHMNFL_ID
+		, A.LAST_UPDUSR_ID
+		, A.LAST_UPDT_TM
+		, A.EML_TITLE
+		FROM
+		EMAIL A, EMP B
+		WHERE
+		A.FRST_WRTER_ID  = B.EMP_ID AND
+		A.RCPTN_EML = #{value} AND NOT A.DSPTCH_EML = #{value}
+	</select>
+
+
+	<select id="selectEmailSelfList" resultMap="emailMap"
+		parameterType="emailVO">
+		SELECT
+		A.EML_ID
+		, A.FRST_WRTER_ID
+		, B.EMP_NM
+		, A.FSRT_WRITING_TM
+		, A.DSPTCH_EML
+		, A.RCPTN_EML
+		, A.EML_CN
+		, A.SNDPTY_STTS_CD
+		, A.RCVR_STTS_CD
+		, A.ATCHMNFL_ID
+		, A.LAST_UPDUSR_ID
+		, A.LAST_UPDT_TM
+		, A.EML_TITLE
+		FROM
+		EMAIL A, EMP B
+		WHERE
+		A.FRST_WRTER_ID  = B.EMP_ID AND
+		A.FRST_WRTER_ID = #{frstWrterId} AND A.RCPTN_EML = #{rcptnEml}
+	</select>
+
+	<select id="emailDetail" parameterType="emailVO" resultMap="emailMap">
+		SELECT
+		EML_ID
+		, FRST_WRTER_ID
+		, FSRT_WRITING_TM
+		, DSPTCH_EML
+		, RCPTN_EML
+		, EML_CN
+		, SNDPTY_STTS_CD
+		, RCVR_STTS_CD
+		, ATCHMNFL_ID
+		, LAST_UPDUSR_ID
+		, LAST_UPDT_TM
+		, EML_TITLE
+		FROM
+		EMAIL WHERE EML_ID = #{emlId}
+	</select>
+
+
+	<insert id="sendEmail" parameterType="emailVO">
+		INSERT INTO EMAIL (
+		EML_ID
+		,
+		FRST_WRTER_ID
+		, FSRT_WRITING_TM
+		, DSPTCH_EML
+		, RCPTN_EML
+		, EML_CN
+		,
+		SNDPTY_STTS_CD
+		, RCVR_STTS_CD
+		, ATCHMNFL_ID
+		, LAST_UPDUSR_ID
+		,
+		LAST_UPDT_TM
+		, EML_TITLE
+		) VALUES (
+		(SELECT 'EML' ||
+		LPAD(MAX(SUBSTR(EML_ID, 4)) + 1, 6, '0') FROM EMAIL)
+		,#{frstWrterId}
+		,TO_CHAR(SYSDATE,'yyyymmddhh24miss')
+		,#{dsptchEml}
+		,#{rcptnEml}
+		,#{emlCn}
+		,'ESMS01'
+		,'ESMS02'
+		,#{atchmnflId}
+		,#{lastUpdusrId}
+		,TO_CHAR(SYSDATE,'yyyymmddhh24miss')
+		,#{emlTitle}
+		)
+	</insert>
+
+	<update id="readUpdateEmail" parameterType="String">
+			UPDATE EMAIL
+			SET
+			RCVR_STTS_CD = 'ESMS01'
+			WHERE
+			EML_ID = #{value}
+	</update>
+	<update id="delUpdateEmail" parameterType="String">
+			UPDATE EMAIL
+			SET
+			RCVR_STTS_CD = 'ESMS03'
+			WHERE
+			EML_ID = #{value}
+	</update>
+	<update id="favoriteUpdateEmail" parameterType="EmailVO">
+			UPDATE EMAIL
+			SET
+			RCVR_STTS_CD = 'ESMS04'
+			WHERE
+			EML_ID = #{emlId}
+	</update>
+	<update id="favoritesClear" parameterType="EmailVO">
+			UPDATE EMAIL
+			SET
+			RCVR_STTS_CD = 'ESMS01'
+			WHERE
+			EML_ID = #{emlId}
+	</update>
+</mapper>

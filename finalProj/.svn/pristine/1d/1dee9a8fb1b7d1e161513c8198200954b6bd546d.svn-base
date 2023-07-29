@@ -1,0 +1,42 @@
+package kr.or.ddit.mem.cmnt.freebbs;
+
+import java.util.List;
+import java.util.Map;
+
+import javax.inject.Inject;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+
+import kr.or.ddit.mapper.FreeBbsCmntMapper;
+import kr.or.ddit.mem.cmnt.freebbs.FreeBbsCmntService;
+import kr.or.ddit.vo.FreeBbsCmntVO;
+import lombok.extern.slf4j.Slf4j;
+
+@Service
+public class FreeBbsCmntServiceImpl implements FreeBbsCmntService {
+
+	@Inject
+	FreeBbsCmntMapper freeBbsCmntMapper;
+
+
+	//자유게시판에 게시글 등록하기
+	@Override
+	public int registerPost(FreeBbsCmntVO freeBbsCmntVO) {
+		return this.freeBbsCmntMapper.registerPost(freeBbsCmntVO);
+	}
+
+	//전체 글 수 구하기
+	@Override
+	public int getTotal(Map<String, String> map) {
+		return this.freeBbsCmntMapper.getTotal(map);
+	}
+
+	//페이징 처리 시 Map에 currentPage와 size(한페이지에 보여줄 개수)를 추가해서 list구하기
+	@Override
+	public List<FreeBbsCmntVO> list(Map<String, String> map) {
+		return this.freeBbsCmntMapper.list(map);
+	}
+
+}

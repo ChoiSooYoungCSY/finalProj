@@ -1,0 +1,17 @@
+package kr.or.ddit.mapper;
+
+import java.util.List;
+
+import kr.or.ddit.vo.ScndhdBbsVO;
+import kr.or.ddit.vo.SttemntPstVO;
+
+public interface SttemntPstMapper {
+	public List<SttemntPstVO> reportPost();
+
+	// 게시글 신고 횟수
+	public SttemntPstVO reportCnt(SttemntPstVO sttemntPstVO);
+
+	// 상세페이지에서 삭제
+	public ScndhdBbsVO deletePostOne(ScndhdBbsVO scndhdBbsVO);
+
+}

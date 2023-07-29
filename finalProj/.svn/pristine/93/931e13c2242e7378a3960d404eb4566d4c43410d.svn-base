@@ -1,0 +1,88 @@
+package kr.or.ddit.mem.cmnt.freebbs;
+
+import java.security.Principal;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import kr.or.ddit.mem.main.MemMainController;
+import kr.or.ddit.util.ArticlePage;
+import kr.or.ddit.mem.cmnt.freebbs.FreeBbsCmntService;
+import kr.or.ddit.vo.FreeBbsCmntVO;
+import lombok.extern.log4j.Log4j;
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
+@Controller
+@RequestMapping("/mem/cmnt/freebbs")
+public class FreeBbsCmntController {
+
+
+	//DI. IoC (의존성 주입)
+	@Autowired
+	FreeBbsCmntService freeBbsCmntService;
+
+	@GetMapping("")
+	public String freeBoard(Model model, Principal principal, FreeBbsCmntVO freeBbsCmntVO,
+			@RequestParam(value = "size", required = false, defaultValue = "10") int size,
+			@RequestParam(value = "currentPage", required = false, defaultValue = "1") int currentPage,
+			@RequestParam(value = "cond", required = false, defaultValue = "") String cond,
+			@RequestParam(value = "keyword", required = false, defaultValue = "") String keyword) {
+
+		log.info("freeBoard");
+
+		// 로그인 한 아이디
+		String memId = principal.getName();
+		// list->memId : 멤버아이디명
+		log.info("list->memId : " + memId);
+		log.info("cond : " + cond);
+		log.info("keyword : " + keyword);
+
+		// Map에 cond, keyword를 넣어서 해당 조건에 맞는 레코드수를 구하기
+		Map<String, String> map = new HashMap<String, String>();
+
+		map.put("size", String.valueOf(size));
+		map.put("currentPage", Integer.toString(currentPage));
+		map.put("cond", cond);
+		map.put("keyword", keyword);
+
+		int total = this.freeBbsCmntService.getTotal(map);
+
+		// 위의 Map에 currentPage와 size(한페이지에 보여줄 개수)를 추가해서 list구하기
+		List<FreeBbsCmntVO> data = this.freeBbsCmntService.list(map);
+		log.info("data : " + data);
+
+		// 전체 글 수 구하기
+		log.info("total : " + total);
+		model.addAttribute("data", new ArticlePage<FreeBbsCmntVO>(total, currentPage, size, data));
+
+		return "mem/mem_cmnt_free_board";
+	}
+
+	@GetMapping("/register")
+	public String register() {
+		log.info("register");
+		return "mem/mem_cmnt_free_board_register";
+	}
+
+	@PostMapping("/registerPost")
+	public String registerPost(@ModelAttribute("FreeBbsCmntVO") FreeBbsCmntVO freeBbsCmntVO) {
+		log.info("registerPost");
+
+		int result = this.freeBbsCmntService.registerPost(freeBbsCmntVO);
+		log.info("등록 result : " + result);
+
+		return "mem/mem_cmnt_free_board_register";
+
+
+	}
+}

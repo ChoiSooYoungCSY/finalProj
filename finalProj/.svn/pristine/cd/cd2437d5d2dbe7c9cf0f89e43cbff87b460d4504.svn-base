@@ -1,0 +1,20 @@
+package kr.or.ddit.emp.email;
+
+import java.util.List;
+
+import kr.or.ddit.vo.AtchmnflDetailVO;
+import kr.or.ddit.vo.EmailVO;
+
+public interface EmailService {
+
+	public int sendEmail(EmailVO emailVO);
+
+	public List<EmailVO> selectEmailSendList(String frstWrterId);
+	public List<EmailVO> selectEmailReceiveList(String email);
+	public int readUpdateEmail(List<String> checkEmailList);
+	public int delUpdateEmail(List<String> checkEmailList);
+	public int favoriteUpdateEmail(EmailVO emailVO);
+	public int favoritesClear(EmailVO emailVO);
+	public EmailVO emailDetail(EmailVO emailVO);
+	public List<AtchmnflDetailVO> attachDetail(AtchmnflDetailVO atchmnflDetailVO);
+}

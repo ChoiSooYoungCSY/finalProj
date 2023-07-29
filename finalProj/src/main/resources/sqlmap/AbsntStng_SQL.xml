@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.ddit.mapper.AbsntStngMapper">
+	<select id="test">
+		select ABSNT_STNG_NO,
+		ABSNTEE_ID,
+		RPLCMNT_ID,
+		FSRT_WRTER_ID,
+		FSRT_WRITING_TM,
+		START_YMD,
+		END_YMD,
+		LAST_UPDUSR_ID,
+		LAST_UPDT_TM,
+		DEL_YN FROM ABSNT_STNG
+	</select>
+</mapper>

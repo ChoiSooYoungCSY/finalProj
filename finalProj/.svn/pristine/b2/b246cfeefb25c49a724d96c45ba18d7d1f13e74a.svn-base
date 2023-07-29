@@ -1,0 +1,22 @@
+package kr.or.ddit.mem.main;
+
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import kr.or.ddit.mapper.PicnicRecomMapper;
+import kr.or.ddit.vo.PicnicRecomVO;
+
+@Service
+public class MemMainServiceImpl implements MemMainService {
+	@Autowired
+	PicnicRecomMapper picnicRecomMapper;
+
+	public List<Map<String, Object>> detailPicnic(PicnicRecomVO picnicRecomVO){
+		return this.picnicRecomMapper.detailPicnic(picnicRecomVO);
+	}
+
+
+}

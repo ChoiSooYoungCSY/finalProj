@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.ddit.mapper.AtrzDocMapper">
+
+	<!-- 결재문서 -->
+	<resultMap type="atrzDocVO" id="atrzDocMap">
+		<result property="atrzDocId" column="ATRZ_DOC_ID" />
+		<result property="frstWrterId" column="FRST_WRTER_ID" />
+		<result property="fsrtWritingTm" column="FSRT_WRITING_TM" />
+		<result property="atrzDocSj" column="ATRZ_DOC_SJ" />
+		<result property="atrzDocCn" column="ATRZ_DOC_CN" jdbcType="CLOB" javaType="java.lang.String" />
+		<result property="atrzTermYmd" column="ATRZ_TERM_YMD" />
+		<result property="docFormNo" column="DOC_FORM_NO" />
+		<result property="atchmnflId" column="ATCHMNFL_ID" />
+		<result property="lastUpdusr" column="LAST_UPDUSR" />
+		<result property="lastUpdtTm" column="LAST_UPDT_TM" />
+		<result property="rnum" column="RNUM" />
+		<!-- 결재문서 : 결재권자 = 1 : N -->
+		<collection property="atrzVOList" resultMap="atrzMap"></collection>
+	</resultMap>
+
+	<!-- 결재권자 -->
+	<resultMap type="atrzVO" id="atrzMap">
+		<result property="atrzNo" column="ATRZ_NO"/>
+		<result property="atrzDocId" column="ATRZ_DOC_ID"/>
+		<result property="sanctnerId" column="SANCTNER_ID"/>
+		<result property="atrzOrdr" column="ATRZ_ORDR"/>
+		<result property="atrzSttsCd" column="ATRZ_STTS_CD"/>
+		<result property="returnRsn" column="RETURN_RSN"/>
+		<result property="atrzSttsNm" column="ATRZ_STTS_NM"/>
+		<result property="empNm" column="EMP_NM"/>
+		<result property="position" column="POSITION"/>
+		<result property="prevId" column="SANCTNER_ID"/>
+		<result property="prevOrdr" column="ATRZ_ORDR"/>
+	</resultMap>
+
+	<!-- 전자결재 - 기안 문서 목록 -->
+	<select id="myDocList" resultType="atrzDocVO">
+		SELECT T.*
+		FROM (
+		    SELECT A.ATRZ_DOC_ID
+		         , A.ATRZ_DOC_SJ
+		         , A.FRST_WRTER_ID
+		         , A.FSRT_WRITING_TM
+		         , B.SANCTNER_ID
+		         , B.ATRZ_STTS_CD
+		         , B.ATRZ_ORDR
+		         , C.DOC_FORM_SJ
+		         , D.ATRZ_STTS_NM
+		         , ROW_NUMBER() OVER(PARTITION BY A.ATRZ_DOC_ID ORDER BY A.ATRZ_DOC_ID) AS rnum
+		    FROM ATRZ_DOC A
+		    INNER JOIN ATRZ B ON A.ATRZ_DOC_ID = B.ATRZ_DOC_ID
+		    INNER JOIN DOC_FORM C ON A.DOC_FORM_NO = C.DOC_FORM_NO
+		    INNER JOIN ATRZ_STATE D ON B.ATRZ_STTS_CD = D.ATRZ_STTS_CD
+		    WHERE A.FRST_WRTER_ID = #{empId}
+		) T
+		WHERE rnum = 1
+		ORDER BY T.FSRT_WRITING_TM DESC
+	</select>
+
+	<!-- 전자결재 - 결재 문서 목록 -->
+	<select id="atrz01List" resultType="atrzDocVO">
+		SELECT *
+		FROM (
+		    SELECT A.ATRZ_DOC_ID
+		         , A.ATRZ_DOC_SJ
+		         , A.FRST_WRTER_ID
+		         , A.FSRT_WRITING_TM
+		         , B.SANCTNER_ID
+		         , B.ATRZ_STTS_CD
+		         , B.ATRZ_ORDR
+		         , C.DOC_FORM_SJ
+		         , D.ATRZ_STTS_NM
+		         , ROW_NUMBER() OVER (ORDER BY A.FSRT_WRITING_TM DESC) AS rnum
+		     FROM ATRZ_DOC A
+		    INNER JOIN ATRZ B ON A.ATRZ_DOC_ID = B.ATRZ_DOC_ID
+		    INNER JOIN DOC_FORM C ON A.DOC_FORM_NO = C.DOC_FORM_NO
+		    INNER JOIN ATRZ_STATE D ON B.ATRZ_STTS_CD = D.ATRZ_STTS_CD
+		    WHERE (
+		              B.SANCTNER_ID = #{empId}  AND B.ATRZ_ORDR = (
+		                                                             SELECT MIN(ATRZ_ORDR)
+		                                                               FROM ATRZ E
+		                                                              WHERE E.ATRZ_DOC_ID = B.ATRZ_DOC_ID
+		                                                          )
+		          )
+		          OR
+		          (
+		              B.SANCTNER_ID = #{empId} AND B.ATRZ_STTS_CD = 'ATRZ02'
+		          )
+		)
+		WHERE rnum <![CDATA[<=]]> 5
+	</select>
+
+	<!-- 전자결재 - 참조 문서 목록 -->
+	<select id="atrz07List" resultType="atrzDocVO">
+		SELECT *
+		FROM (
+		    SELECT A.ATRZ_DOC_ID
+		         , A.ATRZ_DOC_SJ
+		         , A.FRST_WRTER_ID
+		         , A.FSRT_WRITING_TM
+		         , B.SANCTNER_ID
+		         , B.ATRZ_STTS_CD
+		         , B.ATRZ_ORDR
+		         , C.DOC_FORM_SJ
+		         , D.ATRZ_STTS_NM
+		         , ROW_NUMBER() OVER (ORDER BY A.FSRT_WRITING_TM DESC) AS rnum
+		     FROM ATRZ_DOC A
+		    INNER JOIN ATRZ B ON A.ATRZ_DOC_ID = B.ATRZ_DOC_ID
+		    INNER JOIN DOC_FORM C ON A.DOC_FORM_NO = C.DOC_FORM_NO
+		    INNER JOIN ATRZ_STATE D ON B.ATRZ_STTS_CD = D.ATRZ_STTS_CD
+		    WHERE B.SANCTNER_ID = #{empId}  AND B.ATRZ_STTS_CD = 'ATRZ07'
+		)
+		WHERE rnum <![CDATA[<=]]> 5
+	</select>
+
+	<!-- 결재문서 상세정보 -->
+	<select id="atrzDetail" resultMap="atrzDocMap">
+		SELECT A.ATRZ_DOC_ID, A.FRST_WRTER_ID, A.FSRT_WRITING_TM, A.ATRZ_DOC_SJ, A.ATRZ_DOC_CN
+		     , A.ATRZ_TERM_YMD, A.DOC_FORM_NO, A.ATCHMNFL_ID, A.LAST_UPDUSR, A.LAST_UPDT_TM
+		     , B.ATRZ_NO, B.ATRZ_DOC_ID, B.SANCTNER_ID, B.ATRZ_ORDR, B.ATRZ_STTS_CD, B.RETURN_RSN
+		     , C.ATRZ_STTS_NM, D.EMP_NM, F.DEPT_NM || ' ' || E.JBGD_NM AS POSITION
+		  FROM ATRZ_DOC A
+		 INNER JOIN ATRZ B ON A.ATRZ_DOC_ID = B.ATRZ_DOC_ID
+		 INNER JOIN ATRZ_STATE C ON B.ATRZ_STTS_CD = C.ATRZ_STTS_CD
+		 INNER JOIN EMP D ON B.SANCTNER_ID = D.EMP_ID
+		 INNER JOIN JOB_GRADE E ON D.JBGD_CD = E.JBGD_CD
+		  LEFT OUTER JOIN DEPT F ON D.DEPT_CD = F.DEPT_CD
+		 WHERE A.ATRZ_DOC_ID = #{atrzDocId}
+	</select>
+
+	<!-- 결재문서 등록 -->
+	<insert id="regAtrzDoc" parameterType="atrzDocVO">
+
+		<selectKey resultType="string" order="BEFORE" keyProperty="atrzDocId">
+			SELECT 'ATR' || LPAD(MAX(SUBSTR(ATRZ_DOC_ID, 4)) + 1, 6, '0') FROM ATRZ_DOC
+		</selectKey>
+
+		INSERT INTO ATRZ_DOC
+		    (ATRZ_DOC_ID, FRST_WRTER_ID, FSRT_WRITING_TM, ATRZ_DOC_SJ, ATRZ_DOC_CN
+		   , ATRZ_TERM_YMD, DOC_FORM_NO, ATCHMNFL_ID, LAST_UPDUSR, LAST_UPDT_TM)
+		VALUES
+		    (#{atrzDocId}
+		   , #{frstWrterId}
+		   , #{fsrtWritingTm}
+		   , #{atrzDocSj}
+		   , #{atrzDocCn}
+		   , (SELECT REPLACE(SUBSTR(#{fsrtWritingTm}, 0, 10), '-') || '-' || TO_CHAR(TO_DATE(REPLACE(SUBSTR(#{fsrtWritingTm}, 0, 10), '-'), 'YYYYMMDD') + INTERVAL '7' DAY, 'YYYYMMDD') FROM DUAL)
+		   , 8
+		   , #{atchmnflId}
+		   , #{lastUpdusr}
+		   , #{lastUpdtTm})
+	</insert>
+
+	<!-- 결재권자 등록 -->
+	<insert id="regAtrz" parameterType="atrzVO">
+        INSERT INTO ATRZ (
+	          ATRZ_NO
+	        , ATRZ_DOC_ID
+	        , SANCTNER_ID
+	        , ATRZ_ORDR
+	        , ATRZ_STTS_CD
+	        , RETURN_RSN
+        )
+        VALUES (
+			  ATRZ_SEQ.NEXTVAL
+			, #{atrzDocId}
+			, #{sanctnerId}
+			, #{atrzOrdr}
+			, #{atrzSttsCd}
+			, #{returnRsn}
+	    )
+	</insert>
+
+	<!-- 결재 문서 업데이트 -->
+	<update id="updateAtrzDocCn" parameterType="atrzDocVO">
+		UPDATE ATRZ_DOC
+		   SET ATRZ_DOC_CN = #{atrzDocCn}
+		 WHERE ATRZ_DOC_ID = #{atrzDocId}
+	</update>
+
+	<!-- 결재 승인 -->
+	<update id="updateAtrz02" parameterType="atrzVO">
+		UPDATE ATRZ
+		   SET ATRZ_STTS_CD = 'ATRZ02'
+		     , ATRZ_ORDR = 100
+		     , RETURN_RSN = #{returnRsn}
+		 WHERE ATRZ_DOC_ID = #{atrzDocId}
+		   AND SANCTNER_ID = #{sanctnerId}
+	</update>
+
+	<!-- 결재 반려, 반송 -->
+	<update id="updateAtrz03" parameterType="atrzVO">
+		UPDATE ATRZ
+		SET
+		    ATRZ_STTS_CD =
+		    CASE SANCTNER_ID
+		        WHEN #{sanctnerId} THEN #{atrzSttsCd}
+		        WHEN #{prevId} THEN #{atrzSttsCd}
+		    END,
+		    RETURN_RSN =
+		    CASE SANCTNER_ID
+		        WHEN #{sanctnerId} THEN #{returnRsn}
+		        WHEN #{prevId} THEN ''
+		    END,
+		    ATRZ_ORDR =
+		    CASE SANCTNER_ID
+		        WHEN #{prevId} THEN TO_NUMBER(#{prevOrdr})
+		        ELSE ATRZ_ORDR
+		    END
+		WHERE ATRZ_DOC_ID = #{atrzDocId} AND SANCTNER_ID IN (#{sanctnerId}, #{prevId})
+	</update>
+
+	<!-- 결재 보류, 반송 -->
+</mapper>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.ddit.mapper.NtcBbsMapper">
+
+	<resultMap type="ntcBbsVO" id="ntcBbsMap">
+		<result property="pstId" column="PST_ID" />
+		<result property="frstWrterId" column="FRST_WRTER_ID" />
+		<result property="fsrtWritingTm" column="FSRT_WRITING_TM" />
+		<result property="pstSj" column="PST_SJ" />
+		<result property="pstCn" column="PST_CN" jdbcType="CLOB" javaType="java.lang.String" />
+		<result property="rdcnt" column="RDCNT" />
+		<result property="delYn" column="DEL_YN" />
+		<result property="atchmnflId" column="ATCHMNFL_ID" />
+		<result property="lastUpdusrId" column="LAST_UPDUSR_ID" />
+		<result property="lastUpdtTm" column="LAST_UPDT_TM" />
+	</resultMap>
+
+	<select id="selectAll" resultMap="ntcBbsMap">
+	SELECT
+	    pst_id,
+	    frst_wrter_id,
+	    fsrt_writing_tm,
+	    pst_sj,
+	    pst_cn,
+	    rdcnt,
+	    atchmnfl_id,
+	    last_updusr_id,
+	    last_updt_tm
+	FROM
+	    ntc_bbs
+	where
+	    del_yn = 'N'
+	</select>
+
+</mapper>

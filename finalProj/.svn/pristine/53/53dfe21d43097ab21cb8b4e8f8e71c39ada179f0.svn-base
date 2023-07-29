@@ -1,0 +1,34 @@
+package kr.or.ddit.mem.cmnt.cvplbbs;
+
+import java.util.List;
+
+import javax.inject.Inject;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+import kr.or.ddit.vo.CvplBbsVO;
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
+@RequestMapping("/mem/cmnt/cvplbbs")
+@Controller
+public class CvplBbsController {
+
+	@Inject
+	CvplBbsService cvplBbsService;
+
+	@GetMapping("")
+	public String list(Model model, CvplBbsVO cvplBbsVO) {
+
+		List<CvplBbsVO> list = this.cvplBbsService.selectAll(cvplBbsVO);
+		log.info("cvplbbsList :", list);
+
+		model.addAttribute("data", list);
+
+		return "mem/mem_cmnt_cvplbbs_board";
+	}
+
+}

@@ -1,0 +1,41 @@
+package kr.or.ddit.emp.aa.mngmanagect;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import kr.or.ddit.mapper.CmnuseManagectMapper;
+import kr.or.ddit.vo.CmnuseManagectVO;
+
+/**
+ * @Class Name : MngManageCostServiceImpl.java
+ * @Description : MngManageCostServiceImpl Class
+ * @Modification Information
+ * @
+ * @   수정일        수정자                  수정내용
+ * @ ---------   ---------   -------------------------------
+ * @ 2023.07.06          최초생성
+ *
+ * @author 임경빈
+ * @since 2023.07.06
+ * @version 1.0
+ * @see
+ */
+
+//@Service
+//public class MngManageCostServiceImpl implements MngManageCostService {
+//
+//	@Autowired
+//	CmnuseManagectMapper cmnuseManagectMapper;
+//
+//	/**
+//	 * 총 공용관리비를 전체 조회한다.
+//	 * @return 총 공용관리비 목록
+//	 */
+//	@Override
+//	public List<CmnuseManagectVO> selectAll() {
+//		return this.cmnuseManagectMapper.selectAll();
+//	}
+//
+//}

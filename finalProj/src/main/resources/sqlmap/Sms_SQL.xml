@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.ddit.mapper.SmsMapper">
+	<insert id="insertMessage" parameterType="smsVO">
+		INSERT INTO SMS (
+		SMS_NO
+		, SNDPTY_STTS
+		, RCVR_STTS
+		, SMS_CN
+		, TRSM_TM
+		, SNDPY_ID
+		, RCVR_ID
+		,
+		ATCHMNFL_ID
+		) VALUES (
+		(SELECT NVL((MAX(SMS_NO)+1),1) FROM SMS)
+		,#{sndptyStts}
+		,#{rcvrStts}
+		,#{smsCn}
+		,TO_CHAR(SYSDATE,
+		'YYYYMMDDHH24MISS')
+		, #{sndpyId}
+		, #{rcvrId}
+		,NULL
+		)
+	</insert>
+
+	<select id="checkMember" parameterType="java.lang.String"
+		resultType="int">
+		SELECT COUNT(*) FROM MEMBER WHERE MEM_ID= #{value}
+	</select>
+	<select id="checkEmp" parameterType="String" resultType="int">
+		SELECT
+		COUNT(*) FROM EMP WHERE EMP_ID= #{value}
+	</select>
+
+
+	<select id="myChatList" parameterType="smsVO" resultType="smsVO">
+		SELECT
+		USERID,
+		( SELECT MAX(TRSM_TM) FROM SMS WHERE SNDPY_ID = USERID ) AS TRSM_TM,
+		( SELECT SMS_CN FROM SMS WHERE TRSM_TM = (SELECT MAX(TRSM_TM) FROM SMS
+		WHERE SNDPY_ID = USERID) ) AS SMS_CN
+		FROM (
+		SELECT SNDPY_ID AS USERID FROM SMS GROUP BY SNDPY_ID
+		UNION ALL
+		SELECT RCVR_ID FROM SMS GROUP BY RCVR_ID
+		) SMSUSER
+		-- 로그인 사용자는 제외 시키기..
+		WHERE USERID NOT IN (#{userId})
+		GROUP BY USERID
+	</select>
+
+
+	<select id="selectMyChat" parameterType="smsVO" resultType="smsVO">
+		SELECT
+			SMS_NO
+			, SNDPTY_STTS
+			, RCVR_STTS
+			, SMS_CN
+			, TRSM_TM
+			, SNDPY_ID
+			, RCVR_ID
+			, ATCHMNFL_ID
+		FROM
+			SMS
+		WHERE
+		(SNDPY_ID = #{me} AND RCVR_ID = #{you} )
+		 OR (SNDPY_ID = #{you}  AND RCVR_ID = #{me}) ORDER BY TRSM_TM
+	</select>
+</mapper>

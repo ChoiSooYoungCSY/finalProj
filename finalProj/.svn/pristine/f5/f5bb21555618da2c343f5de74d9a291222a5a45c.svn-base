@@ -1,0 +1,7 @@
+package kr.or.ddit.mapper;
+
+import kr.or.ddit.vo.EmailVO;
+
+public interface EmailMapper {
+	public int sendEmail(EmailVO emailVO);
+}

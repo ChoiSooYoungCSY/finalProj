@@ -1,0 +1,8 @@
+package kr.or.ddit.emp.email;
+
+import kr.or.ddit.vo.EmailVO;
+
+public interface EmailService {
+
+	public int sendEmail(EmailVO emailVO);
+}

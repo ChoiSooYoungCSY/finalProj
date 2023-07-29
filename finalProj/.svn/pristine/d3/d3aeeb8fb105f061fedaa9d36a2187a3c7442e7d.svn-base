@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.ddit.mapper.AIMapper">
+	<select id="rstrntCount" resultType="rstrntVO">
+		SELECT
+   		COUNT(rstrnt_id) AS rstrntCount
+		FROM
+    	RSTRNT WHERE DEL_YN ='N'
+	</select>
+
+	<select id="rstrntCntBySe" resultType="rstrntVO">
+		SELECT
+		  B.RSTRNT_SE_CD
+		, A.RSTRNT_SE_NM
+		, COUNT(*) AS rstrntCntBySe
+		FROM RSTRNT_SE A
+		JOIN RSTRNT B ON A.RSTRNT_SE_CD = B.RSTRNT_SE_CD
+		GROUP BY B.RSTRNT_SE_CD, A.RSTRNT_SE_NM
+	</select>
+	<select id="rstrntReviewCnt" resultType="rstrntVO">
+		SELECT
+			COUNT(REVIEW_NO) AS reviewCnt
+		FROM
+			REVIEW
+		WHERE PLACE_ID LIKE 'RST%'
+	</select>
+
+	<select id="bestReviewCntRstrnt" resultType="rstrntVO">
+		SELECT
+			R.RSTRNT_ID,
+			R.RSTRNT_SE_CD,
+			R.FRST_WRTER_ID,
+			R.FRST_WRTER_TM,
+			R.LA,
+			R.LO,
+			R.RSTRNT_NM,
+			R.RSTRNT_IMG,
+			R.RSTRNT_TEL,
+			R.RSTRNT_ADRES,
+			R.BSN_HOUR,
+			R.RSTRNT_URL,
+			R.DEL_YN,
+			R.RESTDE,
+			R.BREAK_TM,
+			R.LAST_UPDUSR_ID,
+			R.LAST_UPDT_TM,
+			RV.REVIEW_CNT
+		FROM
+			RSTRNT R
+		JOIN (
+			SELECT COUNT(PLACE_ID) AS REVIEW_CNT, PLACE_ID
+			FROM REVIEW
+			WHERE PLACE_ID LIKE 'RST%'
+			GROUP BY PLACE_ID
+			ORDER BY COUNT(PLACE_ID) DESC
+		) RV ON R.RSTRNT_ID = RV.PLACE_ID
+		WHERE R.RSTRNT_ID IN (
+		SELECT RSTRNT_ID
+		FROM (
+		SELECT RSTRNT_ID
+		FROM RSTRNT
+		WHERE ROWNUM &lt;= 10
+		)
+		)
+		ORDER BY RV.REVIEW_CNT DESC
+	</select>
+	<select id="selectReviewCountByGender" resultType="reviewVO" parameterType="String">
+		SELECT
+			M.SEX_DSTN,
+			COUNT(*) AS reviewCnt
+		FROM
+			REVIEW R
+		JOIN
+			MEMBER M
+		ON
+			R.FRST_WRTER_ID = M.MEM_ID
+		WHERE
+			R.PLACE_ID = #{value}
+		GROUP BY
+			M.SEX_DSTN
+	</select>
+
+
+
+
+	<select id="selectAllGenderCnt" resultType="memberVO">
+		SELECT
+		COUNT(CASE WHEN SEX_DSTN = '남' THEN 1 END) AS maleCnt,
+		COUNT(CASE WHEN sex_dstn = '여' THEN 1 END) AS femaleCnt
+		FROM
+		MEMBER
+	</select>
+	<select id="selectAllMemberAgeCnt" resultType="memberVO">
+		SELECT
+			SUM(CASE WHEN TO_NUMBER(SUBSTR(TO_CHAR(SYSDATE, 'YYYY'), 1, 4)) -
+			TO_NUMBER(SUBSTR(MEM_BRTHDY, 1, 4)) BETWEEN 10 AND 19 THEN 1 ELSE 0
+			END) AS teenagers,
+			SUM(CASE WHEN TO_NUMBER(SUBSTR(TO_CHAR(SYSDATE, 'YYYY'), 1, 4)) -
+			TO_NUMBER(SUBSTR(MEM_BRTHDY, 1, 4)) BETWEEN 20 AND 29 THEN 1 ELSE 0
+			END) AS twenties,
+			SUM(CASE WHEN TO_NUMBER(SUBSTR(TO_CHAR(SYSDATE, 'YYYY'), 1, 4)) -
+			TO_NUMBER(SUBSTR(MEM_BRTHDY, 1, 4)) BETWEEN 30 AND 39 THEN 1 ELSE 0
+			END) AS thirties,
+			SUM(CASE WHEN TO_NUMBER(SUBSTR(TO_CHAR(SYSDATE, 'YYYY'), 1, 4)) -
+			TO_NUMBER(SUBSTR(MEM_BRTHDY, 1, 4)) BETWEEN 40 AND 49 THEN 1 ELSE 0
+			END) AS forties,
+			SUM(CASE WHEN TO_NUMBER(SUBSTR(TO_CHAR(SYSDATE, 'YYYY'), 1, 4)) -
+			TO_NUMBER(SUBSTR(MEM_BRTHDY, 1, 4)) BETWEEN 50 AND 59 THEN 1 ELSE 0
+			END) AS fifties,
+			SUM(CASE WHEN TO_NUMBER(SUBSTR(TO_CHAR(SYSDATE, 'YYYY'), 1, 4)) -
+			TO_NUMBER(SUBSTR(MEM_BRTHDY, 1, 4)) BETWEEN 60 AND 69 THEN 1 ELSE 0
+			END) AS sixties,
+			SUM(CASE WHEN TO_NUMBER(SUBSTR(TO_CHAR(SYSDATE, 'YYYY'), 1, 4)) -
+			TO_NUMBER(SUBSTR(MEM_BRTHDY, 1, 4)) BETWEEN 70 AND 79 THEN 1 ELSE 0
+			END) AS seventies,
+			SUM(CASE WHEN TO_NUMBER(SUBSTR(TO_CHAR(SYSDATE, 'YYYY'), 1, 4)) -
+			TO_NUMBER(SUBSTR(MEM_BRTHDY, 1, 4)) BETWEEN 80 AND 89 THEN 1 ELSE 0
+			END) AS eighties,
+			SUM(CASE WHEN TO_NUMBER(SUBSTR(TO_CHAR(SYSDATE, 'YYYY'), 1, 4)) -
+			TO_NUMBER(SUBSTR(MEM_BRTHDY, 1, 4)) BETWEEN 90 AND 99 THEN 1 ELSE 0
+			END) AS nineties
+		FROM
+		MEMBER
+	</select>
+
+		<!-- 중고장터 -->
+
+	<!-- 중고장터 카테고리별 게시글 등록 수 -->
+	<select id="bestCateGoryCount" parameterType="scndhdBbsVO" resultType="scndhdBbsVO">
+	SELECT
+	 	A.SCHAND_SE_CD AS CATEGORY,
+	    COUNT(*) AS PRODUCT_COUNT,
+	    B.SCHAND_SE_NM
+	FROM
+	    SCNDHD_BBS A
+	JOIN
+	    SCNDHD_SE B
+	ON
+	    A.SCHAND_SE_CD = B.SCHAND_SE_CD
+	WHERE
+	    A.DEL_YN = 'N'
+	    AND NTSL_STTS = '판매중'
+	GROUP BY
+	    A.SCHAND_SE_CD, B.SCHAND_SE_NM
+	</select>
+
+	<!-- 중고장터 게시글 게시글 전체의 수-->
+	<select id="cateTotalCnt" parameterType="scndhdBbsVO" resultType="scndhdBbsVO">
+	SELECT
+	    COUNT(PST_ID) AS cateCnt
+	FROM
+	    SCNDHD_BBS
+
+	WHERE
+	    DEL_YN = 'N'
+	AND
+	    PST_ID LIKE 'SCN%'
+	</select>
+
+
+	<!-- 최근 한달동안 카테고리별 게시글이 등록 된 수 BEST10  -->
+	<select id="oneMonthBest" parameterType="scndhdBbsVO" resultType="scndhdBbsVO">
+	SELECT
+	    A.schand_se_cd,
+	    A.registered_quantity,
+	    A.SCHAND_SE_NM
+	FROM (
+	    SELECT
+	        A.schand_se_cd ,
+	        COUNT(A.schand_se_cd) AS registered_quantity,
+	        B.SCHAND_SE_NM
+	    FROM
+	        scndhd_bbs A
+	    INNER JOIN
+	        SCNDHD_SE B
+	    ON
+	        A.SCHAND_SE_CD = B.SCHAND_SE_CD
+	    WHERE
+	        TO_DATE(fsrt_writing_tm, 'YYYY-MM-DD HH24:MI:SS') >= SYSDATE - INTERVAL '1' MONTH
+	    GROUP BY
+	        A.schand_se_cd, B.SCHAND_SE_NM
+	    ORDER BY
+	        COUNT(schand_se_cd) DESC
+	) A
+	WHERE ROWNUM &lt; = 10
+	</select>
+
+	<!-- 최근 한달동안 카테고리별 게시글이 등록 된 수 BEST10 총 합 -->
+	<select id="oneMonthBestCnt" parameterType="scndhdBbsVO" resultType="scndhdBbsVO">
+	SELECT
+	    SUM(registered_quantity) AS total_registered_quantity
+	FROM (
+	    SELECT
+	        schand_se_cd ,
+	        COUNT(schand_se_cd) AS registered_quantity
+	    FROM
+	        scndhd_bbs
+	    WHERE
+	        TO_DATE(fsrt_writing_tm, 'YYYY-MM-DD HH24:MI:SS') >= SYSDATE - INTERVAL '1' MONTH
+	    GROUP BY
+	        schand_se_cd
+	    ORDER BY
+	        COUNT(schand_se_cd) DESC
+	)
+	WHERE ROWNUM &lt; = 10
+	</select>
+
+	<!-- 중고장터 금일 게시글 최다 조회수 BEST 5 -->
+	<select id="todayBest" parameterType="scndhdBbsVO" resultType="scndhdBbsVO">
+	SELECT
+	    pst_id,
+	    pst_sj,
+	    rdcnt
+	FROM
+	    (SELECT
+	        pst_id,
+	        pst_sj,
+	        rdcnt,
+	        SUBSTR(fsrt_writing_tm, 0, 8)
+		FROM
+	        scndhd_bbs
+	    WHERE
+	        SUBSTR(fsrt_writing_tm, 0, 8) = TO_CHAR(SYSDATE, 'YYYYMMDD')
+	    AND
+	        del_yn = 'N'
+	    ORDER BY
+	        rdcnt DESC)
+	WHERE
+	    ROWNUM &lt;= 5
+	</select>
+
+	<!-- 중고장터 끝 -->
+</mapper>

@@ -1,0 +1,33 @@
+package kr.or.ddit.emp.cmnt.freebbs;
+
+import java.text.SimpleDateFormat;
+import java.util.List;
+
+import javax.inject.Inject;
+
+import org.json.simple.JSONArray;
+import org.springframework.stereotype.Service;
+
+import kr.or.ddit.mapper.EmpBbsMapper;
+import kr.or.ddit.vo.EmpBbsVO;
+import kr.or.ddit.vo.EmpNtcBbsVO;
+
+@Service
+public class EmpFreebbsServiceImpl implements EmpFreebbsService {
+
+	@Inject
+	EmpBbsMapper empBbsMapper;
+
+	// 직원 공지사항 게시판 전체글
+	@Override
+	public List<EmpBbsVO> selectAll() {
+		JSONArray jsonArr = new JSONArray();
+		List<EmpBbsVO> postList = this.empBbsMapper.selectAll();
+		for (EmpBbsVO empBbsVO : postList) {
+			String lastUpdtTm = empBbsVO.getLastUpdtTm();
+			jsonArr.add(empBbsVO);
+		}
+		return jsonArr;
+	}
+
+}

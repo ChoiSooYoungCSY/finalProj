@@ -1,0 +1,11 @@
+package kr.or.ddit.mapper;
+
+import java.util.List;
+
+import kr.or.ddit.vo.MemberVO;
+import kr.or.ddit.vo.ReadrmUseRcordVO;
+
+public interface ReadrmUseRcordMapper {
+	public List<ReadrmUseRcordVO> selectByIdReadrm(MemberVO memberVO);
+
+}

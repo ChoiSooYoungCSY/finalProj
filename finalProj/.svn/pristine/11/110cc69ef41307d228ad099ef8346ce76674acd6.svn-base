@@ -1,0 +1,9 @@
+package kr.or.ddit.mapper;
+
+import kr.or.ddit.vo.EmpVO;
+
+public interface EmpMapper {
+	//직원상세정보
+		//<select id="detailMember" parameterType="memberVO" resultMap="memberMap">
+		public EmpVO detailEmp(EmpVO empVO);
+}

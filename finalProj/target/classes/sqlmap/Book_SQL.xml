@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.ddit.mapper.BookMapper">
+<!-- ////////////////////////////////////////// 입주민 영역 //////////////////////////////////////////// -->
+	<!-- 자주 사용되는 구문을 따로 관리 -->
+	<sql id="where">
+		<!-- 전체 검색 -->
+		    <if test="keyword!=null and cond==''">
+		    AND     (
+	            BOOK_NO   LIKE '%' || #{keyword} || '%' OR
+	            BOOK_SJ  LIKE '%' || #{keyword} || '%' OR
+	            AUTHR LIKE '%' || #{keyword} || '%'
+        	)
+        	</if>
+			<!-- 조건 검색 -->
+			<if test="cond!=null and !cond.equals('')">
+				<choose>
+					<when test="cond=='bookNo'">
+						AND BOOK_NO LIKE '%' || #{keyword} || '%'
+					</when>
+					<when test="cond=='bookSj'">
+						AND BOOK_SJ LIKE '%' || #{keyword} || '%'
+					</when>
+					<when test="cond=='authr'">
+						AND AUTHR LIKE '%' || #{keyword} || '%'
+					</when>
+				</choose>
+			</if>
+	</sql>
+
+
+
+	<!-- 도서 정보 목록 -->
+	<select id="list" parameterType="map" resultType="bookVO">
+		WITH T AS(
+		    SELECT ROW_NUMBER() OVER(ORDER BY BOOK_NO DESC) RNUM
+		        , BOOK_NO
+		        , BOOK_SE_CD
+		        , BOOK_SJ
+		        , AUTHR
+		        , INVNTRY
+		        , BOOK_IMG
+		        , (SELECT COUNT(*) FROM LOAN_BOOK L WHERE L.BOOK_NO =  B.BOOK_NO AND L.LOAN_STTS_CD='LOAN01') LOANFLAG
+		        , (SELECT COUNT(*) FROM LOAN_BOOK L2  WHERE MEM_ID = #{memId} AND LOAN_STTS_CD = 'LOAN01' AND L2.BOOK_NO=B.BOOK_NO) LOANMEM
+		    FROM  BOOK B
+		    WHERE 1 = 1
+
+
+		    <include refid="where"></include>
+		)
+		SELECT T.*
+		FROM T
+		WHERE T.RNUM BETWEEN (#{currentPage} * #{size}) - (#{size} - 1)
+						 AND (#{currentPage} * #{size})
+<!-- 		시작행 : (현재페이지 * 한 화면 행수)-(한화면행수-1) -->
+<!-- 		종료행 : (현재페이지 * 한화면행수) -->
+	</select>
+
+
+	<!-- 전체 글 수 구하기 -->
+	<select id="getTotal" parameterType="map" resultType="int">
+		SELECT COUNT(*) FROM BOOK
+		WHERE 1 = 1
+		<include refid="where"></include>
+	</select>
+
+	<!-- 도서 상세보기 -->
+	<select id="detailBook" resultType="bookVO">
+		SELECT
+		    A.BOOK_NO,
+		    (SELECT B.BOOK_SE_NM FROM BOOK_SE B WHERE B.BOOK_SE_CD = A.BOOK_SE_CD) BOOK_SE_CD,
+		    A.BOOK_SJ,
+		    A.AUTHR,
+		    A.INVNTRY,
+		    A.BOOK_IMG
+		FROM
+		    BOOK A
+		WHERE
+		    A.BOOK_NO = #{bookNo}
+	</select>
+
+
+
+
+<!-- ////////////////////////////////////////// 관리자 영역 //////////////////////////////////////////// -->
+
+	<!-- 새로운 도서를 등록 -->
+	<insert id="registerPost" parameterType="bookVO">
+		<selectKey resultType="int" order="BEFORE" keyProperty="bookNo" >
+			SELECT NVL((MAX(BOOK_NO)+1),1) FROM BOOK
+		</selectKey>
+
+		INSERT INTO BOOK (
+		    BOOK_NO
+		    , BOOK_SE_CD
+		    , BOOK_SJ
+		    , AUTHR
+		    , INVNTRY
+		    , BOOK_IMG
+		) VALUES (
+		    #{bookNo}
+		    , #{bookSeCd}
+		    , #{bookSj}
+		    , #{authr}
+		    , #{invntry}
+		    , #{bookImg}
+		)
+	</insert>
+
+	<!-- 등록된 도서를 수정 -->
+	<update id="updatePost" parameterType="bookVO">
+		UPDATE BOOK
+		    SET
+		        BOOK_SE_CD = #{bookSeCd}
+		        , BOOK_SJ = #{bookSj}
+		        , AUTHR = #{authr}
+		        , INVNTRY = #{invntry}
+		        , BOOK_IMG = #{bookImg}
+		WHERE
+		    book_no = #{bookNo}
+	</update>
+
+	<!-- 등록된 도서를 삭제 -->
+	<delete id="deletePost" parameterType="bookVO">
+		DELETE FROM  BOOK
+		WHERE
+		    BOOK_NO = #{bookNo}
+	</delete>
+
+
+
+
+
+
+
+
+
+
+
+
+
+</mapper>

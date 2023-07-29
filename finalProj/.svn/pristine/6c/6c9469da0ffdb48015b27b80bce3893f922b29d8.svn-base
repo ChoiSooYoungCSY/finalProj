@@ -1,0 +1,19 @@
+package kr.or.ddit.vo;
+
+import lombok.Data;
+
+@Data
+public class AtchmnflDetailVO {
+	private int atchmnflNo;
+	private String atchmnflId;
+	private String frstWrterTm;
+	private String frstWrterId;
+	private String flpth;
+	private String streFlNm;
+	private String atchmnflSize;
+	private String atchmnflTy;
+	private String orginlAtchmnflNm;
+	private String lastUpdusrId;
+	private String lastUpdtTm;
+	private String delYn;
+}

@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.ddit.mapper.LoanBookMapper">
+
+	<select id="list" resultType="loanBookVO">
+		SELECT
+		LON_NO
+		, MEM_ID
+		, BOOK_NO
+		, BEGIN_YMD
+		, END_YMD
+		, LOAN_STTS_CD
+		FROM
+		LOAN_BOOK
+
+	</select>
+
+	<insert id="insertLoan" parameterType="loanBookVO">
+		INSERT INTO loan_book (
+		LON_NO
+		, MEM_ID
+		, BOOK_NO
+		, BEGIN_YMD
+		, END_YMD
+		, LOAN_STTS_CD
+		, LOAN_BOOK_NO
+		, RETURN_BOOK_NO
+		) VALUES (
+		(SELECT NVL((MAX(LON_NO)+1),1) FROM LOAN_BOOK)
+		, #{memId}
+		, #{bookNo}
+		, to_char(SYSDATE, 'YYYYMMDD')
+		, to_char(SYSDATE + 7, 'YYYYMMDD')
+		, 'LOAN01'
+		, #{loanBookNo}
+		, #{loanBookNo}
+		)
+	</insert>
+
+	<update id="updateLoan" parameterType="loanBookVO">
+		UPDATE loan_book
+		SET
+		LOAN_STTS_CD = 'LOAN02'
+		WHERE MEM_ID = #{memId}
+		AND RETURN_BOOK_NO =
+		#{returnBookNo}
+	</update>
+
+	<select id="selectByIdLoanBook" parameterType="memberVO" resultType="loanBookVO">
+		SELECT
+		A.LON_NO
+		, A.MEM_ID
+		, A.BOOK_NO
+		, A.BEGIN_YMD
+		, A.END_YMD
+		, A.LOAN_STTS_CD
+		, C.LOAN_STTS_NM
+		, A.LOAN_BOOK_NO
+		, B.BOOK_SJ
+		, A.RETURN_BOOK_NO
+		FROM
+		LOAN_BOOK A, BOOK B, LOAN_STTS C
+		WHERE
+		A.BOOK_NO = B.BOOK_NO AND
+		A.LOAN_STTS_CD = C.LOAN_STTS_CD AND
+		MEM_ID = #{memId}
+	</select>
+</mapper>

@@ -1,0 +1,19 @@
+package kr.or.ddit.mem.mypg;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import kr.or.ddit.mapper.MemberMapper;
+import kr.or.ddit.vo.MemberVO;
+
+@Service
+public class MypageServiceImpl implements MapageService {
+	@Autowired
+	MemberMapper memberMapper;
+
+	public MemberVO passwordConfirm(MemberVO memberVO){
+		return this.memberMapper.passwordConfirm(memberVO);
+	}
+
+
+}

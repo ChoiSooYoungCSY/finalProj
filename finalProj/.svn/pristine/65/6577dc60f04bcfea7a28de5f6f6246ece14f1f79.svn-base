@@ -1,0 +1,55 @@
+package kr.or.ddit.mem.cmnt.neighborbbs;
+
+import java.util.List;
+
+import javax.inject.Inject;
+
+import org.springframework.stereotype.Service;
+
+import kr.or.ddit.mapper.ReviewMapper;
+import kr.or.ddit.mapper.RstrntMapper;
+import kr.or.ddit.mapper.RstrntRecomMapper;
+import kr.or.ddit.vo.ReviewVO;
+import kr.or.ddit.vo.RstrntRecomVO;
+import kr.or.ddit.vo.RstrntVO;
+
+@Service
+public class NeighborbbsServiceImpl implements NeighborbbsService{
+
+
+
+	@Inject
+	ReviewMapper reviewMapper;
+
+	@Inject
+	RstrntRecomMapper rstrntRecomMapper;
+
+	@Inject
+	RstrntMapper rstrntMapper;
+
+	@Override
+	public List<ReviewVO> selectReviewsByRstrntId(RstrntVO rstrntVO) {
+		return this.reviewMapper.selectReviewsByRstrntId(rstrntVO);
+	}
+
+	@Override
+	public int insertReview(ReviewVO reviewVO) {
+		reviewVO.setLastUpdusrId(reviewVO.getFrstWrterId());
+		String visitYmd = reviewVO.getVisitYmd();
+		visitYmd = visitYmd.replaceAll("-", "");
+		reviewVO.setVisitYmd(visitYmd);
+		return this.reviewMapper.insertReview(reviewVO);
+	}
+
+	@Override
+	public RstrntRecomVO selectRecomBymemID(RstrntRecomVO rstrntRecomVO) {
+		return this.rstrntRecomMapper.selectRecomBymemID(rstrntRecomVO);
+	}
+
+	@Override
+	public List<RstrntVO> selectAllRstrnt() {
+		return this.rstrntMapper.selectAllRstrnt();
+	}
+
+
+}

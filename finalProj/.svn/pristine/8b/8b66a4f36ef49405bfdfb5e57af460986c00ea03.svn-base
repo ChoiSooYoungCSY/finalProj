@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.ddit.mapper.EmailMapper">
+
+<!-- 	<resultMap type="scndhdBbsVO" id="scndhdBbsMap"> -->
+<!-- 		<result property="rnum" column="RNUM" /> -->
+<!-- 		<result property="pstId" column="PST_ID" /> -->
+<!-- 		<result property="frstWrterId" column="FRST_WRTER_ID" /> -->
+<!-- 		<result property="fsrtWritingTm" column="FSRT_WRITING_TM" /> -->
+<!-- 		<result property="pstSj" column="PST_SJ" /> -->
+<!-- 		<result property="pstCn" column="PST_CN" jdbcType="CLOB" javaType="java.lang.String" /> -->
+<!-- 		<result property="rdcnt" column="RDCNT" /> -->
+<!-- 		<result property="delYn" column="DEL_YN" /> -->
+<!-- 		<result property="scndhandPc" column="SCNDHAND_PC" /> -->
+<!-- 		<result property="schandSeCd" column="SCHAND_SE_CD" /> -->
+<!-- 		<result property="atchmnflId" column="ATCHMNFL_ID" /> -->
+<!-- 		<result property="lastUpdusrId" column="LAST_UPDUSR_ID" /> -->
+<!-- 		<result property="lastUpdtTm" column="LAST_UPDT_TM" /> -->
+<!-- 		<result property="ntslStts" column="NTSL_STTS" /> -->
+<!-- 		<result property="schandSeNm" column="SCHAND_SE_NM" /> -->
+<!-- 		<collection property="atchmnflDetailList" resultMap="atchmnflDetailMap"></collection> -->
+<!-- 	</resultMap> -->
+
+	<insert id="sendEmail" parameterType="emailVO">
+		INSERT INTO EMAIL (
+		EML_ID
+		, FRST_WRTER_ID
+		, FSRT_WRITING_TM
+		, DSPTCH_EML
+		, RCPTN_EML
+		, EML_CN
+		, SNDPTY_STTS_CD
+		, RCVR_STTS_CD
+		, ATCHMNFL_ID
+		, LAST_UPDUSR_ID
+		, LAST_UPDT_TM
+		, EML_TITLE
+		) VALUES (
+		(SELECT 'EML' || LPAD(MAX(SUBSTR(EML_ID, 4)) + 1, 6, '0') FROM EMAIL)
+		,#{frstWrterId}
+		,TO_CHAR(SYSDATE,'yyyymmddhh24miss')
+		,#{dsptchEml}
+		,#{rcptnEml}
+		,#{emlCn}
+		,'ESMS01'
+		,'ESMS02'
+		,#{atchmnflId}
+		,#{lastUpdusrId}
+		,TO_CHAR(SYSDATE,'yyyymmddhh24miss')
+		,#{emlTitle}
+		)
+	</insert>
+</mapper>

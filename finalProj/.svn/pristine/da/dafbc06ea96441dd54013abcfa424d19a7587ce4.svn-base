@@ -1,0 +1,21 @@
+package kr.or.ddit.emp.pa.mnginprogressvote;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
+@RequestMapping("/emp/pa/mnginprogrsvote")
+@Controller
+public class MngInProgressVoteController {
+
+	// 인사행정 - 전자투표 관리 - 진행 중 투표
+	@GetMapping("")
+	public String mngInProgressVote() {
+		log.info("mngInProgressVote");
+		return "emp/pa_mng_in_progress_vote";
+	}
+
+}

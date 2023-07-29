@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.or.ddit.mapper.UserMapper">
+
+	<resultMap type="userVO" id="userMap">
+		<result property="memId" column="MEM_ID" />
+		<result property="password" column="PASSWORD" />
+		<result property="memNm" column="MEM_NM" />
+		<result property="sexDstn" column="SEX_DSTN" />
+		<result property="email" column="EMAIL" />
+		<result property="faceH5" column="FACE_H5" />
+		<result property="memImg" column="MEM_IMG" />
+		<result property="phoneNo" column="PHONE_NO" />
+		<result property="telNo" column="TEL_NO" />
+		<result property="hshldInfoNo" column="HSHLD_INFO_NO" />
+		<result property="memBrthdy" column="MEM_BRTHDY" />
+		<result property="memVisit" column="MEM_VISIT" />
+		<result property="acntSttsCd" column="ACNT_STTS_CD" />
+		<result property="memIntrst" column="MEM_INTRST" />
+		<result property="empMail" column="EMP_MAIL" />
+		<result property="deptCd" column="DEPT_CD" />
+		<result property="deptNm" column="DEPT_NM" />
+		<result property="jbgdCd" column="JBGD_CD" />
+		<result property="jbgdNm" column="JBGD_NM" />
+		<result property="empBrthdy" column="EMP_BRTHDY" />
+		<result property="empImg" column="EMP_IMG" />
+		<result property="bankCd" column="BANK_CD" />
+		<result property="actno" column="ACTNO" />
+		<result property="jncmpYmd" column="JNCMP_YMD" />
+		<result property="rsgntnYmd" column="RSGNTN_YMD" />
+		<result property="superiorId" column="SUPERIOR_ID" />
+		<result property="empNm" column="EMP_NM" />
+		<result property="empPhoneNo" column="EMP_PHONE" />
+		<result property="addr" column="ADDR" />
+
+		<collection property="authVOList" resultMap="authVOMap"></collection>
+	</resultMap>
+
+	<resultMap type="authoritiesVO" id="authVOMap">
+		<result property="authrtCd" column="AUTHRT_CD" />
+		<result property="userId" column="MEM_ID" />
+	</resultMap>
+
+	<!-- 회원/직원 로그인 ROLE로 가져오고 직급, 부서 이름 가져옴 -->
+	<select id="detailUser" parameterType="String" resultMap='userMap'>
+		SELECT A.MEM_ID, A.PASSWORD, A.MEM_NM, A.SEX_DSTN, A.EMAIL, A.FACE_H5, A.MEM_IMG, A.PHONE_NO, A.TEL_NO, A.HSHLD_INFO_NO, A.MEM_BRTHDY, A.MEM_VISIT, A.ACNT_STTS_CD, A.MEM_INTRST
+		     , A.EMP_MAIL, A.DEPT_CD, D.DEPT_NM, A.JBGD_CD, E.JBGD_NM, A.EMP_BRTHDY, A.EMP_IMG, A.BANK_CD, A.ACTNO, A.JNCMP_YMD, A.RSGNTN_YMD, A.SUPERIOR_ID, A.EMP_NM, A.ADDR, A.EMP_PHONE
+		     , C.AUTHRT_NM AS AUTHRT_CD
+		FROM   (SELECT T.*
+		        FROM   (SELECT MEM_ID, PASSWORD, MEM_NM, SEX_DSTN, EMAIL, FACE_H5, MEM_IMG, PHONE_NO, TEL_NO, HSHLD_INFO_NO, MEM_BRTHDY, MEM_VISIT, ACNT_STTS_CD, MEM_INTRST
+		                             , '' EMP_MAIL, '' DEPT_CD, '' JBGD_CD, '' EMP_BRTHDY, '' EMP_IMG, '' BANK_CD, '' ACTNO, '' JNCMP_YMD, '' RSGNTN_YMD, '' SUPERIOR_ID, '' EMP_NM, '' ADDR, '' EMP_PHONE
+		                FROM MEMBER
+		                WHERE ACNT_STTS_CD NOT IN('ACCT01','ACCT03')
+		                UNION ALL
+		                SELECT EMP_ID, PASSWORD, '', '', '', '', '', '', '', '', '', 0, '', ''
+		                             , EMP_MAIL, DEPT_CD, JBGD_CD, EMP_BRTHDY, EMP_IMG, BANK_CD, ACTNO, JNCMP_YMD, RSGNTN_YMD, SUPERIOR_ID, EMP_NM, ADDR, EMP_PHONE
+		                FROM EMP
+		                WHERE JNCMP_YMD = RSGNTN_YMD
+		        ) T
+		        WHERE T.MEM_ID = #{userId}) A
+		INNER JOIN AUTHORITIES B ON A.MEM_ID = B.USER_ID
+		LEFT JOIN AUTHORITY C ON B.AUTHRT_CD = C.AUTHRT_CD
+		LEFT JOIN DEPT D ON A.DEPT_CD = D.DEPT_CD
+		LEFT JOIN JOB_GRADE E ON A.JBGD_CD = E.JBGD_CD
+	</select>
+
+	<!-- 회원, 직원 아이디 찾기 -->
+	<select id="findId" parameterType="userVO" resultType="String">
+		SELECT MAX(A.MEM_ID) MEM_ID
+		FROM   (SELECT T.*
+		        FROM   (SELECT MEM_ID, MEM_NM, PASSWORD, PHONE_NO
+		                FROM MEMBER
+		                WHERE ACNT_STTS_CD NOT IN('ACCT03')
+		                UNION ALL
+		                SELECT EMP_ID, EMP_NM, PASSWORD, EMP_PHONE
+		                FROM EMP
+		                WHERE JNCMP_YMD = RSGNTN_YMD
+		        ) T
+		        WHERE T.MEM_NM = #{memNm}
+		        AND T.PHONE_NO = #{phoneNo}) A
+	</select>
+
+	<!-- 회원, 직원 비밀번호 찾기 -->
+	<select id="findPassword" parameterType="userVO" resultType="String">
+		SELECT MEM_ID
+		FROM   (SELECT T.*
+		        FROM   (SELECT MEM_ID, MEM_NM, PASSWORD, PHONE_NO
+		                FROM MEMBER
+		                WHERE ACNT_STTS_CD NOT IN('ACCT03')
+		                UNION ALL
+		                SELECT EMP_ID, EMP_NM, PASSWORD, EMP_PHONE
+		                FROM EMP
+		                WHERE JNCMP_YMD = RSGNTN_YMD
+		        ) T
+		        WHERE T.MEM_ID = #{memId}
+		          AND T.PHONE_NO = #{phoneNo}) A
+	</select>
+
+
+	<!-- 회원/직원 비밀번호 찾기 탭에서 비밀번호 변경경하는 과정 -->
+	<!-- 얘가 회원일까? -->
+	<select id="findMember" parameterType="userVO" resultType="int">
+		SELECT COUNT(MEM_ID)
+		FROM MEMBER
+		WHERE MEM_ID = #{memId}
+	</select>
+
+	<!-- 얘가 직원일까? -->
+	<select id="findEmp" parameterType="userVO" resultType="int">
+		SELECT COUNT(EMP_ID)
+		FROM EMP
+		WHERE EMP_ID = #{memId}
+	</select>
+
+	<!-- 회원 비밀번호 변경 -->
+	<update id="changeMemPassword" parameterType="userVO">
+		UPDATE MEMBER
+		SET PASSWORD = #{password}
+		WHERE MEM_ID = #{memId}
+	</update>
+
+	<!-- 직원 비밀번호 변경 -->
+	<update id="changeEmpPassword" parameterType="userVO">
+		UPDATE EMP
+		SET PASSWORD = #{password}
+		WHERE EMP_ID = #{memId}
+	</update>
+	<!-- 회원/직원 비밀번호 찾기 탭에서 비밀번호 변경경하는 과정 끝 -->
+
+
+	<!-- 	<select id="detailUser" parameterType="String" resultMap="userMap">
+		SELECT A.MEM_ID, A.PASSWORD, A.MEM_NM, A.SEX_DSTN, A.EMAIL, A.FACE_H5, A.MEM_IMG, A.PHONE_NO, A.TEL_NO, A.HSHLD_INFO_NO, A.MEM_BRTHDY, A.MEM_VISIT, A.ACNT_STTS_CD, A.MEM_INTRST
+     , A.EMP_MAIL, A.DEPT_CD, A.JBGD_CD, A.EMP_BRTHDY, A.EMP_IMG, A.BANK_CD, A.ACTNO, A.JNCMP_YMD, A.RSGNTN_YMD, A.SUPERIOR_ID, A.EMP_NM
+     , B.AUTHRT_CD
+		FROM   (SELECT T.*
+				FROM   (SELECT MEM_ID, PASSWORD, MEM_NM, SEX_DSTN, EMAIL, FACE_H5, MEM_IMG, PHONE_NO, TEL_NO, HSHLD_INFO_NO, MEM_BRTHDY, MEM_VISIT, ACNT_STTS_CD, MEM_INTRST
+                             , '' EMP_MAIL, '' DEPT_CD, '' JBGD_CD, '' EMP_BRTHDY, '' EMP_IMG, '' BANK_CD, '' ACTNO, '' JNCMP_YMD, '' RSGNTN_YMD, '' SUPERIOR_ID, '' EMP_NM
+						FROM MEMBER
+						WHERE ACNT_STTS_CD NOT IN('ACCT01','ACCT03')
+						UNION ALL
+						SELECT EMP_ID, PASSWORD, '', '', '', '', '', '', '', '', '', 0, '', ''
+                             , EMP_MAIL, DEPT_CD, JBGD_CD, EMP_BRTHDY, EMP_IMG, BANK_CD, ACTNO, JNCMP_YMD, RSGNTN_YMD, SUPERIOR_ID, EMP_NM
+						FROM EMP
+						WHERE JNCMP_YMD = RSGNTN_YMD
+                        ) T
+        		WHERE T.MEM_ID = #{userId}) A, AUTHORITIES B
+		WHERE  A.MEM_ID = B.USER_ID
+	</select> -->
+
+</mapper>

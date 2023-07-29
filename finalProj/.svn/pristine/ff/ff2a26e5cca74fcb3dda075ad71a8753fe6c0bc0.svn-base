@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.or.ddit.mapper.PaidlvMapper">
+
+	<!-- 전체 직원 연차 정보 불러오기 -->
+	<select id="getPaidlvData" parameterType="String" resultType="PaidlvVO">
+		SELECT E.DEPT_CD, D.DEPT_NM, G.EMP_ID, E.EMP_NM, E.JBGD_CD, J.JBGD_NM, G.LV_SE_CD, G.GIVE_LV_CNT, nvl(P.LV_CNT, 0) LV_CNT
+		FROM GIVE_PAIDLV G
+		LEFT JOIN (SELECT Pr.Frst_Wrter_Id, sum(Pr.Lv_Cnt) lv_cnt
+                   FROM Paidly_Rcord PR
+                   WHERE TO_DATE(Pr.RGNG_TM, 'YYYYMMDD') &lt;= TO_DATE(${date}, 'YYYYMMDD')  AND Pr.DEL_YN = 'N' OR Pr.DEL_YN IS NULL
+                   GROUP BY PR.Frst_Wrter_Id ) P ON P.FRST_WRTER_ID = G.EMP_ID
+		LEFT JOIN EMP E ON E.EMP_ID = G.EMP_ID
+		LEFT JOIN DEPT D ON D.DEPT_CD = E.DEPT_CD
+		LEFT JOIN JOB_GRADE J ON J.JBGD_CD = E.JBGD_CD
+		WHERE G.DEL_YN = 'N'
+		ORDER BY CASE WHEN E.DEPT_CD IS NULL THEN 0 ELSE 1 END, E.DEPT_CD, E.JBGD_CD
+	</select>
+
+	<!-- 특정 직원 연차 정보 불러오기 -->
+	<!-- <select id="selectEmpDclz" parameterType="DclzVO" resultType="DclzVO">
+		SELECT D.EMP_ID, E.EMP_NM, D.ATTENT_TM, D.LVFFC_TM, D.TOTAL_TM, D.WRKOTSD_YN, D.DCLZ_RSN
+		FROM   DCLZ D
+		INNER  JOIN EMP E ON E.EMP_ID = D.EMP_ID
+		WHERE  D.DEL_YN = 'N'
+		AND    E.EMP_ID = #{empId}
+		AND    D.DCLZ_YMD = #{dclzYmd}
+	</select> -->
+
+	<!-- 특정 직원 근태 정보 업데이트 -->
+	<!-- <update id="updateEmpDclz" parameterType="DclzVO">
+		UPDATE DCLZ
+		SET    ATTENT_TM = #{attentTm},
+			   LVFFC_TM = #{lvffcTm},
+			   WRKOTSD_YN = #{wrkotsdYn},
+			   DCLZ_RSN = #{dclzRsn}
+		WHERE  EMP_ID = #{empId}
+		AND    DCLZ_YMD = #{dclzYmd}
+	</update> -->
+</mapper>

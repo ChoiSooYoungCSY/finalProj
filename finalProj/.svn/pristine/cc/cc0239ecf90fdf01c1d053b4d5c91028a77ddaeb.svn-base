@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.or.ddit.mapper.PaidlvMapper">
+
+	<!-- 전체 직원 연차 정보 불러오기 -->
+	<select id="getPaidlvData" parameterType="String" resultType="PaidlvVO">
+		SELECT E.DEPT_CD, D.DEPT_NM, G.EMP_ID, E.EMP_NM, E.JBGD_CD, J.JBGD_NM, G.GIVE_LV_CNT, nvl(P.LV_CNT, 0) LV_CNT
+		FROM (SELECT Gp.EMP_ID, SUM(Gp.GIVE_LV_CNT) AS GIVE_LV_CNT
+		      FROM GIVE_PAIDLV Gp
+		      WHERE (TO_DATE(Gp.FSRT_WRITING_TM, 'YYYYMMDD') &lt;= TO_DATE(${date}, 'YYYYMMDD') AND Gp.DEL_YN = 'N') OR Gp.DEL_YN IS NULL
+		      GROUP BY Gp.EMP_ID) G
+		LEFT JOIN (select Pr.Frst_Wrter_Id, sum(Pr.Lv_Cnt) lv_cnt
+		           from Paidly_Rcord PR
+		           WHERE TO_DATE(Pr.RGNG_TM, 'YYYYMMDD') &lt;= TO_DATE(${date}, 'YYYYMMDD')  AND Pr.DEL_YN = 'N' OR Pr.DEL_YN IS NULL
+		           group by Pr.Frst_Wrter_Id ) P ON P.FRST_WRTER_ID = G.EMP_ID
+		LEFT JOIN EMP E ON E.EMP_ID = G.EMP_ID
+		LEFT JOIN DEPT D ON D.DEPT_CD = E.DEPT_CD
+		LEFT JOIN JOB_GRADE J ON J.JBGD_CD = E.JBGD_CD
+		GROUP BY  E.DEPT_CD, D.DEPT_NM, G.EMP_ID, E.EMP_NM, E.JBGD_CD, J.JBGD_NM, G.GIVE_LV_CNT, nvl(P.LV_CNT, 0)
+		ORDER BY CASE WHEN E.DEPT_CD IS NULL THEN 0 ELSE 1 END, E.DEPT_CD, E.JBGD_CD
+
+	</select>
+
+	<!-- 연차 구분 코드 불러오기 -->
+	<select id="selectPaidlvSection" resultType="GivePaidlvVO">
+		SELECT LV_SE_CD, LV_SE_NM
+		FROM PAIDLV_SECTION
+		WHERE USE_YN = 'Y'
+	</select>
+
+	<!-- 특정 직원 지급연차 내역 불러오기 -->
+	<select id="selectEmpGivePaidlv" parameterType="givePaidlvVO" resultType="givePaidlvVO">
+		SELECT G.GIVE_NO, G.EMP_ID, G.LV_SE_CD, P.LV_SE_NM, G.GIVE_YMD, G.EXTSH_YMD, G.GIVE_LV_CNT, G.GIVE_RSN, G.FRST_WRITER_ID, G.LAST_UPDUSR_ID, G.LAST_UPDT_TM, G.FSRT_WRITING_TM
+		FROM GIVE_PAIDLV G
+		LEFT JOIN PAIDLV_SECTION P ON P.LV_SE_CD = G.LV_SE_CD
+		WHERE DEL_YN = 'N'
+		AND EMP_ID = #{empId}
+		AND FSRT_WRITING_TM &lt;= #{date}
+	</select>
+
+	<!-- 특정 직원 지급연차 정보 업데이트 -->
+	<update id="updateGivePaidlv" parameterType="givePaidlvVO">
+		UPDATE GIVE_PAIDLV
+		SET    LV_SE_CD = #{lvSeCd}
+			 , GIVE_YMD = #{giveYmd}
+			 , EXTSH_YMD = #{extshYmd}
+			 , GIVE_LV_CNT = #{giveLvCnt}
+			 , GIVE_RSN = #{giveRsn}
+			 , LAST_UPDUSR_ID = #{lastUpdusrId}
+			 , LAST_UPDT_TM = #{lastUpdtTm}
+		WHERE GIVE_NO = #{giveNo}
+	</update>
+
+	<!-- 특정 직원 사용연차 내역 불러오기 -->
+	<select id="selectPaidlyRcord" parameterType="paidlyRcordVO" resultType="paidlyRcordVO">
+		SELECT RCORD_NO, FRST_WRTER_ID, FSRT_WRITING_TM, LV_CNT, RGNG_TM, END_TM, LAST_UPDUSR_ID, LAST_UPDT_TM
+		FROM PAIDLY_RCORD
+		WHERE DEL_YN = 'N'
+		AND FRST_WRTER_ID = #{frstWrterId}
+		AND FSRT_WRITING_TM &lt;= #{date}
+	</select>
+
+	<!-- 특정 직원 사용연차 정보 업데이트 -->
+	<update id="updatePaidlyRcord" parameterType="paidlyRcordVO">
+		UPDATE PAIDLY_RCORD
+		SET    LV_CNT = #{lvCnt}
+			 , RGNG_TM = #{rgngTm}
+			 , END_TM = #{endTm}
+			 , LAST_UPDUSR_ID = #{lastUpdusrId}
+			 , LAST_UPDT_TM = #{lastUpdtTm}
+		WHERE RCORD_NO = #{rcordNo}
+	</update>
+
+</mapper>

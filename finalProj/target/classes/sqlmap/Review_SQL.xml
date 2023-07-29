@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.ddit.mapper.ReviewMapper">
+	<select id="selectReviewsByRstrntId" resultType="reviewVO"
+		parameterType="rstrntVO">
+		SELECT
+		A.REVIEW_NO
+		, A.FRST_WRTER_ID
+		, A.FRST_WRTER_TM
+		, A.PLACE_ID
+		, A.GB
+		, A.REVIEW_CN
+		, A.EMT_RESULT
+		, A.LAST_UPDUSR_ID
+		, A.LAST_UPDT_TM
+		, A.DEL_YN
+		, A.VISIT_YMD
+		, B.MEM_NM
+		, C.RSTRNT_NM
+		FROM
+		REVIEW A, MEMBER B, RSTRNT C WHERE A.FRST_WRTER_ID =
+		B.MEM_ID AND A.PLACE_ID = C.RSTRNT_ID AND
+		A.PLACE_ID = #{rstrntId}
+		ORDER BY A.VISIT_YMD DESC
+	</select>
+	<insert id="insertReview" parameterType="reviewVO">
+		INSERT INTO REVIEW (
+		REVIEW_NO
+		, FRST_WRTER_ID
+		, FRST_WRTER_TM
+		, PLACE_ID
+		, GB
+		, REVIEW_CN
+		,
+		LAST_UPDUSR_ID
+		, LAST_UPDT_TM
+		, DEL_YN
+		, VISIT_YMD
+		) VALUES (
+		(SELECT NVL((MAX(REVIEW_NO)+1),1) FROM REVIEW)
+		,#{frstWrterId}
+		,TO_CHAR(SYSDATE, 'yyyymmddhh24miss')
+		,#{placeId}
+		,#{gb}
+		,#{reviewCn}
+		,#{lastUpdusrId}
+		,TO_CHAR(SYSDATE, 'yyyymmddhh24miss')
+		,'N'
+		,#{visitYmd}
+		)
+	</insert>
+
+
+
+	<sql id="where">
+		<!-- 조건 검색 -->
+		<if test="cond != null and !cond.equals('')">
+			<choose>
+				<when test="cond == 'memName'">
+					AND B.MEM_NM LIKE '%' || #{keyword} || '%'
+				</when>
+				<when test="cond == 'rstrntNm'">
+					AND C.RSTRNT_NM LIKE '%' || #{keyword} || '%'
+				</when>
+				<when test="cond == 'reviewCn'">
+					AND A.REVIEW_CN LIKE '%' || #{keyword} || '%'
+				</when>
+			</choose>
+		</if>
+	</sql>
+
+	<select id="selectAllReviews" parameterType="hashMap"
+		resultType="reviewVO">
+		WITH T AS (
+			SELECT ROW_NUMBER() OVER(ORDER BY A.FRST_WRTER_TM DESC) AS RNUM
+				, A.REVIEW_NO
+				, A.FRST_WRTER_ID
+				, B.MEM_NM
+				, A.FRST_WRTER_TM
+				, A.PLACE_ID
+				, C.RSTRNT_NM
+				, A.GB
+				, A.REVIEW_CN
+				, A.EMT_RESULT
+				, A.LAST_UPDUSR_ID
+				, A.LAST_UPDT_TM
+				, A.DEL_YN
+				, A.VISIT_YMD
+				, C.RSTRNT_IMG
+			FROM
+				REVIEW A
+			INNER JOIN
+				MEMBER B
+			ON A.FRST_WRTER_ID = B.MEM_ID
+			INNER JOIN
+				RSTRNT C
+			ON A.PLACE_ID = C.RSTRNT_ID
+			WHERE
+				A.DEL_YN = 'N' AND
+				A.PLACE_ID = #{placeId} AND
+				C.DEL_YN = 'N'
+		<include refid="where"></include>
+		)
+		SELECT T.*
+		FROM T
+		WHERE T.RNUM BETWEEN (#{currentPage} * #{size}) -
+		(#{size} - 1)
+		AND (#{currentPage} * #{size})
+	</select>
+
+	<!-- 전체 소모임 개수를 조회한다. -->
+	<select id="getTotal" parameterType="hashMap" resultType="int">
+		SELECT
+			COUNT(*)
+		FROM
+			REVIEW A
+		INNER JOIN
+			MEMBER B
+		ON A.FRST_WRTER_ID = B.MEM_ID
+		INNER JOIN
+			RSTRNT C
+		ON A.PLACE_ID = C.RSTRNT_ID
+		WHERE
+			A.DEL_YN = 'N' AND
+			A.PLACE_ID = #{placeId} AND
+			C.DEL_YN = 'N'
+		<include refid="where"></include>
+	</select>
+
+	<update id="deleteReview" parameterType="int">
+	UPDATE REVIEW
+    SET
+        DEL_YN ='Y'
+	WHERE
+    REVIEW_NO = #{value}
+	</update>
+
+
+
+
+
+
+</mapper>

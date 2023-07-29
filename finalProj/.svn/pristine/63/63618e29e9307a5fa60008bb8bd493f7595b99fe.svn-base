@@ -1,0 +1,20 @@
+package kr.or.ddit.mem.life.library;
+
+import java.util.List;
+import java.util.Map;
+
+import kr.or.ddit.vo.LoanBookVO;
+
+public interface LoanBookService {
+
+	//빌린 책 목록
+	List<Map<String, Object>> list(LoanBookVO loanBookVO);
+
+	// 대출 테이블에 등록
+	public int insertLoan(LoanBookVO loanBookVO);
+
+	// 도서 반납시 상태를 대출중에서 반납완료로 수정
+	public int updateLoan(LoanBookVO loanBookVO);
+
+
+}

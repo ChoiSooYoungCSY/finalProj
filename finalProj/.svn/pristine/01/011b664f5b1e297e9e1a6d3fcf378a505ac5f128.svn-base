@@ -1,0 +1,58 @@
+package kr.or.ddit.emp.email.imsi;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
+import java.util.UUID;
+
+import javax.inject.Inject;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
+import kr.or.ddit.mapper.AtchmnflMapper;
+import kr.or.ddit.mapper.EmailMapper;
+import kr.or.ddit.util.CommonFile;
+import kr.or.ddit.vo.AtchmnflDetailVO;
+import kr.or.ddit.vo.AtchmnflVO;
+import kr.or.ddit.vo.EmailVO;
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
+@Service
+public class ImsiMailServiceImpl implements ImsiMailService {
+
+	@Inject
+	AtchmnflMapper atchmnflMapper;
+	@Inject
+	EmailMapper emailMapper;
+
+
+	@Override
+	public int delUpdateEmail(List<String> checkEmailList) {
+		int cnt = 0;
+		for (String check : checkEmailList) {
+			cnt += this.emailMapper.delUpdateEmail(check);
+
+		}
+		return cnt;
+	}
+
+	@Override
+	public int favoriteUpdateEmail(EmailVO emailVO) {
+
+		return this.emailMapper.favoriteUpdateEmail(emailVO);
+	}
+	@Override
+	public int favoritesClear(EmailVO emailVO) {
+
+		return this.emailMapper.favoritesClear(emailVO);
+	}
+
+	@Override
+	public List<EmailVO> selectEmailSendList(String email) {
+		return this.emailMapper.selectEmailSendList(email);
+	}
+
+}

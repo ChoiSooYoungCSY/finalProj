@@ -1,0 +1,20 @@
+package kr.or.ddit.emp.aa.agency;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
+@RequestMapping("/emp/aa/mngagency")
+@Controller
+public class MngAgencyController {
+
+	@GetMapping("")
+	public String mngAgency() {
+		log.info("mngAgency");
+		return "emp/aa_mng_agency";
+	}
+
+}

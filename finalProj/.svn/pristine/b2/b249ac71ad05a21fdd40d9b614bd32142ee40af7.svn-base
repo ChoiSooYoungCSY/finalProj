@@ -1,0 +1,27 @@
+package kr.or.ddit.mem.life.library;
+
+import java.util.List;
+import java.util.Map;
+
+import javax.inject.Inject;
+
+import org.springframework.stereotype.Service;
+
+import kr.or.ddit.mapper.BookRecomMapper;
+import kr.or.ddit.vo.BookRecomVO;
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
+@Service
+public class BookRecomServiceImpl implements BookRecomService {
+
+	//DI(의존성 주입), IoC(제어의 역전)
+	@Inject
+	BookRecomMapper bookRecomMapper;
+
+	// 게시글 목록보기
+	@Override
+	public List<Map<String,Object>> list(BookRecomVO bookRecomVO) {
+		return this.bookRecomMapper.list(bookRecomVO);
+	}
+}

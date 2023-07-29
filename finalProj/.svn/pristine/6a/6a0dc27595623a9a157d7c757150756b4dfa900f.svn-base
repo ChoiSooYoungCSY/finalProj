@@ -1,0 +1,30 @@
+package kr.or.ddit.vo;
+
+import lombok.Data;
+
+@Data
+public class CmnuseManagectVO {
+	private int managectNo;
+	private String frstWrterId;
+	private String fsrtWritingTm;
+	private String rlvtYm;
+	private int managectTot;
+	private int managectWtr;
+	private int managectElcty;
+	private int managectHeat;
+	private int managectCln;
+	private int managectElvtr;
+	private int managectScrty;
+	private int manageOfficeOrpns;
+	private int managectWrrtn;
+	private int managectRepair;
+	private int managectDsnf;
+	private int managectPrkplce;
+	private int managectPblfclt;
+	private String managectCalcYmd;
+	private String lastUpdusrId;
+	private String lastUpdtTm;
+	private String delYn;
+	// 변경된 날짜 형식을 저장할 필드
+	private String strYm;
+}

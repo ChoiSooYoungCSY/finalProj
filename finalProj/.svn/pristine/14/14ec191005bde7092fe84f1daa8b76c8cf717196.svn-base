@@ -1,0 +1,28 @@
+package kr.or.ddit.vo;
+
+import java.io.Serializable;
+import java.util.Collection;
+import java.util.List;
+
+import org.springframework.security.core.GrantedAuthority;
+
+import lombok.Data;
+
+@Data
+public class MemberVO implements Serializable {
+	private String memIntrst;
+	private String memId;
+	private String password;
+	private String memNm;
+	private String sexDstn;
+	private String email;
+	private String faceH5;
+	private String memImg;
+	private String phoneNo;
+	private String telNo;
+	private String hshldInfoNo;
+	private String memBrthdy;
+	private String acntSttsCd;
+	private int memVisit;
+	private List<AuthoritiesVO> memberAuthVOList;
+}

@@ -1,0 +1,119 @@
+package kr.or.ddit.emp.aa.mngmanagect;
+
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.List;
+
+import org.apache.commons.io.IOUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import kr.or.ddit.vo.CmnuseManagectVO;
+import lombok.extern.slf4j.Slf4j;
+
+/**
+ * @Class Name : MngManageCostController.java
+ * @Description : MngManageCostController Class
+ * @Modification Information
+ * @
+ * @   수정일        수정자                  수정내용
+ * @ ---------   ---------   -------------------------------
+ * @ 2023.07.06          최초생성
+ *
+ * @author 임경빈
+ * @since 2023.07.06
+ * @version 1.0
+ * @see
+ */
+
+@Slf4j
+@RequestMapping("/emp/aa")
+@Controller
+public class MngManageCostController {
+
+	@Autowired
+	MngManageCostService mngManageCostService;
+
+	/** 경리회계 - 관리비 관리 - 세대별 관리비 */
+	@GetMapping("/mnghshldmanagect")
+	public String mngHouseholdManagementCost() {
+		log.info("mngHouseholdManagementCost");
+		return "emp/aa_mng_household_management_cost";
+	}
+
+	/** 경리회계 - 관리비 관리 - 공용 관리비 */
+	@GetMapping("/mngcmnusemanagect")
+	public String mngCommonUseManagementCost(Model model) {
+		log.info("mngCommonUseManagementCost");
+
+		List<CmnuseManagectVO> voList = this.mngManageCostService.selectAll();
+		model.addAttribute("voList", voList);
+
+		// 날짜 형식 변경
+		for (CmnuseManagectVO vo : voList) {
+			String rlvtYm = vo.getRlvtYm();
+			String year = rlvtYm.substring(0, 4);
+			String month = rlvtYm.substring(4);
+
+			vo.setStrYm(year + "년 " + month + "월");
+		}
+
+		return "emp/aa_mng_common_use_management_cost";
+	}
+
+	/** 엑셀파일 다운로드 */
+	@ResponseBody
+	@GetMapping("/mngcmnusemanagect/download")
+	public ResponseEntity<byte[]> downloadFile() throws IOException {
+		log.info("downloadFile");
+
+		// 001110101110111011100101100000100
+		InputStream in = null;
+		ResponseEntity<byte[]> entity = null;
+
+		HttpHeaders headers = new HttpHeaders();
+
+		String fileName = "Dongil_202305.xls";
+
+		try {
+			in = new FileInputStream("C:\\eGovFrameDev-4.1.0-64bit\\workspace\\finalProj\\src\\main\\webapp\\resources\\upload\\2023\\07\\05\\" + fileName);
+
+			// OCTET : 8 bit로 자름
+			headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+			headers.add("Content-Disposition", "attachment;filename=\"" +
+						new String(fileName.getBytes("UTF-8"),"ISO-8859-1") + "\"");
+
+			entity = new ResponseEntity<>(IOUtils.toByteArray(in),
+									headers, HttpStatus.CREATED);
+
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+			entity = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+		} finally {
+			in.close();
+		}
+		return entity;
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+

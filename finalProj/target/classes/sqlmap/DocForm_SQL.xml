@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.ddit.mapper.DocFormMapper">
+
+	<resultMap type="docFormVO" id="docFormMap">
+		<result property="docFormNo" column="DOC_FORM_NO" />
+		<result property="docSeCd" column="DOC_SE_CD" />
+		<result property="frstWriterId" column="FRST_WRITER_ID" />
+		<result property="fsrtWritingTm" column="FSRT_WRITING_TM" />
+		<result property="docFormSj" column="DOC_FORM_SJ" />
+		<result property="docFormCn" column="DOC_FORM_CN" jdbcType="CLOB" javaType="java.lang.String" />
+		<result property="atchmnflId" column="ATCHMNFL_ID" />
+		<result property="lastUpdusrId" column="LAST_UPDUSR_ID" />
+		<result property="lastUpdtTm" column="LAST_UPDT_TM" />
+	</resultMap>
+
+	<!-- 문서양식 전체 목록 조회 -->
+	<select id="docFormList" resultMap="docFormMap">
+		SELECT
+			   A.DOC_FORM_NO
+			 , A.DOC_FORM_SJ
+             , A.DOC_SE_CD
+			 , B.DOC_SE_NM
+		  FROM
+		  	   DOC_FORM A
+		 INNER JOIN
+		 	   DOC_SECTION B
+		 	ON
+		 	   (A.DOC_SE_CD = B.DOC_SE_CD)
+	</select>
+
+
+</mapper>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,51 @@
+package kr.or.ddit.emp.email;
+
+import java.security.Principal;
+
+import javax.inject.Inject;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+import kr.or.ddit.vo.EmailVO;
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
+@RequestMapping("/emp/mail/inbox")
+@Controller
+public class EmailController {
+
+	@Inject
+	EmailService emailService;
+
+	// 메일
+	@GetMapping("")
+	public String mailInbox(Principal principal) {
+		log.info("mailInbox");
+		return "emp/emp_mail_inbox";
+	}
+
+	@GetMapping("/writeEmail")
+	public String writeEmail() {
+		log.info("writeEmail");
+		return "emp/emp_mail_writeEmail";
+	}
+
+	@PostMapping("/sendEmail")
+	public String sendEmail( Model model, EmailVO emailVO) {
+		log.info("sendEmail" + emailVO);
+
+//		int result = this.emailService.sendEmail(emailVO);
+//		if (result == 1) {
+//			model.addAttribute("result", "success");
+//		} else {
+//			model.addAttribute("result", "failed");
+//
+//		}
+		model.addAttribute("result", "failed");
+		return "emp/emp_mail_send_result";
+	}
+}

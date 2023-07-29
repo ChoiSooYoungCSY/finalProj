@@ -1,0 +1,32 @@
+package kr.or.ddit.emp.pa.mnghmnrsrcs;
+
+
+import java.util.List;
+
+import org.json.simple.JSONArray;
+
+import kr.or.ddit.vo.AcntSttsVO;
+import kr.or.ddit.vo.AuthoritiesVO;
+import kr.or.ddit.vo.BankVO;
+import kr.or.ddit.vo.BlacklistVO;
+import kr.or.ddit.vo.DclzVO;
+import kr.or.ddit.vo.DeptVO;
+import kr.or.ddit.vo.EmpVO;
+import kr.or.ddit.vo.JobGradeVO;
+import kr.or.ddit.vo.MemberVO;
+import kr.or.ddit.vo.SttemntVO;
+
+public interface MngHumanResourcesService {
+
+	//DB에서 근태 데이터 불러오기
+	public List<DclzVO> getData(String date);
+
+	//특정 직원 근태 정보 불러오기
+	public List<DclzVO> selectEmpDclz(DclzVO dclzVO);
+
+	//특정 직원 근태 정보 업데이트
+	public int updateEmpDclz(DclzVO dclzVO);
+
+
+}
+

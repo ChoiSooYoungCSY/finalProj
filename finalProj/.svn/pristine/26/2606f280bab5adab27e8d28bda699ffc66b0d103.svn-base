@@ -1,0 +1,412 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.ddit.mapper.ScndhdBbsMapper">
+
+	<sql id="where">
+
+		<!-- 전체 검색 -->
+		<if test="keyword != null and cond == ''">
+		AND (
+			A.PST_SJ LIKE '%' || #{keyword} || '%' OR
+			A.PST_CN LIKE '%' || #{keyword} || '%' OR
+			A.FRST_WRTER_ID LIKE '%' || #{keyword} || '%' OR
+			A.SCHAND_SE_CD LIKE '%' || #{keyword} || '%' OR
+			B.SCHAND_SE_NM LIKE '%' || #{keyword} || '%'
+			)
+		</if>
+		<!-- 조건 검색 -->
+		<if test="cond != null and !cond.equals('')">
+			<choose>
+				<when test="cond == 'pstSj'">
+					AND A.PST_SJ LIKE '%' || #{keyword} || '%'
+				</when>
+				<when test="cond == 'pstCn'">
+					AND A.PST_CN LIKE '%' || #{keyword} || '%'
+				</when>
+				<when test="cond == 'frstWrterId'">
+					AND A.FRST_WRTER_ID LIKE '%' || #{keyword} || '%'
+				</when>
+				<when test="cond == 'schandSeCd'">
+					AND A.SCHAND_SE_CD LIKE '%' || #{keyword} || '%'
+				</when>
+				<when test="cond == 'schandSeNm'">
+					AND B.SCHAND_SE_NM LIKE '%' || #{keyword} || '%'
+				</when>
+			</choose>
+		</if>
+	</sql>
+
+	<resultMap type="scndhdBbsVO" id="scndhdBbsMap">
+		<result property="rnum" column="RNUM" />
+		<result property="pstId" column="PST_ID" />
+		<result property="frstWrterId" column="FRST_WRTER_ID" />
+		<result property="fsrtWritingTm" column="FSRT_WRITING_TM" />
+		<result property="pstSj" column="PST_SJ" />
+		<result property="pstCn" column="PST_CN" jdbcType="CLOB" javaType="java.lang.String" />
+		<result property="rdcnt" column="RDCNT" />
+		<result property="delYn" column="DEL_YN" />
+		<result property="scndhandPc" column="SCNDHAND_PC" />
+		<result property="schandSeCd" column="SCHAND_SE_CD" />
+		<result property="atchmnflId" column="ATCHMNFL_ID" />
+		<result property="lastUpdusrId" column="LAST_UPDUSR_ID" />
+		<result property="lastUpdtTm" column="LAST_UPDT_TM" />
+		<result property="ntslStts" column="NTSL_STTS" />
+		<result property="schandSeNm" column="SCHAND_SE_NM" />
+		<collection property="atchmnflDetailList" resultMap="atchmnflDetailMap" ></collection>
+	</resultMap>
+
+	<resultMap type="atchmnflDetailVO" id="atchmnflDetailMap">
+		<result property="atchmnflId" column="ATCHMNFL_ID" />
+		<result property="flpth" column="FLPTH" />
+		<result property="atchmnflNo" column="ATCHMNFL_NO" />
+		<result property="streFlNm" column="STRE_FL_NM" />
+	</resultMap>
+
+
+
+	<!-- 입주민 중고장터 게시판 리스트 -->
+	<select id="selectAll" parameterType="hashMap" resultMap="scndhdBbsMap">
+	WITH T AS (
+		SELECT DENSE_RANK() OVER (ORDER BY A.LAST_UPDT_TM DESC) AS RNUM,
+			A.PST_ID,
+			A.FRST_WRTER_ID,
+			A.FSRT_WRITING_TM,
+			A.PST_SJ,
+			A.PST_CN,
+			A.RDCNT,
+			A.DEL_YN,
+			A.SCNDHAND_PC,
+			A.SCHAND_SE_CD,
+			A.ATCHMNFL_ID,
+			A.LAST_UPDUSR_ID,
+			A.LAST_UPDT_TM,
+			A.NTSL_STTS,
+			B.SCHAND_SE_NM,
+			C.FLPTH,
+			C.STRE_FL_NM
+			FROM
+				SCNDHD_BBS A
+			INNER JOIN
+				SCNDHD_SE B ON B.SCHAND_SE_CD = A.SCHAND_SE_CD
+			INNER JOIN
+				ATCHMNFL B ON B.ATCHMNFL_ID = A.ATCHMNFL_ID
+			INNER JOIN
+				ATCHMNFL_DETAIL C ON C.ATCHMNFL_ID = B.ATCHMNFL_ID
+			WHERE
+				A.DEL_YN = 'N'
+			<include refid="where"></include>
+	   		)
+			SELECT T.*
+			FROM T
+			WHERE 1=1
+			AND
+				T.RNUM BETWEEN (#{currentPage} * #{size}) - (#{size} - 1)
+			AND
+				(#{currentPage} * #{size})
+	</select >
+
+	<resultMap type="sttemntPstVO" id="sttemntPstMap">
+		<result property="sttemntPstId" column="STTEMNT_PST_ID" />
+		<result property="aplcntId" column="APLCNT_ID" />
+		<result property="sttemntRsn" column="STTEMNT_RSN" />
+		<result property="delYn" column="DEL_YN" />
+		<result property="rspndnt" column="RSPNDNT" />
+		<result property="pstId" column="PST_ID" />
+		<result property="frstWrterId" column="FRST_WRTER_ID" />
+		<result property="fsrtWritingTm" column="FSRT_WRITING_TM" />
+		<result property="pstSj" column="PST_SJ" />
+		<result property="pstCn" column="PST_CN" />
+		<result property="rdcnt" column="RDCNT" />
+		<result property="scndhandPc" column="SCNDHAND_PC" />
+		<result property="atchmnflId" column="ATCHMNFL_ID" />
+		<collection property="atchmnflDetailList" resultMap="atchmnflReportMap" ></collection>
+	</resultMap>
+
+	<resultMap type="atchmnflDetailVO" id="atchmnflReportMap">
+		<result property="atchmnflId" column="ATCHMNFL_ID" />
+		<result property="flpth" column="FLPTH" />
+		<result property="atchmnflNo" column="ATCHMNFL_NO" />
+		<result property="streFlNm" column="STRE_FL_NM" />
+	</resultMap>
+
+
+	<!-- 전체 글 수 구하기 -->
+	<select id="getTotal" parameterType="hashMap" resultType="int">
+	SELECT COUNT(*)
+	FROM
+		SCNDHD_BBS A
+	INNER JOIN
+		SCNDHD_SE B ON A.SCHAND_SE_CD = B.SCHAND_SE_CD
+	WHERE
+		1 = 1
+		<include refid="where"></include>
+	</select>
+
+
+	<!-- 게시글 등록 -->
+	<insert id="registerPost" parameterType="scndhdBbsVO">
+	INSERT INTO SCNDHD_BBS (
+		PST_ID
+		, FRST_WRTER_ID
+		, FSRT_WRITING_TM
+		, PST_SJ
+		, PST_CN
+		, RDCNT
+		, DEL_YN
+		, SCNDHAND_PC
+		, SCHAND_SE_CD
+		, ATCHMNFL_ID
+		, LAST_UPDUSR_ID
+		, LAST_UPDT_TM
+		, NTSL_STTS
+		)
+		VALUES (
+		(SELECT 'SCN' || LPAD(MAX(SUBSTR(PST_ID, 4)) + 1, 6, '0') FROM scndhd_bbs)
+		, #{frstWrterId}
+		, TO_CHAR(SYSDATE, 'yyyymmddhh24miss')
+		, #{pstSj}
+		, #{pstCn}
+		, 0
+		, 'N'
+		, #{scndhandPc}
+		, #{schandSeCd}
+		, #{atchmnflId}
+		, #{lastUpdusrId}
+		, TO_CHAR(SYSDATE, 'yyyymmddhh24miss')
+		, '판매중'
+		)
+	</insert>
+
+	<!-- 이미지 등록 -->
+	<insert id="registerAtch" parameterType="atchmnflVO">
+	INSERT INTO ATCHMNFL(
+			ATCHMNFL_ID,
+			FRST_WRTER_ID,
+			FRST_WRTER_TM,
+			DEL_YN,
+			LAST_UPDUSR_ID,
+			LAST_UPDT_TM
+		)
+		VALUES (
+			(SELECT 'ATT' || LPAD(MAX(SUBSTR(ATCHMNFL_ID, 4)) + 1, 6, '0') FROM ATCHMNFL),
+			#{frstWrterId},
+			TO_CHAR(SYSDATE, 'yyyymmddhh24miss'),
+			'N',
+			#{lastUpdusrId},
+			TO_CHAR(SYSDATE, 'yyyymmddhh24miss')
+		)
+	</insert>
+
+
+	<!-- 이미지 detail -->
+	<insert id="registerAtchDetail" parameterType="atchmnflVO">
+	INSERT INTO ATCHMNFL_DETAIL (
+			ATCHMNFL_NO,
+			ATCHMNFL_ID,
+			FRST_WRTER_TM,
+			FRST_WRTER_ID,
+			FLPTH,
+			STRE_FL_NM,
+			ATCHMNFL_SIZE,
+			ATCHMNFL_TY,
+			ORGINL_ATCHMNFL_NM,
+			LAST_UPDUSR_ID,
+			LAST_UPDT_TM,
+			DEL_YN
+		)
+	 VALUES (
+			(SELECT NVL(MAX(ATCHMNFL_NO), 0) + 1 FROM ATCHMNFL_DETAIL),
+			(SELECT MAX(ATCHMNFL_ID) FROM ATCHMNFL),
+			TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS'),
+			#{frstWrterId},
+			#{flpth},
+			#{streFlNm},
+			#{atchmnflSize},
+			'JPG',
+			#{orginlAtchmnflNm},
+			#{lastUpdusrId},
+			TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS'),
+			'N'
+		)
+
+	</insert>
+
+	<!--  -->
+	<select id="maxAtchId" resultType="atchmnflVO">
+	SELECT
+		MAX(ATCHMNFL_ID) AS ATCHMNFL_ID
+	FROM
+		ATCHMNFL
+	</select>
+
+	<!-- 입주민 게시판 상세 정보 -->
+	<select id="selectOne" parameterType="scndhdBbsVO" resultMap="scndhdBbsMap">
+  	SELECT
+		A.PST_ID,
+		A.FRST_WRTER_ID,
+		A.FSRT_WRITING_TM,
+		A.PST_SJ,
+		A.PST_CN,
+		A.RDCNT,
+		A.DEL_YN,
+		A.SCNDHAND_PC,
+		A.SCHAND_SE_CD,
+		A.ATCHMNFL_ID,
+		A.LAST_UPDUSR_ID,
+		A.LAST_UPDT_TM,
+		A.NTSL_STTS,
+		B.SCHAND_SE_NM,
+		C.FLPTH,
+		C.ATCHMNFL_NO,
+		C.STRE_FL_NM
+	FROM
+		SCNDHD_BBS A
+	INNER JOIN
+		SCNDHD_SE B ON A.SCHAND_SE_CD = B.SCHAND_SE_CD
+	INNER JOIN
+		ATCHMNFL B ON A.ATCHMNFL_ID = B.ATCHMNFL_ID
+	INNER JOIN
+		ATCHMNFL_DETAIL C ON B.ATCHMNFL_ID = C.ATCHMNFL_ID
+	WHERE
+		A.DEL_YN = 'N' AND A.PST_ID= #{pstId}
+	</select>
+
+
+	<!-- 신고 게시글 상세 페이지 -->
+	<select id="sttPost" parameterType="sttemntPstVO" resultMap="sttemntPstMap">
+	SELECT
+			  A.STTEMNT_PST_ID
+			, A.APLCNT_ID
+			, A.STTEMNT_RSN
+			, A.DEL_YN
+			, A.RSPNDNT
+			, A.STTEMNT_PST_NO
+	        , B.PST_ID
+	        , B.FRST_WRTER_ID
+	        , B.FSRT_WRITING_TM
+	        , B.PST_SJ
+	        , B.PST_CN
+	        , B.RDCNT
+	        , B.SCNDHAND_PC
+	        , B.ATCHMNFL_ID
+	        , C.FLPTH
+	        , C.STRE_FL_NM
+		FROM
+			STTEMNT_PST A
+	    INNER JOIN
+	        SCNDHD_BBS B ON A.STTEMNT_PST_ID = B.PST_ID
+	    INNER JOIN
+	        ATCHMNFL_DETAIL C ON C.ATCHMNFL_ID = B.ATCHMNFL_ID
+		WHERE
+			A.DEL_YN = 'N'
+		AND
+			A.STTEMNT_PST_ID = #{pstId}
+
+	</select>
+
+	<!-- 게시글 조회수 +1 -->
+	<update id="plusCnt" parameterType="scndhdBbsVO">
+	UPDATE SCNDHD_BBS
+	SET RDCNT = RDCNT + 1
+	WHERE PST_ID = #{pstId}
+	</update>
+
+	<!-- 중고장터 판매 게시글 추천 -->
+	<select id="selectRecomList" resultType="scndhdRecomVO">
+	SELECT
+		SCNDHD_ID
+	FROM
+		SCNDHD_RECOM
+		WHERE MEM_ID = #{memId}
+	</select>
+
+	<!-- 이미지 수정  -->
+	<update id="updatePost" parameterType="scndhdBbsVO">
+	UPDATE SCNDHD_BBS
+	SET
+		PST_SJ = #{pstSj},
+		PST_CN = #{pstCn},
+		SCNDHAND_PC = #{scndhandPc},
+		SCHAND_SE_CD = #{schandSeCd},
+		LAST_UPDUSR_ID = #{lastUpdusrId},
+		LAST_UPDT_TM = TO_CHAR(SYSDATE, 'yyyymmddhh24miss'),
+		NTSL_STTS = #{ntslStts}
+	WHERE
+		PST_ID = #{pstId}
+	</update>
+
+
+	<!-- 관리자 측 게시글 삭제 -->
+	<update id="deletePost" parameterType="String">
+
+	UPDATE STTEMNT_PST
+	SET
+		DEL_YN = 'Y'
+	WHERE
+		STTEMNT_PST_ID = #{value}
+	</update>
+
+<!-- 	<update id="deletePost" parameterType="String"> -->
+
+<!-- 	UPDATE SCNDHD_BBS -->
+<!-- 	SET -->
+<!-- 		DEL_YN = 'Y' -->
+<!-- 	WHERE -->
+<!-- 		PST_ID = #{value} -->
+<!-- 	</update> -->
+
+	<!-- 입주민 측 게시글 삭제 -->
+	<update id="deletePostOne" parameterType="scndhdBbsVO">
+	UPDATE SCNDHD_BBS
+		SET DEL_YN = 'Y'
+	WHERE PST_ID = #{pstId}
+	</update>
+
+	<!-- 이미지 수정 페이지 이미지 -->
+	<update id="updateImages" parameterType="atchmnflDetailVO">
+	UPDATE ATCHMNFL_DETAIL
+	SET
+		FLPTH = #{flpth}, STRE_FL_NM = #{streFlNm}, ATCHMNFL_SIZE = #{atchmnflSize}
+			 , ATCHMNFL_TY = #{atchmnflTy}, ORGINL_ATCHMNFL_NM = #{orginlAtchmnflNm}
+	WHERE
+		ATCHMNFL_NO = #{atchmnflNo}
+	</update>
+
+
+	<!-- 중고장터 신고게시글 데이터 추가 -->
+	<insert id="deClarPost" parameterType="sttemntPstVO">
+	<selectKey resultType="int" order="BEFORE" keyProperty="sttemntPstNo" >
+		SELECT NVL((MAX(STTEMNT_PST_NO)+1),1) FROM STTEMNT_PST
+	</selectKey>
+
+	INSERT INTO STTEMNT_PST (
+	    STTEMNT_PST_ID,
+	    APLCNT_ID,
+	    STTEMNT_RSN,
+	    DEL_YN,
+	    RSPNDNT,
+		STTEMNT_PST_NO
+
+	) VALUES (
+	    #{sttemntPstId},
+	    #{aplcntId},
+	    #{sttemntRsn},
+	    'N',
+	    #{rspndnt},
+	    #{sttemntPstNo}
+	)
+	</insert>
+
+	<!-- 입주민 신고 횟수 게시글 한번만 신고 -->
+	<select id="reportCount" parameterType="sttemntPstVO" resultType="int">
+	SELECT COUNT(*)
+	FROM
+		STTEMNT_PST
+    WHERE
+    	STTEMNT_PST_ID = #{sttemntPstId}
+    AND
+    	APLCNT_ID= #{aplcntId}
+	</select>
+
+
+</mapper>

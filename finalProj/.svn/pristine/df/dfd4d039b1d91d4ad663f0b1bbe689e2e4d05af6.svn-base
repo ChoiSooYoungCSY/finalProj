@@ -1,0 +1,14 @@
+package kr.or.ddit.mem.life.library;
+
+import java.util.List;
+import java.util.Map;
+
+import kr.or.ddit.vo.BookRecomVO;
+
+
+
+public interface BookRecomService {
+
+	//게시글 목록보기
+	public List<Map<String,Object>> list(BookRecomVO bookRecomVO);
+}

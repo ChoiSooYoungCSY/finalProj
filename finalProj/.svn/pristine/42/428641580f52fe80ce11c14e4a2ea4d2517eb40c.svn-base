@@ -1,0 +1,36 @@
+package kr.or.ddit.mem.mypg.visit;
+
+import java.security.Principal;
+import java.util.List;
+
+import javax.inject.Inject;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import kr.or.ddit.vo.GlfprUseRcordVO;
+import kr.or.ddit.vo.GymUseRcordVO;
+import kr.or.ddit.vo.LoanBookVO;
+import kr.or.ddit.vo.MemberVO;
+import kr.or.ddit.vo.ReadrmUseRcordVO;
+import kr.or.ddit.vo.SwmplUseRcordVO;
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
+@Controller
+@RequestMapping("/mem/mypg/visit")
+public class VisitController {
+
+
+	@GetMapping("")
+	public String visitInfo() {
+		log.info("visitInfo");
+
+		return "mem/mem_mypg_common_facility_visit_info";
+	}
+
+}

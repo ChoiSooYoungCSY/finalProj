@@ -1,0 +1,31 @@
+package kr.or.ddit.mem.cmnt.freebbs;
+
+import java.util.List;
+import java.util.Map;
+
+import kr.or.ddit.vo.FreeBbsCmntVO;
+
+public interface FreeBbsCmntService {
+
+	/**
+	 * 게시글 등록하기
+	 * @param freeBbsCmntVO
+	 * @return
+	 */
+	public int registerPost(FreeBbsCmntVO freeBbsCmntVO);
+
+	/**
+	 * 전체 글의 수 구하기
+	 * @param map
+	 * @return
+	 */
+	public int getTotal(Map<String, String> map);
+
+	/**
+	 * 위의 Map에 currentPage와 size(한페이지에 보여줄 개수)를 추가해서 list구하기
+	 * @param map
+	 * @return
+	 */
+	public List<FreeBbsCmntVO> list(Map<String, String> map);
+
+}

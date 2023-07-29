@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.ddit.mapper.BookRecomMapper">
+
+	<select id="list" parameterType="bookRecomVO" resultType="hashMap">
+		SELECT X.RECOM_NO, X.RECOM_BOOK, X.MEM_ID
+		     , Y.BOOK_NO, Y.BOOK_SE_CD, Y.BOOK_SJ, Y.AUTHR, Y.INVNTRY, Y.BOOK_IMG
+		FROM
+		(
+		WITH T AS(
+			SELECT A.RECOM_NO, A.RECOM_BOOK, A.MEM_ID
+			FROM   BOOK_RECOM A
+			WHERE  A.RECOM_NO = (
+			        SELECT MAX(B.RECOM_NO)
+			        FROM   BOOK_RECOM B
+			        WHERE  B.MEM_ID = A.MEM_ID
+		    )
+		AND    A.MEM_ID = #{memId}
+		)
+		SELECT T.RECOM_NO, Regexp_Substr(T.RECOM_BOOK,'[^,]+', 1, Level) RECOM_BOOK, T.MEM_ID FROM T
+		Connect By Regexp_Substr(T.RECOM_BOOK, '[^,]+', 1, Level) Is Not Null
+		) X, BOOK Y
+		WHERE X.RECOM_BOOK = Y.BOOK_NO
+	</select>
+</mapper>

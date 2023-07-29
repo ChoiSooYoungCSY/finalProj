@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.ddit.mapper.GlfprUseRcordMapper">
+	<select id="selectByIdGlfpr" parameterType="memberVO" resultType="glfprUseRcordVO">
+		SELECT
+		RCORD_NO
+		, ROOM_NO
+		, MEM_ID
+		, USE_YMD
+		, START_TM
+		, END_TM
+		FROM
+		GLFPR_USE_RCORD WHERE MEM_ID = #{memId}
+	</select>
+
+
+		<!-- 사용자가 골프장 예약 -->
+	<insert id="resVationGolfRoom" parameterType="glfprUseRcordVO">
+	INSERT INTO GLFPR_USE_RCORD
+				(
+				RCORD_NO,
+				ROOM_NO,
+				MEM_ID,
+				USE_YMD,
+				START_TM,
+				END_TM
+				)
+			VALUES
+			(
+			(SELECT NVL(MAX(RCORD_NO), 0) + 1 FROM GLFPR_USE_RCORD),
+			#{roomNo},
+			#{memId},
+			#{useYmd},
+			#{startTm},
+			#{endTm}
+			)
+	</insert>
+
+
+	<!-- 골프장 사용자가 예약 취소했을때 -->
+	<delete id="deleteRoom" parameterType="glfprUseRcordVO">
+	DELETE FROM
+		GLFPR_USE_RCORD
+	WHERE
+		RCORD_NO = #{rcordNo}
+	</delete>
+</mapper>

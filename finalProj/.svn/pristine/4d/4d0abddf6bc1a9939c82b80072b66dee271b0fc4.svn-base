@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.ddit.mapper.CmnuseManagectMapper">
+
+	<!-- 총 공용관리비를 전체 조회한다. -->
+	<select id="selectAll" resultType="cmnuseManagectVO">
+		SELECT MANAGECT_NO, FRST_WRTER_ID, FSRT_WRITING_TM, RLVT_YM, MANAGECT_TOT
+	     	 , MANAGECT_WTR, MANAGECT_ELCTY, MANAGECT_HEAT, MANAGECT_CLN, MANAGECT_ELVTR
+	     	 , MANAGECT_SCRTY, MANAGE_OFFICE_ORPNS, MANAGECT_WRRTN, MANAGECT_REPAIR, MANAGECT_DSNF
+	     	 , MANAGECT_PRKPLCE, MANAGECT_PBLFCLT, MANAGECT_CALC_YMD, LAST_UPDUSR_ID, LAST_UPDT_TM
+	  	  FROM CMNUSE_MANAGECT
+	 	 WHERE DEL_YN = 'N'
+	 	 ORDER BY MANAGECT_NO DESC
+	</select>
+
+</mapper>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

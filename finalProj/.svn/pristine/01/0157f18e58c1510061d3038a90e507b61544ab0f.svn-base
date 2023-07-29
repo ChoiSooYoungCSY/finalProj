@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+ "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+	<settings>
+		<setting name="mapUnderscoreToCamelCase" value="true" />
+		<setting name="jdbcTypeForNull" value="VARCHAR" />
+	</settings>
+	<typeAliases>
+		<typeAlias type="kr.or.ddit.vo.AbsntStngVO" alias="absntStngVO" />
+		<typeAlias type="kr.or.ddit.vo.AcntSttsVO" alias="acntSttsVO" />
+		<typeAlias type="kr.or.ddit.vo.AgencyVO" alias="agencyVO" />
+		<typeAlias type="kr.or.ddit.vo.AbsntStngVO" alias="absntStngVO" />
+		<typeAlias type="kr.or.ddit.vo.AnnncVO" alias="annncVO" />
+		<typeAlias type="kr.or.ddit.vo.AptIntrdctnVO" alias="aptIntrdctnVO" />
+		<typeAlias type="kr.or.ddit.vo.ArbrrDcsVO" alias="arbrrDcsVO" />
+		<typeAlias type="kr.or.ddit.vo.AtchmnflDetailVO" alias="atchmnflDetailVO" />
+		<typeAlias type="kr.or.ddit.vo.AtchmnflVO" alias="atchmnflVO" />
+		<typeAlias type="kr.or.ddit.vo.AtrzDocVO" alias="atrzDocVO" />
+		<typeAlias type="kr.or.ddit.vo.AtrzLineVO" alias="atrzLineVO" />
+		<typeAlias type="kr.or.ddit.vo.AtrzRefrnVO" alias="atrzRefrnVO" />
+		<typeAlias type="kr.or.ddit.vo.AtrzVO" alias="atrzVO" />
+		<typeAlias type="kr.or.ddit.vo.AuthoritiesVO" alias="authoritiesVO" />
+		<typeAlias type="kr.or.ddit.vo.AuthorityVO" alias="authorityVO" />
+
+		<typeAlias type="kr.or.ddit.vo.BankVO" alias="bankVO" />
+		<typeAlias type="kr.or.ddit.vo.BidBbsVO" alias="bidBbsVO" />
+		<typeAlias type="kr.or.ddit.vo.BlacklistVO" alias="blacklistVO" />
+		<typeAlias type="kr.or.ddit.vo.BookRecomVO" alias="bookRecomVO" />
+		<typeAlias type="kr.or.ddit.vo.BookSeVO" alias="bookSeVO" />
+		<typeAlias type="kr.or.ddit.vo.BookVO" alias="bookVO" />
+
+		<typeAlias type="kr.or.ddit.vo.ClubClVO" alias="clubClVO" />
+		<typeAlias type="kr.or.ddit.vo.ClubMemberVO" alias="clubMemberVO" />
+		<typeAlias type="kr.or.ddit.vo.ClubRecomVO" alias="clubRecomVO" />
+		<typeAlias type="kr.or.ddit.vo.ClubVO" alias="ClubVO" />
+		<typeAlias type="kr.or.ddit.vo.CmnuseManagectVO" alias="cmnuseManagectVO" />
+		<typeAlias type="kr.or.ddit.vo.CvplBbsCmntVO" alias="cvplBbsCmntVO" />
+		<typeAlias type="kr.or.ddit.vo.CvplBbsEmtVO" alias="cvplBbsEmtVO" />
+		<typeAlias type="kr.or.ddit.vo.CvplBbsVO" alias="cvplBbsVO" />
+
+		<typeAlias type="kr.or.ddit.vo.DclzVO" alias="dclzVO" />
+		<typeAlias type="kr.or.ddit.vo.DeptVO" alias="deptVO" />
+		<typeAlias type="kr.or.ddit.vo.DocBookmarkVO" alias="docBookmarkVO" />
+		<typeAlias type="kr.or.ddit.vo.DocFormVO" alias="docFormVO" />
+		<typeAlias type="kr.or.ddit.vo.DocSectionVO" alias="docSectionVO" />
+		<typeAlias type="kr.or.ddit.vo.DscntProdVO" alias="dscntProdVO" />
+
+		<typeAlias type="kr.or.ddit.vo.EmailRefrnVO" alias="emailRefrnVO" />
+		<typeAlias type="kr.or.ddit.vo.EmailVO" alias="emailVO" />
+		<typeAlias type="kr.or.ddit.vo.EmpBbsCmntVO" alias="empBbsCmntVO" />
+		<typeAlias type="kr.or.ddit.vo.EmpBbsEmtVO" alias="empBbsEmtVO" />
+		<typeAlias type="kr.or.ddit.vo.EmpBbsVO" alias="empBbsVO" />
+		<typeAlias type="kr.or.ddit.vo.EmpNtcBbsVO" alias="empNtcBbsVO" />
+		<typeAlias type="kr.or.ddit.vo.EtcBbsEmtVO" alias="etcBbsEmtVO" />
+		<typeAlias type="kr.or.ddit.vo.EmpVO" alias="empVO" />
+
+		<typeAlias type="kr.or.ddit.vo.FamilyVO" alias="familyVO" />
+		<typeAlias type="kr.or.ddit.vo.FreeBbsCmntVO" alias="freeBbsCmntVO" />
+		<typeAlias type="kr.or.ddit.vo.FreeBbsEmtVO" alias="freeBbsEmtVO" />
+		<typeAlias type="kr.or.ddit.vo.FreeBbsVO" alias="freeBbsVO" />
+
+		<typeAlias type="kr.or.ddit.vo.GivePaidlvVO" alias="givePaidlvVO" />
+		<typeAlias type="kr.or.ddit.vo.GlfprUseRcordVO" alias="glfprUseRcordVO" />
+		<typeAlias type="kr.or.ddit.vo.GymUseRcordVO" alias="gymUseRcordVO" />
+
+		<typeAlias type="kr.or.ddit.vo.HshldCmnuseVO" alias="hshldCmnuseVO" />
+		<typeAlias type="kr.or.ddit.vo.HshldInfoVO" alias="hshldInfoVO" />
+		<typeAlias type="kr.or.ddit.vo.HshldManagectVO" alias="hshldManagectVO" />
+		<typeAlias type="kr.or.ddit.vo.HshldTypeVO" alias="hshldTypeVO" />
+
+		<typeAlias type="kr.or.ddit.vo.IntrcpAcntVO" alias="intrcpAcntVO" />
+		<typeAlias type="kr.or.ddit.vo.IntrdctnSeVO" alias="intrdctnSeVO" />
+
+		<typeAlias type="kr.or.ddit.vo.JobGradeVO" alias="jobGradeVO" />
+
+		<typeAlias type="kr.or.ddit.vo.LoanBookVO" alias="loanBookVO" />
+		<typeAlias type="kr.or.ddit.vo.LoanSttsVO" alias="loanSttsVO" />
+
+		<typeAlias type="kr.or.ddit.vo.MartVO" alias="martVO" />
+		<typeAlias type="kr.or.ddit.vo.MemberVO" alias="memberVO" />
+
+		<typeAlias type="kr.or.ddit.vo.NtcBbsEmtVO" alias="ntcBbsEmtVO" />
+		<typeAlias type="kr.or.ddit.vo.NtcBbsVO" alias="ntcBbsVO" />
+
+		<typeAlias type="kr.or.ddit.vo.PaidlvVO" alias="paidlvVO" />
+		<typeAlias type="kr.or.ddit.vo.PaidlvSectionVO" alias="paidlvSectionVO" />
+		<typeAlias type="kr.or.ddit.vo.PaidlyRcordVO" alias="paidlyRcordVO" />
+		<typeAlias type="kr.or.ddit.vo.PicnicRecomVO" alias="picnicRecomVO" />
+		<typeAlias type="kr.or.ddit.vo.PicnicVO" alias="picnicVO" />
+		<typeAlias type="kr.or.ddit.vo.PrkplceSttsVO" alias="prkplceSttsVO" />
+		<typeAlias type="kr.or.ddit.vo.PrkplceVO" alias="prkplceVO" />
+		<typeAlias type="kr.or.ddit.vo.ProdSeVO" alias="prodSeVO" />
+		<typeAlias type="kr.or.ddit.vo.PuttingRoomInfoVO" alias="puttingRoomInfoVO" />
+
+		<typeAlias type="kr.or.ddit.vo.ReadrmUseRcordVO" alias="readrmUseRcordVO" />
+		<typeAlias type="kr.or.ddit.vo.RealEstateInfoVO" alias="realEstateInfoVO" />
+		<typeAlias type="kr.or.ddit.vo.RegistCarVO" alias="registCarVO" />
+		<typeAlias type="kr.or.ddit.vo.ReviewVO" alias="reviewVO" />
+		<typeAlias type="kr.or.ddit.vo.RstrntRecomVO" alias="rstrntRecomVO" />
+		<typeAlias type="kr.or.ddit.vo.RstrntSeVO" alias="rstrntSeVO" />
+		<typeAlias type="kr.or.ddit.vo.RstrntVO" alias="rstrntVO" />
+
+		<typeAlias type="kr.or.ddit.vo.SalaryVO" alias="salaryVO" />
+		<typeAlias type="kr.or.ddit.vo.ScheduleVO" alias="scheduleVO" />
+		<typeAlias type="kr.or.ddit.vo.ScndhdBbsEmtVO" alias="scndhdBbsEmtVO" />
+		<typeAlias type="kr.or.ddit.vo.ScndhdBbsVO" alias="scndhdBbsVO" />
+		<typeAlias type="kr.or.ddit.vo.ScndhdRecomVO" alias="scndhdRecomVO" />
+		<typeAlias type="kr.or.ddit.vo.ScndhdSeVO" alias="scndhdSeVO" />
+		<typeAlias type="kr.or.ddit.vo.ScnhRcrdVO" alias="scnhRcrdVO" />
+		<typeAlias type="kr.or.ddit.vo.SeatInfoVO" alias="seatInfoVO" />
+		<typeAlias type="kr.or.ddit.vo.SmsVO" alias="smsVO" />
+		<typeAlias type="kr.or.ddit.vo.StatusVO" alias="statusVO" />
+		<typeAlias type="kr.or.ddit.vo.SttemntVO" alias="sttemntVO" />
+		<typeAlias type="kr.or.ddit.vo.SttemntCmntVO" alias="sttemntCmntVO" />
+		<typeAlias type="kr.or.ddit.vo.SttemntPstVO" alias="sttemntPstVO" />
+		<typeAlias type="kr.or.ddit.vo.SttemntSmsVO" alias="sttemntSmsVO" />
+		<typeAlias type="kr.or.ddit.vo.SwmplUseRcordVO" alias="swmplUseRcordVO" />
+
+		<typeAlias type="kr.or.ddit.vo.UserVO" alias="userVO" />
+
+		<typeAlias type="kr.or.ddit.vo.VisitVO" alias="visitVO" />
+		<typeAlias type="kr.or.ddit.vo.VoteBbsVO" alias="voteBbsVO" />
+		<typeAlias type="kr.or.ddit.vo.VoteRcordVO" alias="voteRcordVO" />
+
+		<typeAlias type="kr.or.ddit.vo.WeatherVO" alias="weatherVO" />
+
+	</typeAliases>
+
+</configuration>

@@ -1,0 +1,14 @@
+package kr.or.ddit.emp.email.self;
+
+import java.util.List;
+
+import kr.or.ddit.vo.EmailVO;
+
+public interface SelfMailService {
+
+
+	public List<EmailVO> selectEmailSelfList(EmailVO emailVO);
+	public int delUpdateEmail(List<String> checkEmailList);
+	public int favoriteUpdateEmail(EmailVO emailVO);
+	public int favoritesClear(EmailVO emailVO);
+}

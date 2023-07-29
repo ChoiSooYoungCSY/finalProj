@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.or.ddit.mapper.MemberMapper">
+	<resultMap type="memberVO" id="memberMap">
+		<result property="memIntrst" column="MEM_INTRST" />
+		<result property="memId" column="MEM_ID" />
+		<result property="password" column="PASSWORD" />
+		<result property="memNm" column="MEM_NM" />
+		<result property="sexDstn" column="SEX_DSTN" />
+		<result property="email" column="EMAIL" />
+		<result property="faceH5" column="FACE_H5" />
+		<result property="memImg" column="MEM_IMG" />
+		<result property="phoneNo" column="PHONE_NO" />
+		<result property="telNo" column="TEL_NO" />
+		<result property="hshldInfoNo" column="HSHLD_INFO_NO" />
+		<result property="memBrthdy" column="MEM_BRTHDY" />
+		<result property="memVisit" column="MEM_VISIT" />
+		<result property="acntSttsCd" column="ACNT_STTS_CD" />
+		<collection property="memberAuthVOList" resultMap="authoritiesMap"></collection>
+		<collection property="familyVOList" resultMap="familyMap"></collection>
+	</resultMap>
+
+	<resultMap type="authoritiesVO" id="authoritiesMap">
+		<result property="authrtCd" column="AUTHRT_CD" />
+		<result property="userId" column="USER_ID" />
+	</resultMap>
+
+	<resultMap type="familyVO" id="familyMap">
+		<result property="familyNo" column="FAMILY_NO" />
+		<result property="memId" column="MEM_ID" />
+		<result property="familyAge" column="FAMILY_AGE" />
+		<result property="familyNm" column="FAMILY_NM" />
+	</resultMap>
+
+	<!-- 회원 개인정보 진입 수정 확인 -->
+	<select id="passwordConfirm" parameterType="memberVO" resultType="int">
+		SELECT COUNT(*)
+		FROM   MEMBER
+		WHERE  MEM_ID = #{memId}
+		AND    PASSWORD = #{password}
+	</select>
+
+	<!-- 회원 가족 가져오기 -->
+	<select id="detailmemFamily" parameterType="memberVO" resultMap="familyMap">
+		SELECT MEM_ID, FAMILY_NM, FAMILY_AGE FROM FAMILY WHERE MEM_ID = #{memId}
+	</select>
+
+	<!-- 회원 아이디 중복체크 -->
+	<select id="checkMemId" parameterType="memberVO" resultType="int">
+		SELECT COUNT(*) FROM MEMBER WHERE MEM_ID = #{memId}
+	</select>
+
+	<!-- 회원 가입신청 -->
+	<insert id="signUpMember" parameterType="memberVO">
+			INSERT INTO MEMBER(MEM_ID, PASSWORD, MEM_NM, SEX_DSTN, EMAIL, MEM_IMG, PHONE_NO, TEL_NO, HSHLD_INFO_NO, MEM_BRTHDY, ACNT_STTS_CD, MEM_INTRST )
+			VALUES (#{memId}, #{password}, #{memNm}, #{sexDstn}, #{email}, #{memImg}, #{phoneNo}, #{telNo}, #{hshldInfoNo}, #{memBrthdy}, 'ACCT01', #{memIntrst})
+	</insert>
+
+	<!-- 회원 가족넣기 -->
+	<insert id="insertMemberFamily" parameterType="familyVO">
+			INSERT INTO FAMILY(FAMILY_NO, MEM_ID, FAMILY_AGE, FAMILY_NM)
+			VALUES ((select nvl((max(family_no)+1),1) from family), #{memId}, #{familyAge}, #{familyNm})
+	</insert>
+
+	<!-- 회원 가족 삭제 -->
+	<delete id="deleteMemFamily" parameterType="memberVO">
+			DELETE FROM FAMILY
+			WHERE MEM_ID = #{memId}
+	</delete>
+
+	<!-- 회원정보 수정 -->
+	<update id="editMemInfo" parameterType="memberVO">
+			UPDATE MEMBER
+			SET	  PASSWORD = #{password}
+				, MEM_BRTHDY = #{memBrthdy}
+				, SEX_DSTN = #{sexDstn}
+				, PHONE_NO =  #{phoneNo}
+				, TEL_NO = #{telNo}
+				, EMAIL = #{email}
+				, MEM_IMG = #{memImg}
+				, MEM_INTRST = #{memIntrst}
+			WHERE MEM_ID = #{memId}
+	</update>
+
+	<!-- 얼굴인식 로그인 h5 등록 -->
+	<update id="faceRegister" parameterType="memberVO">
+			UPDATE MEMBER
+			SET	   FACE_H5 = #{faceH5}
+			WHERE  MEM_ID = #{memId}
+	</update>
+
+
+	<!-- 회원/직원 로그인 -->
+	<select id="detailMember" parameterType="memberVO" resultType="memberVO">
+		SELECT
+		MEM_ID
+		, MEM_NM
+		, MEM_IMG
+		, PHONE_NO
+		, MEM_BRTHDY
+		, ACNT_STTS_CD
+		FROM
+		MEMBER WHERE ACNT_STTS_CD = 'ACCT02' AND MEM_ID = #{memId}
+	</select>
+</mapper>

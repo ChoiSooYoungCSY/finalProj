@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.ddit.mapper.AtchmnflDetailMapper">
+	<select id="attachDetail" parameterType="atchmnflDetailVO"
+		resultType="atchmnflDetailVO">
+		SELECT
+		A.ATCHMNFL_NO
+		, A.ATCHMNFL_ID
+		, A.FRST_WRTER_TM
+		, A.FRST_WRTER_ID
+		, A.FLPTH
+		, A.STRE_FL_NM
+		, A.ATCHMNFL_SIZE
+		, A.ATCHMNFL_TY
+		, A.ORGINL_ATCHMNFL_NM
+		, A.LAST_UPDUSR_ID
+		, A.LAST_UPDT_TM
+		, A.DEL_YN
+		FROM
+		ATCHMNFL_DETAIL A, ATCHMNFL B WHERE A.ATCHMNFL_ID = B.ATCHMNFL_ID AND
+		A.ATCHMNFL_ID = #{atchmnflId} AND B.DEL_YN = 'N' AND A.DEL_YN = 'N'
+	</select>
+</mapper>

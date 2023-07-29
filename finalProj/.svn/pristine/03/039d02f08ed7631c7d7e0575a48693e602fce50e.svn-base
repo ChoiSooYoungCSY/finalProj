@@ -1,0 +1,12 @@
+package kr.or.ddit.mapper;
+
+import java.util.List;
+
+import kr.or.ddit.vo.PaidlvVO;
+
+public interface PaidlvMapper {
+
+	//DB에서 연차 데이터 불러오기
+	public List<PaidlvVO> getPaidlvData(String date);
+
+}

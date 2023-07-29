@@ -1,0 +1,11 @@
+package kr.or.ddit.mem.main;
+
+import java.util.List;
+import java.util.Map;
+
+import kr.or.ddit.vo.PicnicRecomVO;
+import kr.or.ddit.vo.RstrntVO;
+
+public interface MemMainService {
+	public List<Map<String, Object>> detailPicnic(PicnicRecomVO picnicRecomVO);
+}

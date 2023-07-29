@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.or.ddit.mapper.PicnicRecomMapper">
+	<resultMap type="picnicVO" id="picnicMap">
+		<result property="picnicId" column="PICNIC_ID" />
+		<result property="frstWrterId" column="FRST_WRTER_ID" />
+		<result property="frstWrterTm" column="FRST_WRTER_TM" />
+		<result property="la" column="LA" />
+		<result property="lo" column="LO" />
+		<result property="picnicNm" column="PICNIC_NM" />
+		<result property="picnicImg" column="PICNIC_IMG" />
+		<result property="picnicTel" column="PICNIC_TEL" />
+		<result property="picnicAdres" column="PICNIC_ADRES" />
+		<result property="bsnHour" column="BSN_HOUR" />
+		<result property="picnicUrl" column="PICNIC_URL" />
+		<result property="restde" column="RESTDE" />
+		<result property="delYn" column="DEL_YN" />
+		<result property="lastUpdusrId" column="LAST_UPDUSR_ID" />
+		<result property="lastUpdtTm" column="LAST_UPDT_TM" />
+		<result property="picnicDetail" column="PICNIC_DETAIL" />
+	</resultMap>
+
+	<!-- 아이디로 나들이 추천 장소 정보 가져오기 해야됨!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!-->
+	<select id="detailPicnic" parameterType="picnicRecomVO" resultType="hashMap">
+		SELECT A.MEM_ID, A.WEEKEND_DATE, A.WEEK, A.WETHR_INFO, A.WETHR_HIGH, A.WETHR_LOW, A.WETHR_IMG
+		     , B.PICNIC_ID, B.PICNIC_IMG, B.PICNIC_NM, B.BSN_HOUR, B.PICNIC_TEL, B.PICNIC_ADRES, B.PICNIC_URL
+		FROM
+		(
+		    SELECT RECOM_NO, MEM_ID, '토요일' WEEK, RECOM_PIC_SAT AS RECOM_PIC
+		        , TO_CHAR(TO_DATE((SELECT WETHR_YMD FROM (SELECT WETHR_YMD FROM WEATHER WHERE WETHR_DAY = '토' ORDER BY WETHR_YMD DESC) WHERE ROWNUM = 1), 'YYYYMMDD'), 'YYYY"년" MM"월" DD"일"') WEEKEND_DATE
+		        , (SELECT WETHR_INFO FROM (SELECT WETHR_INFO FROM WEATHER WHERE WETHR_DAY = '토' ORDER BY WETHR_YMD DESC) WHERE ROWNUM = 1) WETHR_INFO
+		        , (SELECT WETHR_IMG FROM (SELECT WETHR_IMG FROM WEATHER WHERE WETHR_DAY = '토' ORDER BY WETHR_YMD DESC) WHERE ROWNUM = 1) WETHR_IMG
+		        , (SELECT WETHR_HIGH FROM (SELECT WETHR_HIGH FROM WEATHER WHERE WETHR_DAY = '토' ORDER BY WETHR_YMD DESC) WHERE ROWNUM = 1) WETHR_HIGH
+		        , (SELECT WETHR_LOW FROM (SELECT WETHR_LOW FROM WEATHER WHERE WETHR_DAY = '토' ORDER BY WETHR_YMD DESC) WHERE ROWNUM = 1) WETHR_LOW
+		    FROM PICNIC_RECOM
+		    UNION ALL
+		    SELECT RECOM_NO, MEM_ID, '일요일' WEEK, RECOM_PIC_SUN
+		        , TO_CHAR(TO_DATE((SELECT WETHR_YMD FROM (SELECT WETHR_YMD FROM WEATHER WHERE WETHR_DAY = '일' ORDER BY WETHR_YMD DESC) WHERE ROWNUM = 1), 'YYYYMMDD'), 'YYYY"년" MM"월" DD"일"')
+		        , (SELECT WETHR_INFO FROM (SELECT WETHR_INFO FROM WEATHER WHERE WETHR_DAY = '일' ORDER BY WETHR_YMD DESC) WHERE ROWNUM = 1) WETHR_INFO
+		        , (SELECT WETHR_IMG FROM (SELECT WETHR_IMG FROM WEATHER WHERE WETHR_DAY = '일' ORDER BY WETHR_YMD DESC) WHERE ROWNUM = 1) WETHR_IMG
+		        , (SELECT WETHR_HIGH FROM (SELECT WETHR_HIGH FROM WEATHER WHERE WETHR_DAY = '일' ORDER BY WETHR_YMD DESC) WHERE ROWNUM = 1) WETHR_HIGH
+		        , (SELECT WETHR_LOW FROM (SELECT WETHR_LOW FROM WEATHER WHERE WETHR_DAY = '일' ORDER BY WETHR_YMD DESC) WHERE ROWNUM = 1) WETHR_LOW
+		    FROM PICNIC_RECOM
+		) A, PICNIC B
+		WHERE A.RECOM_PIC = B.PICNIC_ID
+		AND   A.MEM_ID = #{memId}
+		ORDER BY A.WEEKEND_DATE
+	</select>
+</mapper>

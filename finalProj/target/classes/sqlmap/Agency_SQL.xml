@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.ddit.mapper.AgencyMapper">
+	<select id="selectAll" resultType="agencyVO">
+		SELECT
+		AGENCY_NO
+		, FRST_WRTER_ID
+		, FRST_WRITING_TM
+		, LICENSE_NO
+		, AGENCY_NM
+		, AGENCY_ADRES
+		, AGENCY_TY
+		, AGENCY_CEO
+		, AGENCY_TEL
+		, LICENSE_YMD
+		, LAST_UPDUSR_ID
+		, LAST_UPDT_TM
+		FROM
+		AGENCY
+	</select>
+</mapper>

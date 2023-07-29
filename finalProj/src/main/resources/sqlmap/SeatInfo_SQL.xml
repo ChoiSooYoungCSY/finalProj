@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.ddit.mapper.SeatInfoMapper">
+
+	<!-- 좌석 번호  -->
+	<select id="selectSeat" parameterType="seatInfoVO" resultType="seatInfoVO">
+    SELECT
+		SEAT_NO,
+		USE_YN
+	FROM
+		SEAT_INFO
+	</select>
+
+	<!-- 독서실 예약 가능한 자리 -->
+	<select id="useSeat" resultType="seatInfoVO">
+    SELECT
+		SEAT_NO,
+		USE_YN
+	FROM
+		SEAT_INFO
+    WHERE
+    	 USE_YN = 'N'
+	</select>
+
+	<!-- 예약시 사용여부가 Y 사용중으로 변경 -->
+	<update id="useSeatUpdate" parameterType="seatInfoVO">
+    UPDATE
+    	SEAT_INFO
+    SET
+       USE_YN = 'Y'
+    WHERE
+       SEAT_NO = #{seatNo}
+	</update>
+
+</mapper>

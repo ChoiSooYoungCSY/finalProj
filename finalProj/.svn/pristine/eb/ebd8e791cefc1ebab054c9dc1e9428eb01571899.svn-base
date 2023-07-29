@@ -1,0 +1,35 @@
+package kr.or.ddit.mem.cmnt.secondhand;
+
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.stereotype.Service;
+
+import kr.or.ddit.vo.RstrntVO;
+import kr.or.ddit.vo.ScndhdBbsVO;
+import kr.or.ddit.vo.ScndhdRecomVO;
+
+
+public interface ScndhdBbsService {
+
+	public List<ScndhdBbsVO> selectAll(Map<String, String> map);
+
+	public int getTotal(Map<String, String> map);
+
+	public int registerPost(ScndhdBbsVO scndhdBbsVO);
+
+	public int updatePost(ScndhdBbsVO scndhdBbsVO);
+
+	public int deletePost(ScndhdBbsVO scndhdBbsVO);
+
+	public List<ScndhdBbsVO> imageList();
+
+	public ScndhdBbsVO selectOne(ScndhdBbsVO cndhdBbsVO);
+
+	public ScndhdRecomVO selectRecomList(String memId);
+
+
+
+
+
+}

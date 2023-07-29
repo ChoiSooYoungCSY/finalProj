@@ -1,0 +1,57 @@
+package kr.or.ddit.emp.aa.mngmanagect;
+
+import java.util.List;
+
+import kr.or.ddit.vo.CmnuseManagectVO;
+
+/**
+ * @Class Name : MngManageCostService.java
+ * @Description : MngManageCostService Interface
+ * @Modification Information
+ * @
+ * @   수정일        수정자                  수정내용
+ * @ ---------   ---------   -------------------------------
+ * @ 2023.07.06          최초생성
+ *
+ * @author 임경빈
+ * @since 2023.07.06
+ * @version 1.0
+ * @see
+ */
+
+<<<<<<< .mine
+//public interface MngManageCostService {
+//
+//	/**
+//	 * 총 공용관리비를 전체 조회한다.
+//	 * @return 총 공용관리비 목록
+//	 */
+//	public List<CmnuseManagectVO> selectAll();
+//
+//}
+||||||| .r334511
+=======
+public interface MngManageCostService {
+
+	/**
+	 * 총 공용관리비를 전체 조회한다.
+	 * @return 총 공용관리비 목록
+	 */
+	public List<CmnuseManagectVO> selectAll();
+
+	/**
+	 * 총 공용관리비를 연월로 검색한다.
+	 * @param rlvtYm
+	 * @return 특정 연월의 공용관리비 정보
+	 */
+	public CmnuseManagectVO selectOne(String rlvtYm);
+
+	/**
+	 * 총 공용관리비 등록 및 업데이트
+	 * @param cmnuseManagectVO
+	 * @return insert 및 update에 성공한 행의 수
+	 */
+	public int save(CmnuseManagectVO cmnuseManagectVO);
+
+}
+>>>>>>> .r334884

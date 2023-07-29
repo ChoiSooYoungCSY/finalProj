@@ -1,0 +1,18 @@
+package kr.or.ddit.vo;
+
+import lombok.Data;
+
+@Data
+public class CvplBbsVO {
+	private String pstId;
+	private String frstWriterId;
+	private String fsrtWritingTm;
+	private String pstSj;
+	private String pstCn;
+	private int rdcnt;
+	private String delYn;
+	private String rlsYn;
+	private String atchmnflId;
+	private String lastUpdusrId;
+	private String lasUpdtTm;
+}

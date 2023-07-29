@@ -1,0 +1,16 @@
+package kr.or.ddit.emp.pa.mngcmnt.memfreebbs;
+
+import java.util.List;
+
+import kr.or.ddit.vo.FreeBbsVO;
+
+public interface MngMemFreebbsService {
+
+
+	/**
+	 * 자유게시판 전체 게시물
+	 * @return List<FreeBbsVO>
+	 */
+	public List<FreeBbsVO> selectAll();
+
+}

@@ -1,0 +1,27 @@
+package kr.or.ddit.mem.main;
+
+import java.util.List;
+import java.util.Map;
+
+import kr.or.ddit.vo.MemberVO;
+import kr.or.ddit.vo.PicnicRecomVO;
+import kr.or.ddit.vo.RstrntVO;
+
+public interface MemMainService {
+
+	public List<Map<String, Object>> detailPicnic(PicnicRecomVO picnicRecomVO);
+
+	//아이디 중복확인
+	public int checkMemId(String memId);
+
+	//회원가입시 문자인증
+	public void certifiedPhoneNumber(String memPhoneNumber, int ranNum);
+
+	//회원가입신청
+	public int signUpMember(MemberVO memberVO);
+
+	//회원상세정보
+	//<select id="detailMember" parameterType="memberVO" resultMap="memberMap">
+	public MemberVO detailMember(MemberVO memberVO);
+
+	}

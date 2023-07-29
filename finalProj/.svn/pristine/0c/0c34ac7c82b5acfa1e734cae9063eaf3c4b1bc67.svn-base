@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.or.ddit.mapper.EmpMapper">
+
+	<resultMap type="empVO" id="empMap">
+		<result property="empNm" column="EMP_NM" />
+		<result property="addr" column="ADDR" />
+		<result property="empPhoneNo" column="EMP_PHONE" />
+		<result property="empId" column="EMP_ID" />
+		<result property="password" column="PASSWORD" />
+		<result property="empMail" column="EMP_MAIL" />
+		<result property="deptCd" column="DEPT_CD" />
+		<result property="jbgdCd" column="JBGD_CD" />
+		<result property="empBrthdy" column="EMP_BRTHDY" />
+		<result property="empImg" column="EMP_IMG" />
+		<result property="bankCd" column="BANK_CD" />
+		<result property="actno" column="ACTNO" />
+		<result property="jncmpYmd" column="JNCMP_YMD" />
+		<result property="rsgntnYmd" column="RSGNTN_YMD" />
+		<result property="superiorId" column="SUPERIOR_ID" />
+		<collection property="empAuthVOList" resultMap="authoritiesMap"></collection>
+	</resultMap>
+
+	<resultMap type="authoritiesVO" id="authoritiesMap">
+		<result property="authrtCd" column="AUTHRT_CD" />
+		<result property="userId" column="USER_ID" />
+	</resultMap>
+
+	<resultMap type="DeptVO" id="deptMap">
+		<result property="deptCd" column="DEPT_CD" />
+		<result property="deptNm" column="DEPT_NM" />
+	</resultMap>
+
+	<resultMap type="JobGradeVO" id="jbgdMap">
+		<result property="jbgdCd" column="JBGD_CD" />
+		<result property="jbgdNm" column="JBGD_NM" />
+	</resultMap>
+
+	<resultMap type="bankVO" id="bankMap">
+		<result property="bankCd" column="BANK_CD" />
+		<result property="bankNm" column="BANK_NM" />
+	</resultMap>
+
+	<!-- 직원 리스트 가져오기 -->
+	<select id="selectAllEmp" resultType="empVO">
+		SELECT A.EMP_ID, A.EMP_NM, B.JBGD_NM, C.DEPT_NM, A.JNCMP_YMD, A.RSGNTN_YMD, B.JBGD_CD
+		FROM EMP A
+        INNER JOIN JOB_GRADE B ON A.JBGD_CD = B.JBGD_CD
+        LEFT JOIN DEPT C ON A.DEPT_CD = C.DEPT_CD
+        ORDER BY JBGD_CD
+	</select>
+
+	<select id="detailEmp" parameterType="String" resultMap="empMap">
+		SELECT A.EMP_ID, A.PASSWORD, A.EMP_MAIL, A.DEPT_CD, C.DEPT_NM, A.JBGD_CD, B.JBGD_NM, A.EMP_BRTHDY, A.EMP_IMG, A.BANK_CD, A.ACTNO, A.JNCMP_YMD, A.RSGNTN_YMD, A.SUPERIOR_ID, A.EMP_NM, A.ADDR, A.EMP_PHONE
+		FROM EMP A
+		INNER JOIN JOB_GRADE B ON A.JBGD_CD = B.JBGD_CD
+		LEFT JOIN DEPT C ON A.DEPT_CD = C.DEPT_CD
+		WHERE EMP_ID = #{empId}
+
+	</select>
+
+	<!-- 직원 개인정보 진입 수정 확인 -->
+	<select id="passwordConfirm" parameterType="empVO" resultType="int">
+		SELECT COUNT(*)
+		FROM   EMP
+		WHERE  EMP_ID = #{empId}
+		AND    PASSWORD = #{password}
+	</select>
+
+
+	<!-- 직원정보 수정 -->
+	<update id="editEmpInfo" parameterType="empVO">
+		UPDATE EMP
+		SET	  EMP_ID = #{empId}
+			, PASSWORD = #{password}
+			, EMP_MAIL = #{empMail}
+			, DEPT_CD =  #{deptCd}
+			, JBGD_CD = #{jbgdCd}
+			, EMP_BRTHDY = #{empBrthdy}
+			, EMP_IMG = #{empImg}
+			, BANK_CD = #{bankCd}
+			, ACTNO =  #{actno}
+			, JNCMP_YMD = #{jncmpYmd}
+			, RSGNTN_YMD = #{rsgntnYmd}
+			, SUPERIOR_ID =  #{superiorId}
+			, EMP_NM = #{empNm}
+			, ADDR = #{addr}
+			, EMP_PHONE = #{empPhoneNo}
+		WHERE EMP_ID = #{empId}
+	</update>
+
+	<!-- 직원 아이디 중복체크 -->
+	<select id="checkEmpId" parameterType="empVO" resultType="int">
+		SELECT COUNT(*) FROM EMP WHERE EMP_ID = #{empId}
+	</select>
+
+	<!-- 직원등록시 부서정보 불러오기 -->
+	<select id="selectDept" parameterType="DeptVO" resultMap="deptMap">
+		SELECT DEPT_CD, DEPT_NM
+		FROM DEPT
+		WHERE USE_YN = 'Y'
+	</select>
+
+	<!-- 직원등록시 직급정보 불러오기 -->
+	<select id="selectJbgd" parameterType="JobGradeVO" resultMap="jbgdMap">
+		SELECT JBGD_CD, JBGD_NM
+		FROM JOB_GRADE
+		WHERE USE_YN = 'Y'
+	</select>
+
+	<!-- 직원등록시 은행정보 불러오기 -->
+	<select id="selectBank" parameterType="bankVO" resultMap="bankMap">
+		SELECT BANK_CD, BANK_NM
+		FROM BANK
+		WHERE USE_YN = 'Y'
+	</select>
+
+	<!-- 직원 정보 등록하기 -->
+	<insert id="registerEmp" parameterType="empVO">
+		INSERT INTO EMP(EMP_ID, PASSWORD, EMP_MAIL, DEPT_CD, JBGD_CD, EMP_BRTHDY, EMP_IMG, BANK_CD, ACTNO, JNCMP_YMD, RSGNTN_YMD, SUPERIOR_ID, EMP_NM, ADDR, EMP_PHONE)
+		VALUES (#{empId}, #{password}, #{empMail}, #{deptCd}, #{jbgdCd}, #{empBrthdy}, #{empImg}, #{bankCd}, #{actno}, #{jncmpYmd}, #{jncmpYmd}, #{superiorId}, #{empNm}, #{addr}, #{empPhoneNo})
+	</insert>
+
+	<!-- 직원 권한 등록하기 -->
+	<insert id="registerEmpAuth" parameterType="AuthoritiesVO">
+		INSERT INTO AUTHORITIES(AUTHRT_CD, USER_ID)
+		VALUES (#{authrtCd}, #{userId})
+	</insert>
+
+	<!-- 직원 권한 삭제하기 -->
+	<delete id="deleteEmpAuth" parameterType="AuthoritiesVO">
+		DELETE FROM AUTHORITIES
+		WHERE USER_ID = #{userId}
+	</delete>
+
+	<!-- 특정 직원 삭제하기(비활성화, 퇴사처리) -->
+	<update id="deleteEmp" parameterType="empVO">
+		UPDATE EMP
+		SET    RSGNTN_YMD = #{rsgntnYmd}
+		WHERE  EMP_ID = #{empId}
+	</update>
+
+
+
+	<!-- 회원/직원 로그인 -->
+	<!-- <select id="detailMember" parameterType="memberVO" resultMap="memberMap">
+		SELECT A.MEM_ID, A.MEM_NM, A.PASSWORD, A.ACNT_STTS_CD, A.HSHLD_INFO_NO, MEM_IMG
+		     , B.AUTHRT_CD
+		FROM   (SELECT T.*
+				FROM   (SELECT MEM_ID,MEM_NM, PASSWORD, ACNT_STTS_CD, HSHLD_INFO_NO, MEM_IMG
+						FROM MEMBER
+						WHERE ACNT_STTS_CD NOT IN('ACCT01','ACCT03')
+						UNION ALL
+						SELECT EMP_ID, EMP_NM, PASSWORD, JBGD_CD, DEPT_CD, EMP_IMG
+						FROM EMP
+						WHERE JNCMP_YMD = RSGNTN_YMD) T
+        		WHERE T.MEM_ID = #{memId}) A, AUTHORITIES B
+		WHERE  A.MEM_ID = B.USER_ID(+)
+	</select> -->
+</mapper>

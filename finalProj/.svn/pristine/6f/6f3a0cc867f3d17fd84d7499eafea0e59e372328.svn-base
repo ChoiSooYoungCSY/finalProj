@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.ddit.mapper.VisitMapper">
+	<select id="selctVisitInfo" parameterType="String"
+		resultType="visitVO">
+		SELECT
+		VISIT_NO
+		, FRST_WRTER_ID
+		, FSRT_WRITING_TM
+		, VISIT_CAR_NO
+		, VISIT_YMD
+		, LAST_UPDUSR_ID
+		, LAST_UPDT_TM
+		, DEL_YN
+		FROM
+		VISIT
+		WHERE FRST_WRTER_ID = #{value} AND DEL_YN ='N'
+	</select>
+	<insert id="registVisit" parameterType="visitVO">
+		INSERT INTO
+		VISIT (
+		VISIT_NO
+		, FRST_WRTER_ID
+		, FSRT_WRITING_TM
+		, VISIT_CAR_NO
+		, VISIT_YMD
+		, LAST_UPDUSR_ID
+		, LAST_UPDT_TM
+		, DEL_YN
+		) VALUES (
+		(SELECT
+		NVL((MAX(VISIT_NO)+1),1) FROM VISIT)
+		, #{frstWrterId}
+		,TO_CHAR(SYSDATE,'yyyymmddhh24miss')
+		,#{visitCarNo}
+		,#{visitYmd}
+		,#{lastUpdusrId}
+		,TO_CHAR(SYSDATE, 'yyyymmddhh24miss')
+		,'N'
+		)
+	</insert>
+
+	<select id="selectMonthCnt" parameterType="String"
+		resultType="visitVO">
+		SELECT COUNT(visit_no) AS monthCnt
+		FROM VISIT
+		WHERE VISIT_YMD
+		LIKE TO_CHAR(SYSDATE, 'YYYY-MM') || '%'
+		AND frst_wrter_id = #{value} AND DEL_YN ='N'
+	</select>
+
+	<update id="deleteVisit" parameterType="visitVO">
+		UPDATE VISIT
+		SET
+		DEL_YN ='Y',
+		LAST_UPDUSR_ID = #{lastUpdusrId},
+		LAST_UPDT_TM = TO_CHAR(SYSDATE,'yyyymmddhh24miss')
+		WHERE
+		VISIT_NO = #{visitNo} AND DEL_YN = 'N'
+	</update>
+	<update id="updateVisit" parameterType="visitVO">
+		UPDATE VISIT
+		SET
+		  LAST_UPDUSR_ID = #{lastUpdusrId}
+		, LAST_UPDT_TM =TO_CHAR(SYSDATE,'yyyymmddhh24miss')
+		, VISIT_CAR_NO = #{visitCarNo}
+		,VISIT_YMD =#{visitYmd}
+		WHERE
+		VISIT_NO = #{visitNo}
+		AND DEL_YN = 'N'
+
+
+	</update>
+
+
+</mapper>

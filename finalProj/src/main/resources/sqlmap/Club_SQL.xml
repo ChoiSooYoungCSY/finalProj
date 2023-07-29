@@ -1,0 +1,249 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.ddit.mapper.ClubMapper">
+
+	<resultMap type="clubClVO" id="clubClMap">
+		<result property="clbClCd" column="CLB_CL_CD" />
+		<result property="clbClNm" column="CLB_CL_NM" />
+		<result property="useYn" column="USE_YN" />
+		<collection property="clubVOList" resultMap="clubMap"></collection>
+	</resultMap>
+
+	<resultMap type="clubVO" id="clubMap">
+		<result property="clbId" column="CLB_ID" />
+		<result property="clbClCd" column="CLB_CL_CD" />
+		<result property="frstWrterId" column="FRST_WRTER_ID" />
+		<result property="fsrtWritingTm" column="FSRT_WRITING_TM" />
+		<result property="clbNm" column="CLB_NM" />
+		<result property="clbAge" column="CLB_AGE" />
+		<result property="clbIntrcn" column="CLB_INTRCN" jdbcType="CLOB" javaType="java.lang.String" />
+		<result property="clbImg" column="CLB_IMG" />
+		<result property="clbTotNmpr" column="CLB_TOT_NMPR" />
+		<result property="clbNowNmpr" column="CLB_NOW_NMPR" />
+		<result property="delYn" column="DEL_YN" />
+		<result property="confmYn" column="CONFM_YN" />
+		<result property="lastUpdusrId" column="LAST_UPDUSR_ID" />
+		<result property="lastUpdtTm" column="LAST_UPDT_TM" />
+	</resultMap>
+
+	<sql id="where">
+		<!-- 전체 검색 -->
+	    <if test="keyword != null and cond == 'confmY'">
+	    AND    (
+		            A.CLB_NM         LIKE '%' || #{keyword} || '%' OR
+		            A.CLB_INTRCN     LIKE '%' || #{keyword} || '%' OR
+		            A.FRST_WRTER_ID  LIKE '%' || #{keyword} || '%' OR
+		            B.CLB_CL_NM      LIKE '%' || #{keyword} || '%'
+		        )
+		</if>
+		<!-- 조건 검색 -->
+		<if test="cond != null and !cond.equals('confmY')">
+			<choose>
+				<when test="cond == 'clbNm'">
+					AND A.CLB_NM         LIKE '%' || #{keyword} || '%'
+				</when>
+				<when test="cond == 'clbIntrcn'">
+					AND A.CLB_INTRCN     LIKE '%' || #{keyword} || '%'
+				</when>
+				<when test="cond == 'frstWrterId'">
+					AND A.FRST_WRTER_ID  LIKE '%' || #{keyword} || '%'
+				</when>
+				<when test="cond == 'clbClNm'">
+					AND B.CLB_CL_NM      LIKE '%' || #{keyword} || '%'
+				</when>
+				<when test="cond == 'confmN'">
+					AND A.CONFM_YN = 'N'
+				</when>
+			</choose>
+		</if>
+	</sql>
+	<!-- CLUB테이블과 CLUB_CL테이블을 조인하여 모든 소모임 목록을 조회한다. -->
+	<select id="selectAll" parameterType="hashMap" resultType="clubVO" resultMap="clubMap">
+		WITH T AS (
+			SELECT ROW_NUMBER() OVER(ORDER BY A.FSRT_WRITING_TM DESC) AS RNUM
+				 , A.CLB_ID
+			     , A.CLB_CL_CD
+			     , A.FRST_WRTER_ID
+			     , A.FSRT_WRITING_TM
+			     , A.CLB_NM, CLB_AGE
+			     , A.CLB_INTRCN
+			     , A.CLB_IMG
+			     , A.CLB_TOT_NMPR
+			     , A.CLB_NOW_NMPR
+			     , A.DEL_YN
+			     , A.CONFM_YN
+			     , A.LAST_UPDUSR_ID
+			     , A.LAST_UPDT_TM
+			     , B.CLB_CL_NM
+			FROM
+			    CLUB A
+			INNER JOIN
+			    CLUB_CL B
+			ON
+			    A.CLB_CL_CD = B.CLB_CL_CD
+			WHERE
+			    A.DEL_YN = 'N'
+			<include refid="where"></include>
+		)
+		SELECT T.*
+		FROM   T
+		WHERE  T.RNUM BETWEEN (#{currentPage} * #{size}) - (#{size} - 1)
+		                  AND (#{currentPage} * #{size})
+	</select>
+
+	<!-- 전체 소모임 개수를 조회한다. -->
+	<select id="getTotal" parameterType="hashMap" resultType="int">
+		SELECT
+			COUNT(*)
+		FROM
+			CLUB A
+		INNER JOIN
+			CLUB_CL B
+		ON
+			A.CLB_CL_CD = B.CLB_CL_CD
+		WHERE
+		    A.DEL_YN = 'N'
+		<include refid="where"></include>
+	</select>
+
+	<!-- 특정 소모임의 정보를 가져온다 -->
+	<select id="selectOne" parameterType="clubVO" resultType="clubVO">
+		SELECT CLB_ID
+		     , CLB_CL_CD
+		     , FRST_WRTER_ID
+		     , FSRT_WRITING_TM
+		     , CLB_NM
+		     , CLB_AGE
+		     , CLB_INTRCN
+		     , CLB_IMG
+		     , CLB_TOT_NMPR
+		     , CLB_NOW_NMPR
+		     , DEL_YN
+		     , CONFM_YN
+		     , LAST_UPDUSR_ID
+		     , LAST_UPDT_TM
+		  FROM CLUB
+		 WHERE CLB_ID = #{clbId}
+	</select>
+
+	<!-- 새로운 소모임을 등록한다. -->
+	<insert id="registerPost" parameterType="clubVO">
+		INSERT INTO CLUB
+		    (CLB_ID, CLB_CL_CD, FRST_WRTER_ID
+		   , FSRT_WRITING_TM, CLB_NM, CLB_INTRCN
+		   , CLB_AGE
+		   , CLB_IMG, CLB_TOT_NMPR, CLB_NOW_NMPR
+		   , DEL_YN, CONFM_YN, LAST_UPDUSR_ID, LAST_UPDT_TM)
+		VALUES
+		    ((SELECT 'CLB' || LPAD(MAX(SUBSTR(CLB_ID, 4)) + 1, 6, '0') FROM CLUB), #{clbClCd}, #{frstWrterId}
+		    , TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24:MI:SS'), #{clbNm}, #{clbIntrcn}
+		    , (SELECT EXTRACT(YEAR FROM SYSDATE) - TO_NUMBER(SUBSTR(MEM_BRTHDY,1,4)) FROM MEMBER WHERE MEM_ID = #{frstWrterId})
+		    , #{clbImg}, 30, 1
+		    ,'N', 'N', #{lastUpdusrId}, TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24:MI:SS'))
+	</insert>
+
+	<!-- 특정 회원에 대한 추천 소모임 아이디목록을 가져온다. -->
+	<select id="selectRecomList" resultType="clubRecomVO">
+		SELECT CLB_ID_LIST
+		  FROM CLUB_RECOM
+		 WHERE MEM_ID = #{memId}
+	</select>
+
+	<!-- 특정 회원이 소모임에 가입되어 있는지 검색한다. -->
+	<select id="checkMem" parameterType="clubMemberVO" resultType="int">
+		SELECT COUNT(*)
+		  FROM CLUB_MEMBER
+		 WHERE CLB_ID = #{clbId}
+		   AND MEM_ID = #{memId}
+	</select>
+
+	<!-- 소모임 가입 -->
+	<insert id="join" parameterType="clubMemberVO">
+		INSERT INTO CLUB_MEMBER
+		    (MEM_ID, CLB_ID, SBSCRB_YMD, CHIRMN_YN)
+		VALUES
+		    (#{memId}, #{clbId}, TO_CHAR(SYSDATE, 'YYYY-MM-DD'), 'N')
+	</insert>
+
+	<!-- 소모임 가입, 탈퇴 후 CLUB_AGE, CLB_NOW_NMPR 업데이트 -->
+	<update id="updateClub" parameterType="clubMemberVO">
+		UPDATE CLUB
+		   SET
+		       CLB_AGE = (
+		           SELECT ROUND(AVG(EXTRACT(YEAR FROM SYSDATE) - TO_NUMBER(SUBSTR(A.MEM_BRTHDY,1,4)))) AS AGE
+		             FROM MEMBER A
+		            INNER JOIN CLUB_MEMBER B ON(A.MEM_ID = B.MEM_ID)
+		            WHERE B.CLB_ID = #{clbId}
+		       )
+		     , CLB_NOW_NMPR = (
+		           SELECT COUNT(*) FROM CLUB_MEMBER WHERE CLB_ID = #{clbId}
+		       )
+		 WHERE CLB_ID = #{clbId}
+	</update>
+
+	<!-- 소모임 승인 및 취소 -->
+	<update id="confirm" parameterType="string">
+		UPDATE CLUB
+		   SET
+			   CONFM_YN = CASE
+			   WHEN CONFM_YN = 'Y' THEN 'N'
+			   WHEN CONFM_YN = 'N' THEN 'Y'
+			   END
+		WHERE
+		    CLB_ID = #{clbId}
+	</update>
+
+	<!-- 소모임 전체승인 -->
+	<update id="confirmAll">
+		UPDATE CLUB
+		SET
+		    CONFM_YN = 'Y'
+		WHERE
+		    CONFM_YN = 'N'
+	</update>
+
+	<!-- 특정 회원이 가입한 소모임 정보 조회 -->
+	<select id="selectAllClubByMemId" resultType="ClubVO">
+		SELECT A.CLB_ID
+		     , A.CLB_CL_CD
+		     , A.FRST_WRTER_ID
+		     , A.FSRT_WRITING_TM
+		     , A.CLB_NM, CLB_AGE
+		     , A.CLB_INTRCN
+		     , A.CLB_IMG
+		     , A.CLB_TOT_NMPR
+		     , A.CLB_NOW_NMPR
+		     , A.DEL_YN
+		     , A.CONFM_YN
+		     , A.LAST_UPDUSR_ID
+		     , A.LAST_UPDT_TM
+		     , B.SBSCRB_YMD
+		FROM
+		       CLUB A
+		INNER JOIN
+		       CLUB_MEMBER B ON (A.CLB_ID = B.CLB_ID)
+		WHERE
+		       A.DEL_YN = 'N'
+		AND
+		       B.MEM_ID = #{memId}
+		ORDER BY
+		       B.SBSCRB_YMD DESC
+	</select>
+
+</mapper>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

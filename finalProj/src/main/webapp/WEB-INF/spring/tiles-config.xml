@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE tiles-definitions PUBLIC
+"-//Apache Software Foundation//DTD Tiles Configuration 3.0//EN"
+"http://tiles.apache.org/dtds/tiles-config_3_0.dtd">
+
+<!-- Tiles 설정 -->
+<tiles-definitions>
+
+	<!-- 입주민 layout -->
+	<definition name="mem-tiles-layout"
+		template="/WEB-INF/views/mem_tiles/mem_index.jsp">
+		<put-attribute name="header"
+			value="/WEB-INF/views/mem_tiles/mem_header.jsp" />
+		<!-- <put-attribute name="aside" value="/WEB-INF/views/mem_tiles/aside.jsp" /> -->
+		<put-attribute name="body" value="" />
+		<put-attribute name="footer" value="/WEB-INF/views/footer.jsp" />
+	</definition>
+
+	<!-- mav.setViewName("mem/1"); -->
+	<definition name="mem/*" extends="mem-tiles-layout">
+		<put-attribute name="body"
+			value="/WEB-INF/views/mem/{1}.jsp" />
+	</definition>
+
+
+	<!-- 관리자 layout -->
+	<definition name="emp-tiles-layout"
+		template="/WEB-INF/views/emp_tiles/emp_index.jsp">
+		<put-attribute name="header"
+			value="/WEB-INF/views/emp_tiles/emp_header.jsp" />
+		<!-- <put-attribute name="aside" value="/WEB-INF/views/emp_tiles/aside.jsp" /> -->
+		<put-attribute name="body" value="" />
+		<put-attribute name="footer" value="/WEB-INF/views/footer.jsp" />
+	</definition>
+
+	<!-- mav.setViewName("emp/*"); -->
+	<definition name="emp/*" extends="emp-tiles-layout">
+		<put-attribute name="body"
+			value="/WEB-INF/views/emp/{1}.jsp" />
+	</definition>
+
+</tiles-definitions>

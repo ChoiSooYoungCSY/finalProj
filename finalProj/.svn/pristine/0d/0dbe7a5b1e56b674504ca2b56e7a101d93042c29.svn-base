@@ -1,0 +1,23 @@
+package kr.or.ddit.mem.vote;
+
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.stereotype.Service;
+
+import kr.or.ddit.vo.AtchmnflDetailVO;
+import kr.or.ddit.vo.AtchmnflVO;
+import kr.or.ddit.vo.FreeBbsVO;
+import kr.or.ddit.vo.RstrntVO;
+import kr.or.ddit.vo.ScndhdBbsVO;
+import kr.or.ddit.vo.ScndhdRecomVO;
+import kr.or.ddit.vo.VoteBbsVO;
+
+
+public interface VoteBbsService {
+
+	public List<VoteBbsVO> selectAll();
+
+
+
+}

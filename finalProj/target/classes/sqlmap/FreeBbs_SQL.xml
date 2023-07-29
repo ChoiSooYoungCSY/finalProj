@@ -1,0 +1,442 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.ddit.mapper.FreeBbsMapper">
+
+	<!-- 자주 사용되는 구문을 따로 관리 -->
+	<sql id="where">
+		<!-- 전체 검색 -->
+		<if test="keyword!=null and cond==''">
+			AND (
+				PST_ID LIKE '%' || #{keyword} || '%' OR
+				PST_SJ LIKE '%' || #{keyword} || '%' OR
+				FRST_WRTER_ID LIKE '%' || #{keyword} || '%'
+			)
+		</if>
+		<!-- 조건 검색 -->
+		<if test="cond!=null and !cond.equals('')">
+			<choose>
+				<when test="cond=='pstId'">
+					AND PST_ID LIKE '%' || #{keyword} || '%'
+				</when>
+				<when test="cond=='pstSj'">
+					AND PST_SJ LIKE '%' || #{keyword} || '%'
+				</when>
+				<when test="cond=='frstWrterId'">
+					AND FRST_WRTER_ID LIKE '%' || #{keyword} || '%'
+				</when>
+			</choose>
+		</if>
+	</sql>
+
+
+
+	<!-- 자유게시판 게시글 목록 -->
+	<select id="list" parameterType="map" resultType="freeBbsVO">
+		WITH T AS (
+		SELECT
+			ROW_NUMBER() OVER(ORDER BY PST_ID DESC) RNUM
+			, PST_ID
+			, PST_SJ
+			, FRST_WRTER_ID
+			, FRST_WRTER_TM
+			, RDCNT
+			, DEL_YN
+		FROM FREE_BBS
+		WHERE 1 = 1
+		AND DEL_YN = 'N'
+		<include refid="where"></include>
+		)
+		SELECT
+			T.PST_ID
+			, T.PST_SJ
+			, T.FRST_WRTER_ID
+			, T.FRST_WRTER_TM
+			, T.RDCNT
+		FROM T
+		WHERE T.RNUM BETWEEN (#{currentPage} * #{size}) -
+		(#{size} - 1)
+		AND (#{currentPage} * #{size})
+		<!-- 시작행 : (현재페이지 * 한 화면 행수)-(한화면행수-1) -->
+		<!-- 종료행 : (현재페이지 * 한화면행수) -->
+	</select>
+
+
+	<!-- 전체 글 수 구하기 -->
+	<select id="getTotal" parameterType="hashmap" resultType="int">
+		SELECT COUNT(*) FROM FREE_BBS
+		WHERE 1 = 1
+		<include refid="where"></include>
+	</select>
+
+	<!-- 게시글 상세보기 -->
+	<resultMap type="freeBbsVO" id="freeBbsMap">
+		<result property="rnum" column="RNUM" />
+		<result property="pstId" column="PST_ID" />
+		<result property="frstWrterId" column="FRST_WRTER_ID" />
+		<result property="frstWrterTm" column="FRST_WRTER_TM" />
+		<result property="pstSj" column="PST_SJ" />
+		<result property="pstCn" column="PST_CN" jdbcType="CLOB"
+			javaType="java.lang.String" />
+		<result property="rdcnt" column="RDCNT" />
+		<result property="lastUpdusrId" column="LAST_UPDUSR_ID" />
+		<result property="lastUpdtTm" column="LAST_UPDT_TM" />
+		<result property="atchmnflId" column="ATCHMNFL_ID" />
+		<result property="delYn" column="DEL_YN" />
+		<collection property="atchmnflDetailList"
+			resultMap="atchmnflDetailMap"></collection>
+		<collection property="freeBbsCmntList"
+			resultMap="freeBbsCmntMap"></collection>
+		<collection property="freeBbsEmtList"
+			resultMap="freeBbsEmtMap"></collection>
+
+	</resultMap>
+
+	<resultMap type="atchmnflDetailVO" id="atchmnflDetailMap">
+		<result property="atchmnflId" column="ATCHMNFL_ID" />
+		<result property="flpth" column="FLPTH" />
+		<result property="streFlNm" column="STRE_FL_NM" />
+	</resultMap>
+
+	<resultMap type="freeBbsCmntVO" id="freeBbsCmntMap">
+		<result property="cmntNo" column="CMNT_NO" />
+		<result property="pstId" column="PST_ID" />
+		<result property="frstWrterId" column="FRST_WRTER_ID" />
+		<result property="fsrtWritingTm" column="FSRT_WRITING_TM" />
+		<result property="cmntCn" column="CMNT_CN" />
+		<result property="reCmntNo" column="RE_CMNT_NO" />
+		<result property="lastUpdusrId" column="LAST_UPDUSR_ID" />
+		<result property="lastUpdtTm" column="LAST_UPDT_TM" />
+		<result property="delYn" column="DEL_YN" />
+	</resultMap>
+
+	<resultMap type="FreeBbsEmtVO" id="freeBbsEmtMap">
+		<result property="emtNo" column="EMT_NO" />
+		<result property="gb" column="GB" />
+		<result property="pstId" column="PST_ID" />
+		<result property="memId" column="MEM_ID" />
+	</resultMap>
+
+	<select id="freeDetail" parameterType="freeBbsVO" resultMap="freeBbsMap">
+		SELECT *
+		FROM FREE_BBS F
+			LEFT OUTER JOIN FREE_BBS_CMNT C ON F.PST_ID = C.PST_ID
+			LEFT OUTER JOIN ATCHMNFL_DETAIL A ON F.ATCHMNFL_ID=A.ATCHMNFL_ID
+			LEFT OUTER JOIN FREE_BBS_EMT E ON F.PST_ID = E.PST_ID
+
+		WHERE F.PST_ID = #{pstId}
+	</select>
+
+	<!-- 게시글 등록하기 -->
+	<insert id="registerPost" parameterType="freeBbsVO">
+		INSERT INTO FREE_BBS (
+			PST_ID
+			, FRST_WRTER_ID
+			, FRST_WRTER_TM
+			, PST_SJ
+			, PST_CN
+			, RDCNT
+			, LAST_UPDUSR_ID
+			, LAST_UPDT_TM
+			, ATCHMNFL_ID
+			, DEL_YN
+		) VALUES (
+			(SELECT 'FRE' || LPAD(MAX(SUBSTR(PST_ID, 4)) + 1, 6, '0') FROM free_bbs)
+			, #{frstWrterId}
+			, TO_CHAR(SYSDATE, 'yyyymmddhh24miss')
+			, #{pstSj}
+			, #{pstCn}
+			, 0
+			, #{lastUpdusrId}
+			, TO_CHAR(SYSDATE, 'yyyymmddhh24miss')
+			, #{atchmnflId}
+			, 'N'
+		)
+	</insert>
+
+	<insert id="registerAtch" parameterType="AtchmnflVO">
+		<selectKey resultType="String" order="BEFORE" keyProperty="atchmnflId">
+			SELECT 'ATT' || LPAD(MAX(SUBSTR(ATCHMNFL_ID, 4)) + 1, 6,
+			'0') FROM ATCHMNFL
+		</selectKey>
+
+		INSERT INTO ATCHMNFL(
+			ATCHMNFL_ID
+			, FRST_WRTER_ID
+			, FRST_WRTER_TM
+			, DEL_YN
+			, LAST_UPDUSR_ID
+			, LAST_UPDT_TM
+		) VALUES (
+			#{atchmnflId}
+			, #{frstWrterId}
+			, TO_CHAR(SYSDATE, 'yyyymmddhh24miss')
+			, 'N'
+			, #{lastUpdusrId}
+			, TO_CHAR(SYSDATE, 'yyyymmddhh24miss')
+		)
+	</insert>
+
+
+	<insert id="registerAtchDetail" parameterType="AtchmnflVO">
+		INSERT INTO
+			ATCHMNFL_DETAIL (
+			ATCHMNFL_NO
+			, ATCHMNFL_ID
+			, FRST_WRTER_TM
+			, FRST_WRTER_ID
+			, FLPTH
+			, STRE_FL_NM
+			, ATCHMNFL_SIZE
+			, ATCHMNFL_TY
+			, ORGINL_ATCHMNFL_NM
+			, LAST_UPDUSR_ID
+			, LAST_UPDT_TM
+			, DEL_YN
+		) VALUES (
+			(SELECT NVL(MAX(ATCHMNFL_NO), 0) + 1 FROM ATCHMNFL_DETAIL)
+			, (SELECT MAX(ATCHMNFL_ID) FROM ATCHMNFL)
+			, TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS')
+			, #{frstWrterId}
+			, #{flpth}
+			, #{streFlNm}
+			, #{atchmnflSize}
+			, 'JPG'
+			, #{orginlAtchmnflNm}
+			, #{lastUpdusrId}
+			, TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS')
+			, 'N'
+		)
+
+	</insert>
+
+	<select id="maxAtchId" resultType="atchmnflVO">
+		SELECT
+			MAX(ATCHMNFL_ID) AS ATCHMNFL_ID
+		FROM
+			ATCHMNFL
+	</select>
+
+	<!-- 자유게시판 게시글 수정하기 //freeBbsVO : FreeBbsVO(rnum=null, pstId=FRE000040,
+		frstWrterId=dohee, frstWrterTm=null, pstSj=오늘은 목요일입니다222, pstCn=<p>목요일이죠222</p>
+		//, rdcnt=0, lastUpdusrId=dohee, lastUpdtTm=null, atchmnflId=null, delYn=null,
+		//contentImages=[org.springframework.web.multipart.support.StandardMultipartHttpServletRequest$StandardMultipartFile@5115b1c],
+		//atchmnflDetailList=null, freeBbsCmntList=null, freeBbsEmtList=null) -->
+	<update id="freeUpdatePost" parameterType="freeBbsVO">
+		UPDATE
+			FREE_BBS
+		SET
+			PST_SJ = #{pstSj}
+			, PST_CN = #{pstCn}
+			, LAST_UPDUSR_ID = #{lastUpdusrId}
+			, LAST_UPDT_TM = TO_CHAR(SYSDATE, 'yyyymmddhh24miss')
+		<if test="atchmnflId!=null and atchmnflId!=''">
+			, ATCHMNFL_ID = #{atchmnflId}
+		</if>
+		WHERE
+			PST_ID = #{pstId}
+	</update>
+
+	<!-- 자유게시판 게시글 다중이미지 수정하기 -->
+	<update id="thirdUpdatePost" parameterType="atchmnflDetailVO">
+		UPDATE
+			ATCHMNFL_DETAIL
+		SET
+			FLPTH = #{flpth}
+			, STRE_FL_NM = #{streFlNm}
+			, ATCHMNFL_SIZE = #{atchmnflSize}
+			, ATCHMNFL_TY = #{atchmnflTy}
+			, ORGINL_ATCHMNFL_NM = #{orginlAtchmnflNm}
+		WHERE ATCHMNFL_NO = #{atchmnflNo}
+	</update>
+
+	<!-- 자유게시판에 게시글 수정하기(단, 이미지 또한 변경 시에만) -->
+	<update id="updaterPost" parameterType="freeBbsVO">
+		UPDATE FREE_BBS
+		SET
+			ATCHMNFL_ID = #{atchmnflId}
+		WHERE PST_ID = #{pstId}
+	</update>
+
+	<!-- 게시글 조회수 +1 -->
+	<update id="plusCnt" parameterType="freeBbsVO">
+		UPDATE
+			FREE_BBS
+		SET
+			RDCNT = RDCNT + 1
+		WHERE
+			PST_ID = #{pstId}
+	</update>
+
+	<!-- 자유게시판 게시글 삭제하기 -->
+	<update id="deletePost" parameterType="freeBbsVO">
+		UPDATE
+			FREE_BBS
+		SET
+			DEL_YN = 'Y'
+		WHERE
+			PST_ID = #{pstId}
+			AND FRST_WRTER_ID = #{memId}
+	</update>
+
+	<!-- ///////////////////////게시물에 댓글달기 ////////////////////////////-->
+	<!-- 자유게시판 댓글 등록하기 -->
+	<insert id="freeCmntRegister" parameterType="freeBbsCmntVO">
+		INSERT INTO
+		FREE_BBS_CMNT (
+			CMNT_NO
+			, PST_ID
+			, FRST_WRTER_ID
+			, FSRT_WRITING_TM
+			, CMNT_CN
+			, LAST_UPDUSR_ID
+			, LAST_UPDT_TM
+			, DEL_YN
+			, CMNT_GR
+			, CMNT_GR_SQ
+		) VALUES (
+			CMNT_SEQ.NEXTVAL
+			, #{pstId}
+			, #{memId}
+			, TO_CHAR(SYSDATE, 'yyyymmddhh24miss')
+			, #{cmntCn}
+			, #{memId}
+			, TO_CHAR(SYSDATE, 'yyyymmddhh24miss')
+			, 'N'
+			, CMNT_SEQ.CURRVAL
+			, 1
+		)
+
+	</insert>
+
+	<!-- 등록한 댓글 리스트 불러오기 -->
+	<select id="freeCmntList" parameterType="freeBbsCmntVO" resultType="freeBbsCmntVO">
+		SELECT
+			CMNT_NO
+			, PST_ID
+			, FRST_WRTER_ID
+			, CMNT_CN
+			, LAST_UPDT_TM
+			, DEL_YN
+			, CMNT_GR
+			, CMNT_GR_SQ
+			, MEM_IMG
+		FROM
+			(SELECT
+                    C.CMNT_NO
+                , C.PST_ID
+                , C.FRST_WRTER_ID
+                , C.CMNT_CN
+                , C.LAST_UPDT_TM
+                , C.DEL_YN
+                , C.CMNT_GR
+                , C.CMNT_GR_SQ
+                , M.MEM_IMG
+                FROM
+                    free_bbs_cmnt C
+                INNER JOIN MEMBER M
+                    ON M.MEM_ID = C.FRST_WRTER_ID
+                UNION ALL
+                SELECT
+                    C.CMNT_NO
+                , C.PST_ID
+                , C.FRST_WRTER_ID
+                , C.CMNT_CN
+                , C.LAST_UPDT_TM
+                , C.DEL_YN
+                , C.CMNT_GR
+                , C.CMNT_GR_SQ
+                , E.EMP_IMG
+                FROM
+                    free_bbs_cmnt C
+                INNER JOIN EMP E
+                    ON E.EMP_ID = C.FRST_WRTER_ID)
+		WHERE
+			PST_ID = #{pstId}
+			AND DEL_YN = 'N'
+		ORDER BY CMNT_GR DESC , CMNT_GR_SQ ASC
+
+	</select>
+
+	<!-- 게시물에 등록한 댓글 수정하기 -->
+	<update id="freeCmntUpdatePost" parameterType="freeBbsCmntVO">
+		UPDATE
+			FREE_BBS_CMNT
+		SET
+			CMNT_CN = #{cmntCn}
+			, LAST_UPDUSR_ID =#{memId}
+			, LAST_UPDT_TM = TO_CHAR(SYSDATE, 'yyyymmddhh24miss')
+		WHERE
+			CMNT_NO = #{cmntNo}
+	</update>
+
+	<!-- 관리자의 입주민 자유게시판관리를 위해 입주민 자유게시판 목록불러오기 -->
+	<select id="selectAll" resultMap="freeBbsMap">
+		SELECT
+			PST_ID
+			, FRST_WRTER_ID
+			, FRST_WRTER_TM
+			, PST_SJ
+			, PST_CN
+			, RDCNT
+			, LAST_UPDUSR_ID
+			, LAST_UPDT_TM
+			, ATCHMNFL_ID
+			, DEL_YN
+		FROM
+			FREE_BBS WHERE DEL_YN = 'N'
+	</select>
+
+	<!-- 게시물에 등록한 댓글 삭제하기 -->
+	<update id="deleteCmntPost" parameterType="freeBbsCmntVO">
+		UPDATE FREE_BBS_CMNT
+		  SET  DEL_YN = 'Y'
+		WHERE  CMNT_NO = #{cmntNo} OR CMNT_GR = #{cmntNo}
+	</update>
+
+
+	<!-- /////////////////////////// 댓글에 대댓글 등록하기///////////////////// -->
+	<!-- 자유게시판 댓글에 대댓글 등록하기 -->
+	<insert id="freeReCmntRegister" parameterType="freeBbsCmntVO">
+		INSERT INTO
+		FREE_BBS_CMNT (
+			CMNT_NO
+			, RE_CMNT_NO
+			, PST_ID
+			, FRST_WRTER_ID
+			, FSRT_WRITING_TM
+			, CMNT_CN
+			, LAST_UPDUSR_ID
+			, LAST_UPDT_TM
+			, DEL_YN
+			, CMNT_GR
+			, CMNT_GR_SQ
+		) VALUES (
+			CMNT_SEQ.NEXTVAL
+			, #{reCmntNo}
+			, #{pstId}
+			, #{memId}
+			, TO_CHAR(SYSDATE, 'yyyymmddhh24miss')
+			, #{cmntCn}
+			, #{memId}
+			, TO_CHAR(SYSDATE, 'yyyymmddhh24miss')
+			, 'N'
+			, #{cmntGr}
+			, 2
+		)
+	</insert>
+
+	<!-- 댓글에 등록한 대댓글 수정하기 -->
+	<update id="freeReCmntUpdate" parameterType="freeBbsCmntVO">
+		UPDATE
+			FREE_BBS_CMNT
+		SET
+			CMNT_CN = #{cmntCn}
+			, LAST_UPDUSR_ID =#{memId}
+			, LAST_UPDT_TM = TO_CHAR(SYSDATE, 'yyyymmddhh24miss')
+		WHERE
+			RE_CMNT_NO = #{reCmntNo}
+			AND CMNT_GR = #{cmntGr}
+			AND CMNT_GR_SQ = 2
+	</update>
+
+</mapper>

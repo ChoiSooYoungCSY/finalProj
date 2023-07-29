@@ -1,0 +1,11 @@
+package kr.or.ddit.emp.cmnt.freebbs;
+
+import java.util.List;
+
+import kr.or.ddit.vo.EmpBbsVO;
+
+public interface EmpFreebbsService {
+
+	//직원 게시판 전체 게시글
+		public List<EmpBbsVO> selectAll();
+}

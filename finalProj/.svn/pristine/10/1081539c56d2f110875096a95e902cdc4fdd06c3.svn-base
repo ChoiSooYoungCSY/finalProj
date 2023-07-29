@@ -1,0 +1,281 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.ddit.mapper.ScndhdBbsMapper">
+
+
+	<sql id="where">
+
+		<!-- 전체 검색 -->
+		<if test="keyword != null and cond == ''">
+			AND (
+			A.PST_SJ LIKE '%' || #{keyword} || '%' OR
+			A.PST_CN LIKE '%' || #{keyword} || '%' OR
+			A.FRST_WRTER_ID LIKE '%' || #{keyword} || '%' OR
+			A.SCHAND_SE_CD LIKE '%' || #{keyword} || '%' OR
+			B.SCHAND_SE_NM LIKE '%' || #{keyword} || '%'
+			)
+		</if>
+		<!-- 조건 검색 -->
+		<if test="cond != null and !cond.equals('')">
+			<choose>
+				<when test="cond == 'pstSj'">
+					AND A.PST_SJ LIKE '%' || #{keyword} || '%'
+				</when>
+				<when test="cond == 'pstCn'">
+					AND A.PST_CN LIKE '%' || #{keyword} || '%'
+				</when>
+				<when test="cond == 'frstWrterId'">
+					AND A.FRST_WRTER_ID LIKE '%' || #{keyword} || '%'
+				</when>
+				<when test="cond == 'schandSeCd'">
+					AND A.SCHAND_SE_CD LIKE '%' || #{keyword} || '%'
+				</when>
+				<when test="cond == 'schandSeNm'">
+					AND B.SCHAND_SE_NM LIKE '%' || #{keyword} || '%'
+				</when>
+			</choose>
+		</if>
+	</sql>
+
+	<resultMap type="scndhdBbsVO" id="scndhdBbsMap">
+		<result property="rnum" column="RNUM" />
+		<result property="pstId" column="PST_ID" />
+		<result property="frstWrterId" column="FRST_WRTER_ID" />
+		<result property="fsrtWritingTm" column="FSRT_WRITING_TM" />
+		<result property="pstSj" column="PST_SJ" />
+		<result property="pstCn" column="PST_CN" jdbcType="CLOB" javaType="java.lang.String" />
+		<result property="rdcnt" column="RDCNT" />
+		<result property="delYn" column="DEL_YN" />
+		<result property="scndhandPc" column="SCNDHAND_PC" />
+		<result property="schandSeCd" column="SCHAND_SE_CD" />
+		<result property="atchmnflId" column="ATCHMNFL_ID" />
+		<result property="lastUpdusrId" column="LAST_UPDUSR_ID" />
+		<result property="lastUpdtTm" column="LAST_UPDT_TM" />
+		<result property="ntslStts" column="NTSL_STTS" />
+		<result property="schandSeNm" column="SCHAND_SE_NM" />
+		<collection property="atchmnflDetailList" resultMap="atchmnflDetailMap"></collection>
+	</resultMap>
+
+	<resultMap type="atchmnflDetailVO" id="atchmnflDetailMap">
+		<result property="atchmnflId" column="ATCHMNFL_ID" />
+		<result property="flpth" column="FLPTH" />
+		<result property="atchmnflNo" column="ATCHMNFL_NO" />
+		<result property="streFlNm" column="STRE_FL_NM" />
+	</resultMap>
+
+	<select id="selectAll" parameterType="hashMap" resultMap="scndhdBbsMap">
+		WITH T AS (
+		SELECT
+		DENSE_RANK() OVER (ORDER BY A.PST_ID DESC) AS RNUM,
+		A.PST_ID,
+		A.FRST_WRTER_ID,
+		A.FSRT_WRITING_TM,
+		A.PST_SJ,
+		A.PST_CN,
+		A.RDCNT,
+		A.DEL_YN,
+		A.SCNDHAND_PC,
+		A.SCHAND_SE_CD,
+		A.ATCHMNFL_ID,
+		A.LAST_UPDUSR_ID,
+		A.LAST_UPDT_TM,
+		A.NTSL_STTS,
+		B.SCHAND_SE_NM,
+		C.FLPTH,
+		C.STRE_FL_NM
+		FROM
+		SCNDHD_BBS A
+		INNER JOIN
+		SCNDHD_SE B ON A.SCHAND_SE_CD = B.SCHAND_SE_CD
+		INNER JOIN
+		ATCHMNFL B ON A.ATCHMNFL_ID = B.ATCHMNFL_ID
+		INNER JOIN
+		ATCHMNFL_DETAIL C ON B.ATCHMNFL_ID = C.ATCHMNFL_ID
+		WHERE
+		A.DEL_YN = 'N'
+		<include refid="where"></include>
+		)
+		SELECT T.*
+		FROM T
+		WHERE T.RNUM BETWEEN (#{currentPage} * #{size}) -
+		(#{size} - 1)
+		AND (#{currentPage} * #{size})
+	</select>
+
+	<!-- 전체 글 수 구하기 -->
+	<select id="getTotal" parameterType="hashMap" resultType="int">
+		SELECT
+		COUNT(*)
+		FROM
+		SCNDHD_BBS A
+		INNER JOIN
+		SCNDHD_SE B
+		ON
+		A.SCHAND_SE_CD = B.SCHAND_SE_CD
+		WHERE 1 = 1
+		<include refid="where"></include>
+	</select>
+
+
+	<insert id="registerPost" parameterType="scndhdBbsVO">
+		INSERT INTO scndhd_bbs (
+		PST_ID
+		, FRST_WRTER_ID
+		, FSRT_WRITING_TM
+		, PST_SJ
+		, PST_CN
+		, RDCNT
+		, DEL_YN
+		, SCNDHAND_PC
+		, SCHAND_SE_CD
+		, ATCHMNFL_ID
+		, LAST_UPDUSR_ID
+		, LAST_UPDT_TM
+		, NTSL_STTS
+		)
+		VALUES (
+		(SELECT 'SCN' || LPAD(MAX(SUBSTR(PST_ID, 4)) + 1, 6, '0') FROM scndhd_bbs)
+		, #{frstWrterId}
+		, TO_CHAR(SYSDATE, 'yyyymmddhh24miss')
+		, #{pstSj}
+		, #{pstCn}
+		, 0
+		, 'N'
+		, #{scndhandPc}
+		, #{schandSeCd}
+		, #{atchmnflId}
+		, #{lastUpdusrId}
+		, TO_CHAR(SYSDATE, 'yyyymmddhh24miss')
+		, '판매중'
+		)
+	</insert>
+
+	<insert id="registerAtch" parameterType="AtchmnflVO">
+		INSERT INTO ATCHMNFL(
+		ATCHMNFL_ID,
+		FRST_WRTER_ID,
+		FRST_WRTER_TM,
+		DEL_YN,
+		LAST_UPDUSR_ID,
+		LAST_UPDT_TM
+		) VALUES (
+		(SELECT 'ATT' || LPAD(MAX(SUBSTR(ATCHMNFL_ID, 4)) + 1, 6, '0') FROM ATCHMNFL),
+		#{frstWrterId},
+		TO_CHAR(SYSDATE, 'yyyymmddhh24miss'),
+		'N',
+		#{lastUpdusrId},
+		TO_CHAR(SYSDATE, 'yyyymmddhh24miss')
+		)
+	</insert>
+
+
+	<insert id="registerAtchDetail" parameterType="AtchmnflVO">
+		INSERT INTO atchmnfl_detail (
+		ATCHMNFL_NO,
+		ATCHMNFL_ID,
+		FRST_WRTER_TM,
+		FRST_WRTER_ID,
+		FLPTH,
+		STRE_FL_NM,
+		ATCHMNFL_SIZE,
+		ATCHMNFL_TY,
+		ORGINL_ATCHMNFL_NM,
+		LAST_UPDUSR_ID,
+		LAST_UPDT_TM,
+		DEL_YN
+		) VALUES (
+		(SELECT NVL(MAX(ATCHMNFL_NO), 0) + 1 FROM ATCHMNFL_DETAIL),
+		(SELECT MAX(ATCHMNFL_ID) FROM ATCHMNFL),
+		TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS'),
+		#{frstWrterId},
+		#{flpth},
+		#{streFlNm},
+		#{atchmnflSize},
+		'JPG',
+		#{orginlAtchmnflNm},
+		#{lastUpdusrId},
+		TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS'),
+		'N'
+		)
+
+	</insert>
+
+
+	<select id="maxAtchId" resultType="atchmnflVO">
+		SELECT
+		MAX(ATCHMNFL_ID) AS ATCHMNFL_ID
+		FROM
+		ATCHMNFL
+	</select>
+
+	<select id="selectOne" parameterType="scndhdBbsVO"
+		resultMap="scndhdBbsMap">
+		SELECT
+
+		A.PST_ID,
+		A.FRST_WRTER_ID,
+		A.FSRT_WRITING_TM,
+		A.PST_SJ,
+		A.PST_CN,
+		A.RDCNT,
+		A.DEL_YN,
+		A.SCNDHAND_PC,
+		A.SCHAND_SE_CD,
+		A.ATCHMNFL_ID,
+		A.LAST_UPDUSR_ID,
+		A.LAST_UPDT_TM,
+		A.NTSL_STTS,
+		B.SCHAND_SE_NM,
+		C.FLPTH,
+		C.ATCHMNFL_NO,
+		C.STRE_FL_NM
+		FROM
+		SCNDHD_BBS A
+		INNER JOIN
+		SCNDHD_SE B ON A.SCHAND_SE_CD = B.SCHAND_SE_CD
+		INNER JOIN
+		ATCHMNFL B ON A.ATCHMNFL_ID = B.ATCHMNFL_ID
+		INNER JOIN
+		ATCHMNFL_DETAIL C ON B.ATCHMNFL_ID = C.ATCHMNFL_ID
+		WHERE
+		A.DEL_YN = 'N' AND A.PST_ID= #{pstId}
+	</select>
+
+
+	<select id="selectRecomList" resultType="scndhdRecomVO">
+		SELECT
+		SCNDHD_ID
+		FROM
+		SCNDHD_RECOM
+		WHERE MEM_ID = #{memId}
+	</select>
+
+	<update id="updatePost" parameterType="scndhdBbsVO">
+		UPDATE
+		SCNDHD_BBS
+		SET
+		PST_SJ = #{pstSj},
+		PST_CN = #{pstCn},
+		SCNDHAND_PC = #{scndhandPc},
+		SCHAND_SE_CD = #{schandSeCd},
+		LAST_UPDUSR_ID = #{lastUpdusrId},
+		LAST_UPDT_TM = TO_CHAR(SYSDATE, 'yyyymmddhh24miss'),
+		NTSL_STTS = #{ntslStts}
+		WHERE
+		PST_ID = #{pstId}
+	</update>
+
+	<update id="deletePost" parameterType="scndhdBbsVO">
+		UPDATE SCNDHD_BBS
+		SET DEL_YN = 'Y'
+		WHERE PST_ID = #{pstId}
+
+	</update>
+
+	<update id="thirdUpdatePost" parameterType="atchmnflDetailVO">
+		UPDATE ATCHMNFL_DETAIL
+		SET	   FLPTH = #{flpth}, STRE_FL_NM = #{streFlNm}, ATCHMNFL_SIZE = #{atchmnflSize}
+			 , ATCHMNFL_TY = #{atchmnflTy}, ORGINL_ATCHMNFL_NM = #{orginlAtchmnflNm}
+		WHERE  ATCHMNFL_NO = #{atchmnflNo}
+	</update>
+</mapper>

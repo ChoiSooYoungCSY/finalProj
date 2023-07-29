@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.ddit.mapper.RstrntMapper">
+	<select id="selectAllRstrnt" resultType="rstrntVO">
+		SELECT
+		RSTRNT_ID
+		,
+		RSTRNT_SE_CD
+		, FRST_WRTER_ID
+		, FRST_WRTER_TM
+		, LA
+		, LO
+		, RSTRNT_NM
+		,
+		RSTRNT_IMG
+		, RSTRNT_TEL
+		, RSTRNT_ADRES
+		, BSN_HOUR
+		, RSTRNT_URL
+		, DEL_YN
+		,
+		RESTDE
+		, BREAK_TM
+		, LAST_UPDUSR_ID
+		, LAST_UPDT_TM
+		FROM
+		RSTRNT
+		WHERE DEL_YN =
+		'N'
+	</select>
+	<select id="selectOneRstrnt" resultType="rstrntVO" parameterType="String">
+		SELECT
+		RSTRNT_ID
+		, RSTRNT_SE_CD
+		, FRST_WRTER_ID
+		, FRST_WRTER_TM
+		, LA
+		, LO
+		, RSTRNT_NM
+		, RSTRNT_IMG
+		, RSTRNT_TEL
+		, RSTRNT_ADRES
+		, BSN_HOUR
+		, RSTRNT_URL
+		, DEL_YN
+		, RESTDE
+		, BREAK_TM
+		, LAST_UPDUSR_ID
+		, LAST_UPDT_TM
+		FROM
+		RSTRNT
+		WHERE DEL_YN =
+		'N' AND RSTRNT_ID = #{value}
+	</select>
+	<insert id="registRstrnt" parameterType="rstrntVO">
+		INSERT INTO RSTRNT (
+		RSTRNT_ID
+		, RSTRNT_SE_CD
+		, FRST_WRTER_ID
+		, FRST_WRTER_TM
+		, LA
+		, LO
+		,
+		RSTRNT_NM
+		, RSTRNT_IMG
+		, RSTRNT_TEL
+		, RSTRNT_ADRES
+		, BSN_HOUR
+		, RSTRNT_URL
+		, DEL_YN
+		, RESTDE
+		, BREAK_TM
+		, LAST_UPDUSR_ID
+		, LAST_UPDT_TM
+		) VALUES (
+		(SELECT 'RST' || LPAD(MAX(SUBSTR(RSTRNT_ID, 4)) + 1, 6, '0') FROM
+		RSTRNT)
+		,#{rstrntSeCd}
+		,#{frstWrterId}
+		,TO_CHAR(SYSDATE,
+		'yyyymmddhh24miss')
+		,#{la}
+		,#{lo}
+		,#{rstrntNm}
+		,#{rstrntImg}
+		,#{rstrntTel}
+		,#{rstrntAdres}
+		,#{bsnHour}
+		,#{rstrntUrl}
+		,'N'
+		,#{restde}
+		,#{breakTm}
+		,#{lastUpdusrId}
+		,TO_CHAR(SYSDATE, 'yyyymmddhh24miss')
+		)
+	</insert>
+
+
+
+</mapper>

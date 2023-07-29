@@ -1,0 +1,337 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.or.ddit.mapper.EmpMapper">
+
+	<resultMap type="empVO" id="empMap">
+		<result property="empNm" column="EMP_NM" />
+		<result property="addr" column="ADDR" />
+		<result property="empPhoneNo" column="EMP_PHONE" />
+		<result property="empId" column="EMP_ID" />
+		<result property="password" column="PASSWORD" />
+		<result property="empMail" column="EMP_MAIL" />
+		<result property="deptCd" column="DEPT_CD" />
+		<result property="jbgdCd" column="JBGD_CD" />
+		<result property="empBrthdy" column="EMP_BRTHDY" />
+		<result property="empImg" column="EMP_IMG" />
+		<result property="bankCd" column="BANK_CD" />
+		<result property="actno" column="ACTNO" />
+		<result property="jncmpYmd" column="JNCMP_YMD" />
+		<result property="rsgntnYmd" column="RSGNTN_YMD" />
+		<result property="superiorId" column="SUPERIOR_ID" />
+		<collection property="empAuthVOList" resultMap="authoritiesMap"></collection>
+	</resultMap>
+
+	<resultMap type="memberVO" id="memberMap">
+		<result property="memIntrst" column="MEM_INTRST" />
+		<result property="memId" column="MEM_ID" />
+		<result property="password" column="PASSWORD" />
+		<result property="memNm" column="MEM_NM" />
+		<result property="sexDstn" column="SEX_DSTN" />
+		<result property="email" column="EMAIL" />
+		<result property="faceH5" column="FACE_H5" />
+		<result property="memImg" column="MEM_IMG" />
+		<result property="phoneNo" column="PHONE_NO" />
+		<result property="telNo" column="TEL_NO" />
+		<result property="hshldInfoNo" column="HSHLD_INFO_NO" />
+		<result property="memBrthdy" column="MEM_BRTHDY" />
+		<result property="memVisit" column="MEM_VISIT" />
+		<result property="acntSttsCd" column="ACNT_STTS_CD" />
+		<result property="acntSttsNm" column="ACNT_STTS_NM" />
+		<result property="sttemnt" column="STTEMNT" />
+		<collection property="memberAuthVOList" resultMap="authoritiesMap"></collection>
+		<collection property="familyVOList" resultMap="familyMap"></collection>
+	</resultMap>
+
+	<resultMap type="authoritiesVO" id="authoritiesMap">
+		<result property="authrtCd" column="AUTHRT_CD" />
+		<result property="userId" column="USER_ID" />
+	</resultMap>
+
+	<resultMap type="familyVO" id="familyMap">
+		<result property="familyNo" column="FAMILY_NO" />
+		<result property="memId" column="MEM_ID" />
+		<result property="familyAge" column="FAMILY_AGE" />
+		<result property="familyNm" column="FAMILY_NM" />
+	</resultMap>
+
+	<!-- 직원 리스트 가져오기 -->
+	<select id="selectAllEmp" resultType="empVO">
+		SELECT A.EMP_ID, A.EMP_NM, B.JBGD_NM, C.DEPT_NM, A.JNCMP_YMD, A.RSGNTN_YMD, B.JBGD_CD
+		FROM EMP A
+        INNER JOIN JOB_GRADE B ON A.JBGD_CD = B.JBGD_CD
+        LEFT JOIN DEPT C ON A.DEPT_CD = C.DEPT_CD
+        ORDER BY CASE WHEN A.Dept_Cd IS NULL THEN 0 ELSE 1 END, A.Dept_Cd, B.JBGD_CD
+	</select>
+
+	<!-- 특정 직원 정보 가져오기 -->
+	<select id="detailEmp" parameterType="String" resultMap="empMap">
+		SELECT A.EMP_ID, A.PASSWORD, A.EMP_MAIL, A.DEPT_CD, C.DEPT_NM, A.JBGD_CD, B.JBGD_NM, A.EMP_BRTHDY, A.EMP_IMG, A.BANK_CD, A.ACTNO, A.JNCMP_YMD, A.RSGNTN_YMD, A.SUPERIOR_ID, A.EMP_NM, A.ADDR, A.EMP_PHONE
+		FROM EMP A
+		INNER JOIN JOB_GRADE B ON A.JBGD_CD = B.JBGD_CD
+		LEFT JOIN DEPT C ON A.DEPT_CD = C.DEPT_CD
+		WHERE EMP_ID = #{empId}
+
+	</select>
+
+	<!-- 직원 개인정보 진입 수정 확인 -->
+	<select id="passwordConfirm" parameterType="empVO" resultType="int">
+		SELECT COUNT(*)
+		FROM   EMP
+		WHERE  EMP_ID = #{empId}
+		AND    PASSWORD = #{password}
+	</select>
+
+
+	<!-- 직원정보 수정 -->
+	<update id="editEmpInfo" parameterType="empVO">
+		UPDATE EMP
+		SET	  EMP_ID = #{empId}
+			, PASSWORD = #{password}
+			, EMP_MAIL = #{empMail}
+			, DEPT_CD =  #{deptCd}
+			, JBGD_CD = #{jbgdCd}
+			, EMP_BRTHDY = #{empBrthdy}
+			, EMP_IMG = #{empImg}
+			, BANK_CD = #{bankCd}
+			, ACTNO =  #{actno}
+			, JNCMP_YMD = #{jncmpYmd}
+			, RSGNTN_YMD = #{rsgntnYmd}
+			, SUPERIOR_ID =  #{superiorId}
+			, EMP_NM = #{empNm}
+			, ADDR = #{addr}
+			, EMP_PHONE = #{empPhoneNo}
+		WHERE EMP_ID = #{empId}
+	</update>
+
+	<!-- 직원 아이디 중복체크 -->
+	<select id="checkEmpId" parameterType="empVO" resultType="int">
+		SELECT COUNT(*) FROM EMP WHERE EMP_ID = #{empId}
+	</select>
+
+	<!-- 부서정보 불러오기 -->
+	<select id="selectDept" resultType="deptVO">
+		SELECT DEPT_CD, DEPT_NM
+		FROM DEPT
+		WHERE USE_YN = 'Y'
+	</select>
+
+	<!-- 직급정보 불러오기 -->
+	<select id="selectJbgd" resultType="JobGradeVO">
+		SELECT JBGD_CD, JBGD_NM
+		FROM JOB_GRADE
+		WHERE USE_YN = 'Y'
+	</select>
+
+	<!-- 은행정보 불러오기 -->
+	<select id="selectBank" resultType="bankVO">
+		SELECT BANK_CD, BANK_NM
+		FROM BANK
+		WHERE USE_YN = 'Y'
+	</select>
+
+	<!-- 직원 정보 등록하기 -->
+	<insert id="registerEmp" parameterType="empVO">
+		INSERT INTO EMP(EMP_ID, PASSWORD, EMP_MAIL, DEPT_CD, JBGD_CD, EMP_BRTHDY, EMP_IMG, BANK_CD, ACTNO, JNCMP_YMD, RSGNTN_YMD, SUPERIOR_ID, EMP_NM, ADDR, EMP_PHONE)
+		VALUES (#{empId}, #{password}, #{empMail}, #{deptCd}, #{jbgdCd}, #{empBrthdy}, #{empImg}, #{bankCd}, #{actno}, #{jncmpYmd}, #{jncmpYmd}, #{superiorId}, #{empNm}, #{addr}, #{empPhoneNo})
+	</insert>
+
+	<!-- 직원 권한 등록하기 -->
+	<insert id="registerEmpAuth" parameterType="AuthoritiesVO">
+		INSERT INTO AUTHORITIES(AUTHRT_CD, USER_ID)
+		VALUES (#{authrtCd}, #{userId})
+	</insert>
+
+	<!-- 직원 권한 삭제하기 -->
+	<delete id="deleteEmpAuth" parameterType="AuthoritiesVO">
+		DELETE FROM AUTHORITIES
+		WHERE USER_ID = #{userId}
+	</delete>
+
+	<!-- 특정 직원 삭제하기(비활성화, 퇴사처리) -->
+	<update id="deleteEmp" parameterType="empVO">
+		UPDATE EMP
+		SET    RSGNTN_YMD = #{rsgntnYmd}
+		WHERE  EMP_ID = #{empId}
+	</update>
+
+	<!-- 회원 리스트 가져오기 -->
+	<select id="selectAllMem" resultType="memberVO">
+    	SELECT M.MEM_ID, M.MEM_NM, M.HSHLD_INFO_NO, M.ACNT_STTS_CD, A.ACNT_STTS_NM,
+		    SUM(CASE WHEN S.RSPNDNT = M.MEM_ID AND S.DEL_YN = 'N' THEN 1 ELSE 0 END) +
+		    SUM(CASE WHEN P.RSPNDNT = M.MEM_ID AND P.DEL_YN = 'N' THEN 1 ELSE 0 END) +
+		    SUM(CASE WHEN SM.RSPNDNT = M.MEM_ID AND SM.DEL_YN = 'N' THEN 1 ELSE 0 END) AS STTEMNT
+		FROM MEMBER M
+		INNER JOIN ACNT_STTS A ON M.ACNT_STTS_CD = A.ACNT_STTS_CD
+		LEFT JOIN STTEMNT_CMNT S ON S.RSPNDNT = M.MEM_ID
+		LEFT JOIN STTEMNT_PST P ON P.RSPNDNT = M.MEM_ID
+		LEFT JOIN STTEMNT_SMS SM ON SM.RSPNDNT = M.MEM_ID
+		WHERE M.ACNT_STTS_CD != 'ACCT01'
+        AND   M.ACNT_STTS_CD != 'ACCT04'
+		GROUP BY M.MEM_ID, M.MEM_NM, M.HSHLD_INFO_NO, M.ACNT_STTS_CD, A.ACNT_STTS_NM
+		ORDER BY M.ACNT_STTS_CD, TO_NUMBER(HSHLD_INFO_NO)
+	</select>
+
+	<!-- 승인대기중인 회원 리스트 가져오기 -->
+	<select id="selectAwaitingApprovalMem" resultType="memberVO">
+		SELECT M.MEM_ID, M.MEM_NM, M.HSHLD_INFO_NO, M.ACNT_STTS_CD, A.ACNT_STTS_NM, M.JOIN_DATE
+		FROM MEMBER M
+		INNER JOIN ACNT_STTS A ON M.ACNT_STTS_CD = A.ACNT_STTS_CD
+		WHERE M.ACNT_STTS_CD = 'ACCT01'
+		GROUP BY M.MEM_ID, M.MEM_NM, M.HSHLD_INFO_NO, M.ACNT_STTS_CD, A.ACNT_STTS_NM, M.JOIN_DATE
+		ORDER BY M.JOIN_DATE, TO_NUMBER(M.HSHLD_INFO_NO)
+	</select>
+
+	<!-- 승인대기중인 회원이 몇명인지 -->
+	<select id="awaitingApprovalNum" resultType="int">
+		SELECT COUNT(*)
+		FROM MEMBER
+		WHERE ACNT_STTS_CD = 'ACCT01'
+	</select>
+
+	<!-- 블랙리스트 회원 리스트 가져오기 -->
+	<select id="selectBlacklistMem" resultType="blacklistVO">
+		SELECT REGIST_YMD, END_YMD, MEM_ID, MEM_NM
+		FROM BLACKLIST
+	</select>
+
+	<!-- 블랙리스트 회원이 몇명인지 -->
+	<select id="blacklistNum" resultType="int">
+		SELECT COUNT(*)
+		FROM BLACKLIST
+	</select>
+
+	<!-- 블랙리스트 회원 신고내역 받아오기 -->
+	<select id="selectMemSttemnt" parameterType="memberVO" resultType="sttemntVO">
+		SELECT STTEMNT_CMNT_NO, STTEMNT_PST_NO, STTEMNT_SMS_NO, STTEMNT_ID, APLCNT_ID, STTEMNT_RSN, DEL_YN, RSPNDNT
+		FROM (
+		  SELECT STTEMNT_CMNT_NO, NULL AS STTEMNT_PST_NO, NULL AS STTEMNT_SMS_NO, STTEMNT_CMNT_ID AS STTEMNT_ID, APLCNT_ID, STTEMNT_RSN, DEL_YN, RSPNDNT
+		  FROM STTEMNT_CMNT
+		  UNION ALL
+		  SELECT NULL AS STTEMNT_CMNT_NO, STTEMNT_PST_NO, NULL AS STTEMNT_SMS_NO, STTEMNT_PST_ID AS STTEMNT_ID, APLCNT_ID, STTEMNT_RSN, DEL_YN, RSPNDNT
+		  FROM STTEMNT_PST
+		  UNION ALL
+		  SELECT NULL AS STTEMNT_CMNT_NO, NULL AS STTEMNT_PST_NO, STTEMNT_SMS_NO, STTEMNT_SMS_ID AS STTEMNT_ID, APLCNT_ID, STTEMNT_RSN, DEL_YN, RSPNDNT
+		  FROM STTEMNT_SMS
+		)
+		WHERE DEL_YN = 'N'
+		AND RSPNDNT = #{memId}
+	</select>
+
+	<!-- 특정 회원계정 블랙리스트 만들기 -->
+	<update id="blacklistMem" parameterType="blacklistVO">
+		UPDATE MEMBER
+		SET    ACNT_STTS_CD = 'ACCT04'
+		WHERE  MEM_ID = #{memId}
+	</update>
+
+	<!-- 특정 회원계정 블랙리스트 테이블에 추가하기 -->
+	<insert id="blacklistMemAdd" parameterType="memberVO">
+		INSERT INTO BLACKLIST (REGIST_YMD, END_YMD, MEM_ID, MEM_NM)
+		VALUES (SYSDATE, (SYSDATE + 7), #{memId}, #{memNm})
+	</insert>
+
+	<!-- 특정 회원계정 블랙리스트 추가시 신고내역 DEL_Y로 만들기 -->
+	<update id="sttemntCmntDel" parameterType="int">
+		UPDATE STTEMNT_CMNT
+		SET DEL_YN = 'Y'
+		WHERE STTEMNT_CMNT_NO = #{sttemntCmntNo}
+	</update>
+	<update id="sttemntPstDel" parameterType="int">
+		UPDATE STTEMNT_PST
+		SET DEL_YN = 'Y'
+		WHERE STTEMNT_PST_NO = #{sttemntPstNo}
+	</update>
+	<update id="sttemntSmsDel" parameterType="int">
+		UPDATE STTEMNT_SMS
+		SET DEL_YN = 'Y'
+		WHERE STTEMNT_SMS_NO = #{sttemntSmsNo}
+	</update>
+
+
+	<!-- 특정 회원계정 블랙리스트 해제하기 -->
+	<update id="blacklistMemClear" parameterType="memberVO">
+		UPDATE MEMBER
+		SET    ACNT_STTS_CD = 'ACCT02'
+		WHERE  MEM_ID = #{memId}
+	</update>
+
+	<!-- 특정 회원계정 블랙리스트 테이블에서 삭제하기 -->
+	<delete id="blacklistMemDelete" parameterType="memberVO">
+		DELETE FROM BLACKLIST
+		WHERE  MEM_ID = #{memId}
+	</delete>
+
+	<!-- 특정 회원 정보 가져오기 -->
+	<select id="detailMem" parameterType="String" resultMap="memberMap">
+		SELECT M.MEM_ID, M.PASSWORD, M.MEM_NM, M.SEX_DSTN, M.EMAIL, M.FACE_H5, M.MEM_IMG, M.PHONE_NO, M.TEL_NO, M.HSHLD_INFO_NO, M.MEM_BRTHDY, M.MEM_VISIT, M.ACNT_STTS_CD, M.MEM_INTRST,
+		       A.ACNT_STTS_NM,
+		       F.FAMILY_AGE, F.FAMILY_NM
+		FROM MEMBER M
+		INNER JOIN ACNT_STTS A ON M.ACNT_STTS_CD = A.ACNT_STTS_CD
+		LEFT JOIN FAMILY F ON M.MEM_ID = F.MEM_ID
+		WHERE M.MEM_ID = #{memId}
+	</select>
+
+	<!-- 회원 상태정보 불러오기 -->
+	<select id="selectAcntStts" resultType="AcntSttsVO">
+		SELECT ACNT_STTS_CD, ACNT_STTS_NM
+		FROM   ACNT_STTS
+		WHERE  USE_YN = 'Y'
+		AND    ACNT_STTS_CD != 'ACCT04'
+	</select>
+
+	<!-- 회원 정보 수정하기 -->
+	<update id="editMemInfo" parameterType="memberVO">
+		UPDATE MEMBER
+		SET	  ACNT_STTS_CD = #{acntSttsCd}
+			, MEM_NM = #{memNm}
+			, MEM_BRTHDY = #{memBrthdy}
+			, SEX_DSTN = #{sexDstn}
+			, PHONE_NO =  #{phoneNo}
+			, TEL_NO = #{telNo}
+			, EMAIL = #{email}
+			, MEM_IMG = #{memImg}
+			, MEM_INTRST = #{memIntrst}
+		WHERE MEM_ID = #{memId}
+	</update>
+
+	<!-- 특정 회원 삭제하기(비활성화, 탈퇴처리) -->
+	<update id="deleteMem" parameterType="memberVO">
+		UPDATE MEMBER
+		SET    ACNT_STTS_CD = 'ACCT03'
+		WHERE  MEM_ID = #{memId}
+	</update>
+
+	<!-- 승인대기중인 회원 승인하기 -->
+	<update id="approvalMem" parameterType="memberVO">
+		UPDATE MEMBER
+		SET    ACNT_STTS_CD = 'ACCT02'
+		WHERE  MEM_ID = #{memId}
+	</update>
+
+	<!-- 승인대기중인 회원 완전 삭제하기 -->
+	<delete id="approvalMemDelete" parameterType="memberVO">
+		DELETE FROM MEMBER
+		WHERE  MEM_ID = #{memId}
+		AND    ACNT_STTS_CD = 'ACCT01'
+	</delete>
+
+
+	<!-- 회원/직원 로그인 -->
+	<!-- <select id="detailMember" parameterType="memberVO" resultMap="memberMap">
+		SELECT A.MEM_ID, A.MEM_NM, A.PASSWORD, A.ACNT_STTS_CD, A.HSHLD_INFO_NO, MEM_IMG
+		     , B.AUTHRT_CD
+		FROM   (SELECT T.*
+				FROM   (SELECT MEM_ID,MEM_NM, PASSWORD, ACNT_STTS_CD, HSHLD_INFO_NO, MEM_IMG
+						FROM MEMBER
+						WHERE ACNT_STTS_CD NOT IN('ACCT01','ACCT03')
+						UNION ALL
+						SELECT EMP_ID, EMP_NM, PASSWORD, JBGD_CD, DEPT_CD, EMP_IMG
+						FROM EMP
+						WHERE JNCMP_YMD = RSGNTN_YMD) T
+        		WHERE T.MEM_ID = #{memId}) A, AUTHORITIES B
+		WHERE  A.MEM_ID = B.USER_ID(+)
+	</select> -->
+</mapper>

@@ -1,0 +1,12 @@
+package kr.or.ddit.mapper;
+
+import java.util.List;
+
+import kr.or.ddit.vo.ReviewVO;
+import kr.or.ddit.vo.RstrntVO;
+
+public interface ReviewMapper {
+	public List<ReviewVO> selectReviewsByRstrntId(RstrntVO rstrntVO);
+
+	public int insertReview(ReviewVO reviewVO);
+}

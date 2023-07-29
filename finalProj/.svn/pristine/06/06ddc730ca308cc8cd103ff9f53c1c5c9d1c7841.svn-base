@@ -1,0 +1,63 @@
+package kr.or.ddit.mem.cmnt.secondhand;
+
+import java.util.List;
+import java.util.Map;
+
+import javax.inject.Inject;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import kr.or.ddit.mapper.ScndhdBbsMapper;
+import kr.or.ddit.vo.ScndhdBbsVO;
+import kr.or.ddit.vo.ScndhdRecomVO;
+
+@Service
+public class ScndhsBbsServiceImpl implements ScndhdBbsService{
+
+	@Autowired
+	ScndhdBbsMapper scndhdBbsMapper;
+
+
+	@Override
+	public List<ScndhdBbsVO> selectAll(Map<String, String> map) {
+		return this.scndhdBbsMapper.selectAll(map);
+	}
+
+	@Override
+	public int getTotal(Map<String, String> map) {
+		return this.scndhdBbsMapper.getTotal(map);
+	}
+
+	@Override
+	public int registerPost(ScndhdBbsVO scndhdBbsVO) {
+		return this.scndhdBbsMapper.registerPost(scndhdBbsVO);
+	}
+
+	@Override
+	public int updatePost(ScndhdBbsVO scndhdBbsVO) {
+		return this.scndhdBbsMapper.updatePost(scndhdBbsVO);
+	}
+
+	@Override
+	public int deletePost(ScndhdBbsVO scndhdBbsVO) {
+		return this.scndhdBbsMapper.deletePost(scndhdBbsVO);
+	}
+
+	@Override
+	public List<ScndhdBbsVO> imageList(){
+		return this.scndhdBbsMapper.imageList();
+	}
+
+	@Override
+	public ScndhdBbsVO selectOne(ScndhdBbsVO cndhdBbsVO) {
+		return this.scndhdBbsMapper.selectOne(cndhdBbsVO);
+	}
+
+	@Override
+	public ScndhdRecomVO selectRecomList(String memId) {
+		return this.scndhdBbsMapper.selectRecomList(memId);
+	}
+
+
+}

@@ -1,0 +1,19 @@
+package kr.or.ddit.vo;
+
+import lombok.Data;
+
+@Data
+public class DclzVO {
+	private int dclzNo;
+	private String empId;
+	private String fsrtWritingTm;
+	private String frstWrterId;
+	private String dclzYmd;
+	private String wrkotsdYn;
+	private String attentTm;
+	private String lvffcTm;
+	private String dclzRsn;
+	private String lastUpdtTm;
+	private String lastUpdusrId;
+	private String delYn;
+}

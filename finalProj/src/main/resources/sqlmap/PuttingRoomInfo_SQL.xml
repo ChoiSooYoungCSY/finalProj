@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.ddit.mapper.PuttingRoomInfoMapper">
+
+	<!-- 좌석 번호  -->
+	<select id="selectRoom" parameterType="puttingRoomInfoVO" resultType="puttingRoomInfoVO">
+    SELECT
+        ROOM_NO,
+        USE_YN
+    FROM
+        PUTTING_ROOM_INFO
+	</select>
+
+	<!-- 독서실 예약 가능한 자리 -->
+	<select id="useRoom" resultType="puttingRoomInfoVO">
+    SELECT
+		ROOM_NO, USE_YN
+	FROM
+		PUTTING_ROOM_INFO
+    WHERE
+    	USE_YN = 'N'
+	</select>
+
+	<!-- 예약시 사용여부가 Y 사용중으로 변경 -->
+	<update id="useRoomUpdate" parameterType="puttingRoomInfoVO">
+    UPDATE PUTTING_ROOM_INFO
+    SET
+       USE_YN = 'Y'
+    WHERE
+       ROOM_NO = #{roomNo}
+	</update>
+
+</mapper>

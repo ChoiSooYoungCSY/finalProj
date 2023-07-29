@@ -1,0 +1,66 @@
+package kr.or.ddit.mem.mypg;
+
+
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import kr.or.ddit.vo.MemberVO;
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
+@RequestMapping("/mem/mypg")
+@Controller
+public class MypageController {
+
+	@Autowired
+	MapageService memberService;
+
+	//마이홈
+	@GetMapping("/myhome")
+	public String myHome() {
+		log.info("myhome : 마이홈");
+
+		return "mem/mem_mypg_myhome";
+	}
+
+	//개인정보 수정
+	@GetMapping("/personalInfo")
+	public String personalInfo() {
+		log.info("personalInfo : 개인정보 수정");
+
+		return "mem/mem_mypg_personalInfo";
+	}
+
+
+	//개인정보 수정-인증
+	@ResponseBody
+	@PostMapping("/personalInfoAuth")
+	public String personalInfoAuth(@RequestBody MemberVO memberVO) {
+		log.info("personalInfoAuth : 개인정보 수정 - 인증");
+
+		memberVO = this.memberService.passwordConfirm(memberVO);
+
+		if (memberVO == null) {
+			return "fail";
+		}
+		return "success";
+	}
+
+	//개인정보 수정 화면
+	@GetMapping("/personalInfoAuth")
+	public String personalInfoAuth() {
+		log.info("personalInfoAuth : 개인정보 수정 - 인증");
+
+
+		return "mem/mem_mypg_personalInfo_auth";
+	}
+
+
+
+}

@@ -1,0 +1,21 @@
+package kr.or.ddit.mapper;
+
+import java.util.List;
+import java.util.Map;
+
+import kr.or.ddit.vo.BookVO;
+
+public interface BookMapper {
+
+	// 책 목록 불러오기
+	public List<BookVO> list();
+
+	// 전체 글 개수
+	public int getTotal(Map<String, String> map);
+
+	public List<BookVO> list(Map<String, String> map);
+
+
+
+
+}

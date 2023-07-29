@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.ddit.mapper.AtchmnflMapper">
+	<insert id="registerAtchDetail" parameterType="atchmnflDetailVO">
+		INSERT INTO ATCHMNFL_DETAIL (
+		ATCHMNFL_NO,
+		ATCHMNFL_ID,
+		FRST_WRTER_TM,
+		FRST_WRTER_ID,
+		FLPTH,
+		STRE_FL_NM,
+		ATCHMNFL_SIZE,
+		ATCHMNFL_TY,
+		ORGINL_ATCHMNFL_NM,
+		LAST_UPDUSR_ID,
+		LAST_UPDT_TM,
+		DEL_YN
+		) VALUES (
+		(SELECT NVL(MAX(ATCHMNFL_NO), 0) + 1 FROM ATCHMNFL_DETAIL),
+		(SELECT MAX(ATCHMNFL_ID) FROM ATCHMNFL),
+		TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS'),
+		#{frstWrterId},
+		#{flpth},
+		#{streFlNm},
+		#{atchmnflSize},
+		#{atchmnflTy},
+		#{orginlAtchmnflNm},
+		#{lastUpdusrId},
+		TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS'),
+		'N'
+		)
+
+	</insert>
+	<select id="maxAtchId" resultType="atchmnflVO">
+		SELECT
+		MAX(ATCHMNFL_ID) AS ATCHMNFL_ID
+		FROM
+		ATCHMNFL
+	</select>
+
+	<insert id="registerAtch" parameterType="atchmnflVO">
+		INSERT INTO ATCHMNFL(
+		ATCHMNFL_ID,
+		FRST_WRTER_ID,
+		FRST_WRTER_TM,
+		DEL_YN,
+		LAST_UPDUSR_ID,
+		LAST_UPDT_TM
+		) VALUES (
+		(SELECT 'ATT' || LPAD(MAX(SUBSTR(ATCHMNFL_ID, 4)) + 1, 6, '0') FROM ATCHMNFL),
+		#{frstWrterId},
+		TO_CHAR(SYSDATE, 'yyyymmddhh24miss'),
+		'N',
+		#{lastUpdusrId},
+		TO_CHAR(SYSDATE, 'yyyymmddhh24miss')
+		)
+	</insert>
+</mapper>

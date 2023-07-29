@@ -1,0 +1,153 @@
+package kr.or.ddit.emp.email;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
+import java.util.UUID;
+
+import javax.inject.Inject;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
+import kr.or.ddit.mapper.AtchmnflDetailMapper;
+import kr.or.ddit.mapper.AtchmnflMapper;
+import kr.or.ddit.mapper.EmailMapper;
+import kr.or.ddit.util.CommonFile;
+import kr.or.ddit.vo.AtchmnflDetailVO;
+import kr.or.ddit.vo.AtchmnflVO;
+import kr.or.ddit.vo.EmailVO;
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
+@Service
+public class EmailServiceImpl implements EmailService {
+
+	@Inject
+	AtchmnflMapper atchmnflMapper;
+	@Inject
+	EmailMapper emailMapper;
+
+	@Inject
+	AtchmnflDetailMapper atchmnflDetailMapper;
+
+	@Transactional
+	@Override
+	public int sendEmail(EmailVO emailVO) {
+		MultipartFile[] attachFiles = emailVO.getAttachFiles();
+
+		String writer = emailVO.getFrstWrterId();
+		emailVO.setLastUpdusrId(writer);
+		AtchmnflVO atchmnflVO = new AtchmnflVO();
+		atchmnflVO.setFrstWrterId(writer);
+		atchmnflVO.setLastUpdusrId(writer);
+
+		int cnt = atchmnflMapper.registerAtch(atchmnflVO);
+		if(cnt == 1) {
+			AtchmnflVO maxAtchId = atchmnflMapper.maxAtchId();
+			emailVO.setAtchmnflId(maxAtchId.getAtchmnflId());
+			String uploadFileName = "";
+			try {
+		        File uploadPath = new File(CommonFile.uploadFolder, CommonFile.getFolder()); // upload/2023/07/03
+
+	        if (!uploadPath.exists()) {
+	        	uploadPath.mkdirs();
+	        }
+
+		        for (MultipartFile attachFile : attachFiles) {
+					AtchmnflDetailVO attachDetail = new AtchmnflDetailVO();
+					attachDetail.setFrstWrterId(emailVO.getFrstWrterId());
+					attachDetail.setLastUpdusrId(emailVO.getLastUpdusrId());
+					attachDetail.setAtchmnflTy(attachFile.getContentType());
+					attachDetail.setOrginlAtchmnflNm(attachFile.getOriginalFilename());
+					attachDetail.setAtchmnflSize((int) attachFile.getSize());
+
+					uploadFileName = attachFile.getOriginalFilename();
+					// =================== UUDI 처리 시작 =======================
+					UUID uuid = UUID.randomUUID();
+					uploadFileName = uuid.toString() + "_" + uploadFileName;
+					// ==================== UUDI 처리 끝 ========================
+					// 설계
+					File saveFile = new File(uploadPath, uploadFileName);
+					// 복사 실행
+					attachFile.transferTo(saveFile);
+
+					String filepath = CommonFile.getFolder().replace("upload", "");
+					// 2023/05/24/asdfasdf_P1237.jpg
+					attachDetail.setFlpth("/" + filepath.replace("\\", "/"));
+					// 2023/05/05+/+"{setStreFlNm}"
+					attachDetail.setStreFlNm(uploadFileName);
+
+					//N
+					this.atchmnflMapper.registerAtchDetail(attachDetail);
+				}//end for
+
+
+		    } catch (IllegalStateException | IOException e) {
+		    	e.printStackTrace();
+		    	return 0;
+			}
+		}
+		return this.emailMapper.sendEmail(emailVO);
+	}
+
+	@Override
+	public List<EmailVO> selectEmailSendList(String frstWrterId) {
+		return this.emailMapper.selectEmailSendList(frstWrterId);
+	}
+
+	@Override
+	public List<EmailVO> selectEmailReceiveList(String email) {
+		return this.emailMapper.selectEmailReceiveList(email);
+	}
+
+	@Override
+	public int readUpdateEmail(List<String> checkEmailList) {
+		int cnt = 0;
+		for (String check : checkEmailList) {
+			cnt += this.emailMapper.readUpdateEmail(check);
+
+		}
+		return cnt;
+	}
+
+	@Override
+	public int delUpdateEmail(List<String> checkEmailList) {
+		int cnt = 0;
+		for (String check : checkEmailList) {
+			cnt += this.emailMapper.delUpdateEmail(check);
+
+		}
+		return cnt;
+	}
+
+	@Override
+	public int favoriteUpdateEmail(EmailVO emailVO) {
+
+		return this.emailMapper.favoriteUpdateEmail(emailVO);
+	}
+	@Override
+	public int favoritesClear(EmailVO emailVO) {
+
+		return this.emailMapper.favoritesClear(emailVO);
+	}
+
+	@Override
+	public EmailVO emailDetail(EmailVO emailVO) {
+		emailVO = this.emailMapper.emailDetail(emailVO);
+		String atchmnflId = emailVO.getAtchmnflId();
+		AtchmnflDetailVO atchmnflDetailVO = new AtchmnflDetailVO();
+		atchmnflDetailVO.setAtchmnflId(atchmnflId);
+
+		return emailVO;
+	}
+
+	@Override
+	public List<AtchmnflDetailVO> attachDetail(AtchmnflDetailVO atchmnflDetailVO) {
+		return this.atchmnflDetailMapper.attachDetail(atchmnflDetailVO);
+	}
+
+
+
+}

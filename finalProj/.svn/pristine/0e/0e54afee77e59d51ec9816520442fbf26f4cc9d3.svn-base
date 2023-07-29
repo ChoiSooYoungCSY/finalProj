@@ -1,0 +1,41 @@
+package kr.or.ddit.mapper;
+
+import java.util.List;
+import java.util.Map;
+
+import kr.or.ddit.vo.AtchmnflDetailVO;
+import kr.or.ddit.vo.AtchmnflVO;
+import kr.or.ddit.vo.ScndhdBbsVO;
+import kr.or.ddit.vo.ScndhdRecomVO;
+
+public interface ScndhdBbsMapper {
+
+
+	public List<ScndhdBbsVO> selectAll(Map<String, String> map);
+
+	public int getTotal(Map<String, String> map);
+
+	public int registerPost(ScndhdBbsVO scndhdBbsVO);
+
+	public int registerAtch(AtchmnflVO atchmnflVO);
+
+	public int registerAtchDetail(AtchmnflDetailVO atchmnflVO);
+
+	public int updatePost(ScndhdBbsVO scndhdBbsVO);
+
+	public int deletePost(ScndhdBbsVO scndhdBbsVO);
+
+	public List<ScndhdBbsVO> imageList();
+
+	public ScndhdBbsVO selectOne(ScndhdBbsVO scndhdBbsVO);
+
+	public ScndhdRecomVO selectRecomList(String memId);
+
+	public AtchmnflVO maxAtchId();
+
+	public int thirdUpdatePost(AtchmnflDetailVO atchmnflDetailVO);
+
+	public boolean plusCnt(ScndhdBbsVO cndhdBbsVO);
+
+
+}

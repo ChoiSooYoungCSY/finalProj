@@ -1,0 +1,107 @@
+package kr.or.ddit.mem.memaidoran;
+
+import java.security.Principal;
+import java.util.List;
+import java.util.Map;
+
+import javax.inject.Inject;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import kr.or.ddit.vo.BookRecomVO;
+import kr.or.ddit.vo.ReviewVO;
+import kr.or.ddit.vo.RstrntRecomVO;
+import kr.or.ddit.vo.RstrntVO;
+import kr.or.ddit.vo.ScndhdBbsVO;
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
+@RequestMapping("/mem/ai/doran")
+@Controller
+public class MemAIDoranController {
+
+	@Inject
+	MemAIDoranService memAIDoranService;
+
+
+	// AI도란
+	@GetMapping("")
+	public String aiDoran(Model model, Principal principal) {
+		String memId = principal.getName();
+		//식당 추천 데이터
+		RstrntVO rstrntVO1 = this.memAIDoranService.rstrntCount();
+		List<RstrntVO> rstrntVOList1 = this.memAIDoranService.rstrntCntBySe();
+
+		RstrntVO rstrntVO2 = this.memAIDoranService.rstrntReviewCnt();
+		List<RstrntVO> rstrntVOList2 = this.memAIDoranService.bestReviewCntRstrnt();
+
+		RstrntRecomVO rstrntRecomVO = new RstrntRecomVO();
+		rstrntRecomVO.setMemId(memId);
+		List<RstrntVO> rstrntRecomList = this.memAIDoranService.selectRecomBymemID(rstrntRecomVO);
+
+		List<ScndhdBbsVO> scndhdRecomList = this.memAIDoranService.selectRecomList(memId);
+
+		// AI 도서추천 화면 구현 처리
+		BookRecomVO bookRecomVO = new BookRecomVO();
+		bookRecomVO.setMemId(memId);
+
+		List<Map<String, Object>> bookRecomList = this.memAIDoranService.list(bookRecomVO);
+
+		log.info("rstrntVO1: "+rstrntVO1);
+		log.info("rstrntVO2: "+rstrntVO2);
+		log.info("rstrntVOList1: "+rstrntVOList1);
+		log.info("rstrntVOList2: "+rstrntVOList2);
+		log.info("rstrntRecomVO: "+rstrntRecomVO);
+		log.info("bookRecomList: " + bookRecomList);
+
+
+		ObjectMapper objectMApper = new ObjectMapper();
+		try {
+			String rstrntCount = objectMApper.writeValueAsString(rstrntVO1);
+			model.addAttribute("rstrntCount", rstrntCount);
+
+			String rstrntCntBySe = objectMApper.writeValueAsString(rstrntVOList1);
+			model.addAttribute("rstrntCntBySe", rstrntCntBySe);
+
+
+			String rstrntReviewCnt = objectMApper.writeValueAsString(rstrntVO2);
+			model.addAttribute("rstrntReviewCnt", rstrntReviewCnt);
+
+			String bestReviewCntRstrnt = objectMApper.writeValueAsString(rstrntVOList2);
+			model.addAttribute("bestReviewCntRstrnt", bestReviewCntRstrnt);
+
+
+			String rstrntRecom = objectMApper.writeValueAsString(rstrntRecomList);
+			model.addAttribute("rstrntRecom", rstrntRecom);
+
+			String scndhdRecom = objectMApper.writeValueAsString(scndhdRecomList);
+			model.addAttribute("scndhdRecom", scndhdRecom);
+
+			String bookRecom = objectMApper.writeValueAsString(bookRecomList);
+			model.addAttribute("bookRecom", bookRecom);
+
+		} catch (Exception e) {
+			log.error("json변환중 에러 발생" + e.getMessage());
+		}
+
+		log.info("aiDoran");
+		return "mem/mem_ai_doran";
+	}
+
+	@ResponseBody
+	@GetMapping("/recomDetail")
+	public List<ReviewVO> recomDetail(@RequestParam String rstrntId) {
+		log.info("recomDetail :"+rstrntId);
+		return this.memAIDoranService.selectReviewCountByGender(rstrntId);
+	}
+
+
+
+}
